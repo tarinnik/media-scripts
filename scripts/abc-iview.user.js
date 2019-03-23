@@ -17,7 +17,7 @@ onkeydown = onkeyup = function(e){
     window.location = "https://iview.abc.net.au/your/recents";
   }
   // CTRL + ALT + P - Play main video
-  else if (map[17] && map[18] && map[80]) {
+  else if (map[17] && map[18] && map[87]) {
    document.getElementsByClassName("iv-1yw_p")[0].click();
   }
   // CTRL + ALT + F - Fullscreen
