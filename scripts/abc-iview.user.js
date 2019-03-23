@@ -1,8 +1,9 @@
 // ==UserScript==
-// @name     ABC iview
-// @version  1
-// @include  https://iview.abc.net.au/*
-// @grant    none
+// @name     	ABC iview
+// @namespace 	https://tarinnik.github.io/gmscripts
+// @version  	1
+// @include  	https://iview.abc.net.au/*
+// @grant    	none
 // ==/UserScript==
 
 
