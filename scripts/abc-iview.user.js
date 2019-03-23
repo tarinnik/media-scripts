@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name     	ABC iview
 // @namespace 	https://tarinnik.github.io/gmscripts
-// @version  	1
+// @version  	1.0.1
 // @include  	https://iview.abc.net.au/*
 // @grant    	none
 // ==/UserScript==
@@ -16,7 +16,7 @@ onkeydown = onkeyup = function(e){
   if (map[17] && map[18] && map[82]) {
     window.location = "https://iview.abc.net.au/your/recents";
   }
-  // CTRL + ALT + P - Play main video
+  // CTRL + ALT + W - Play main video
   else if (map[17] && map[18] && map[87]) {
    document.getElementsByClassName("iv-1yw_p")[0].click();
   }
