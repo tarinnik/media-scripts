@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name     	Youtube Emebeded Video Redirect
-// @namespace	https://tarinnik.github.io
-// @version  	1
+// @namespace	https://tarinnik.github.io/gmscripts
+// @version  	1.0.1
 // @include	https://www.youtube.com/embed/*
 // @grant    	none
 // ==/UserScript==
