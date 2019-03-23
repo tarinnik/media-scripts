@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name     	Instagram Image Viewer
+// @name     	Instagram 
 // @namespace	https://tarinnik.github.io/gmscripts
 // @version  	1.0.1
 // @include	https://www.instagram.com/p/*
