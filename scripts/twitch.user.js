@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name     	Twitch
-// @namespace	https://tarinnik.github.io/gmscripts
+// @namespace	tarinnik.github.io/gmscripts
 // @version  	1
 // @include  	https://www.twitch.tv/*
 // @grant    	none

@@ -1,6 +1,6 @@
 // ==UserScript==
-// @name     	Instagram 
-// @namespace	https://tarinnik.github.io/gmscripts
+// @name     	Instagram
+// @namespace	tarinnik.github.io/gmscripts
 // @version  	1.0.1
 // @include	https://www.instagram.com/p/*
 // @grant    	none

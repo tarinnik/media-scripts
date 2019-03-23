@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name     	Youtube
-// @namespace	https://tarinnik.github.io/gmscripts
+// @namespace	tarinnik.github.io/gmscripts
 // @version  	1.0.1
 // @include	https://www.youtube.com/embed/*
 // @grant    	none
