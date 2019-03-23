@@ -1,7 +1,9 @@
 // ==UserScript==
-// @name     Youtube Emebeded Video Redirect
-// @version  1
-// @grant    none
+// @name     	Youtube Emebeded Video Redirect
+// @namespace	https://tarinnik.github.io
+// @version  	1
+// @include	https://www.youtube.com/embed/*
+// @grant    	none
 // ==/UserScript==
 
 // Add the following domain to the 'User Includes' section in the settings for this script:

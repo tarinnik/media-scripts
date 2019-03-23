@@ -1,7 +1,9 @@
 // ==UserScript==
-// @name     Instagram Image Viewer
-// @version  1
-// @grant    none
+// @name     	Instagram Image Viewer
+// @namespace	https://tarinnik.github.io
+// @version  	1.0.1
+// @include	https://www.instagram.com/p/*
+// @grant    	none
 // ==/UserScript==
 
 // Add the following domamin to the 'User Includes' section in the settings for this script:
