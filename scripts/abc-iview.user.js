@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name     	ABC iview
 // @namespace 	tarinnik.github.io/gmscripts
-// @version  	2
+// @version  	2.0.1
 // @include  	https://iview.abc.net.au/*
 // @icon		https://iview.abc.net.au/favicon.ico
 // @grant    	none
@@ -85,7 +85,7 @@ onkeydown = onkeyup = function(e){
 
 	// CTRL + ALT + S - Select highlighted video
 	else if (map[17] && map[18] && map[83]) {
-		var link = document.getElementsByClassName("iv-1AY7n iv-3RSim iv-2U3lE")[video_select-1].innerHTML.split('"')[1];
+		var link = document.getElementsByClassName("iv-1AY7n iv-3RSim iv-2U3lE")[video_select].innerHTML.split('"')[1];
 		var finalURL = "https://iview.abc.net.au" + link;
 		window.location = finalURL;
 	}
