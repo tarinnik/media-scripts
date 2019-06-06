@@ -1,9 +1,8 @@
 // ==UserScript==
 // @name     	Instagram
-// @namespace	tarinnik.github.io/gmscripts
-// @version  	1.0.1
-// @include	https://www.instagram.com/p/*
-// @grant    	none
+// @namespace	tarinnik.gitlab.io/gmscripts
+// @version  	1.0.2
+// @include		https://www.instagram.com/p/*
 // ==/UserScript==
 
 // Add the following domamin to the 'User Includes' section in the settings for this script:

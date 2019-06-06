@@ -1,10 +1,9 @@
 // ==UserScript==
 // @name     	ABC iview
-// @namespace 	tarinnik.github.io/gmscripts
-// @version  	2.0.1
+// @namespace 	tarinnik.gitlab.io/gmscripts
+// @version  	2.0.2
 // @include  	https://iview.abc.net.au/*
 // @icon		https://iview.abc.net.au/favicon.ico
-// @grant    	none
 // ==/UserScript==
 
 if (typeof video_select === 'undefined') {
