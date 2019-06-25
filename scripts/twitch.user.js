@@ -3,7 +3,7 @@
 // @namespace	tarinnik.gitlab.io/gmscripts
 // @version  	1
 // @include  	https://www.twitch.tv/*
-// @grant    	none
+// @icon 		https://twitch.tv/favicon.ico
 // ==/UserScript==
 
 
