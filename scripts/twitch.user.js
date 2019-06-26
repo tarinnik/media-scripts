@@ -1,9 +1,9 @@
 // ==UserScript==
-// @name 		Twitch
+// @name 	Twitch
 // @namespace 	tarinnik.gitlab.io/gmscripts
-// @version 	1.2
+// @version 	1.3
 // @include 	https://www.twitch.tv/*
-// @icon 		https://twitch.tv/favicon.ico
+// @icon 	https://twitch.tv/favicon.ico
 // ==/UserScript==
 
 if (typeof video_select === 'undefined') {
@@ -22,6 +22,20 @@ function fullscreen() {
 	document.getElementsByClassName("player-button qa-fullscreen-button pl-mg-r-1 pl-button__fullscreen--tooltip-left")[0].click();
 }
 
+//Recent videos for streamer
+function recents() {
+	var url = window.location.href;
+
+	if (url == "https://www.twitch.tv/") {
+		window.location = "https://twitch.tv/xqcow/videos?filter=archives&sort=time";
+	}
+
+	else {
+		var splitting = url.split("/", 4);
+		window.location = "https://twitch.tv/" + splitting[3] + "/videos?filter=archives&sort=time";
+	}
+}
+
 // Key mappings
 var map = {};
 onkeydown = onkeyup = function(e){
@@ -35,6 +49,11 @@ onkeydown = onkeyup = function(e){
 	// CTRL + ALT + F - Fullscreen
 	if (map[17] && map[18] && map[70]) {
 		fullscreen();
+	}
+
+	// CTRL + ALT + R - Recent videos
+	if (map[17] && map[18] && map[82]) {
+		recents();
 	}
 
 	// CTRL + ALT + N - Highlight next video/streamer
