@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name 		Twitch
 // @namespace 	tarinnik.gitlab.io/gmscripts
-// @version 	1.1.2
+// @version 	1.2
 // @include 	https://www.twitch.tv/*
 // @icon 		https://twitch.tv/favicon.ico
 // ==/UserScript==
@@ -66,7 +66,25 @@ onkeydown = onkeyup = function(e){
 
 		//Streamers
 		else {
-			//document.getElementsByClassName("tw-transition tw-transition--duration-medium tw-transition--enter-done tw-transition__scale-over tw-transition__scale-over--enter-done");
+			//If it's the first video
+			if (video_select == -1) {
+				video_select++;
+				document.getElementsByClassName("tw-transition tw-transition--duration-medium tw-transition--enter-done tw-transition__scale-over tw-transition__scale-over--enter-done")[video_select].getElementsByClassName("side-nav-card tw-align-items-center tw-flex tw-relative")[0].getElementsByClassName("side-nav-card__link tw-align-items-center tw-flex tw-flex-nowrap tw-full-width tw-interactive tw-link tw-link--hover-underline-none tw-pd-x-1 tw-pd-y-05")[0].setAttribute("style", selectionColour);
+			}
+
+			//If it's the last video
+			else if (video_select >= document.getElementsByClassName("tw-transition tw-transition--duration-medium tw-transition--enter-done tw-transition__scale-over tw-transition__scale-over--enter-done").length-1 ) {
+				document.getElementsByClassName("tw-transition tw-transition--duration-medium tw-transition--enter-done tw-transition__scale-over tw-transition__scale-over--enter-done")[0].getElementsByClassName("side-nav-card tw-align-items-center tw-flex tw-relative")[0].getElementsByClassName("side-nav-card__link tw-align-items-center tw-flex tw-flex-nowrap tw-full-width tw-interactive tw-link tw-link--hover-underline-none tw-pd-x-1 tw-pd-y-05")[0].setAttribute("style", selectionColour);
+				document.getElementsByClassName("tw-transition tw-transition--duration-medium tw-transition--enter-done tw-transition__scale-over tw-transition__scale-over--enter-done")[video_select].getElementsByClassName("side-nav-card tw-align-items-center tw-flex tw-relative")[0].getElementsByClassName("side-nav-card__link tw-align-items-center tw-flex tw-flex-nowrap tw-full-width tw-interactive tw-link tw-link--hover-underline-none tw-pd-x-1 tw-pd-y-05")[0].removeAttribute("style");
+				video_select = 0;
+			}
+
+			//If it's anything else
+			else {
+				video_select++;
+				document.getElementsByClassName("tw-transition tw-transition--duration-medium tw-transition--enter-done tw-transition__scale-over tw-transition__scale-over--enter-done")[video_select].getElementsByClassName("side-nav-card tw-align-items-center tw-flex tw-relative")[0].getElementsByClassName("side-nav-card__link tw-align-items-center tw-flex tw-flex-nowrap tw-full-width tw-interactive tw-link tw-link--hover-underline-none tw-pd-x-1 tw-pd-y-05")[0].setAttribute("style", selectionColour);
+				document.getElementsByClassName("tw-transition tw-transition--duration-medium tw-transition--enter-done tw-transition__scale-over tw-transition__scale-over--enter-done")[video_select-1].getElementsByClassName("side-nav-card tw-align-items-center tw-flex tw-relative")[0].getElementsByClassName("side-nav-card__link tw-align-items-center tw-flex tw-flex-nowrap tw-full-width tw-interactive tw-link tw-link--hover-underline-none tw-pd-x-1 tw-pd-y-05")[0].removeAttribute("style");
+			}
 		}
 	}
 
@@ -94,7 +112,20 @@ onkeydown = onkeyup = function(e){
 
 		//Streamers
 		else {
-			console.log("Streamers");
+			var length = document.getElementsByClassName("tw-transition tw-transition--duration-medium tw-transition--enter-done tw-transition__scale-over tw-transition__scale-over--enter-done").length;
+
+			//If it's the first video
+			if (video_select == 0 || video_select == -1) {
+				document.getElementsByClassName("tw-transition tw-transition--duration-medium tw-transition--enter-done tw-transition__scale-over tw-transition__scale-over--enter-done")[length-1].getElementsByClassName("side-nav-card tw-align-items-center tw-flex tw-relative")[0].getElementsByClassName("side-nav-card__link tw-align-items-center tw-flex tw-flex-nowrap tw-full-width tw-interactive tw-link tw-link--hover-underline-none tw-pd-x-1 tw-pd-y-05")[0].setAttribute("style", selectionColour);
+				document.getElementsByClassName("tw-transition tw-transition--duration-medium tw-transition--enter-done tw-transition__scale-over tw-transition__scale-over--enter-done")[0].getElementsByClassName("side-nav-card tw-align-items-center tw-flex tw-relative")[0].getElementsByClassName("side-nav-card__link tw-align-items-center tw-flex tw-flex-nowrap tw-full-width tw-interactive tw-link tw-link--hover-underline-none tw-pd-x-1 tw-pd-y-05")[0].removeAttribute("style");
+				video_select = length-1;
+			}
+
+			else {
+				video_select--;
+				document.getElementsByClassName("tw-transition tw-transition--duration-medium tw-transition--enter-done tw-transition__scale-over tw-transition__scale-over--enter-done")[video_select].getElementsByClassName("side-nav-card tw-align-items-center tw-flex tw-relative")[0].getElementsByClassName("side-nav-card__link tw-align-items-center tw-flex tw-flex-nowrap tw-full-width tw-interactive tw-link tw-link--hover-underline-none tw-pd-x-1 tw-pd-y-05")[0].setAttribute("style", selectionColour);
+				document.getElementsByClassName("tw-transition tw-transition--duration-medium tw-transition--enter-done tw-transition__scale-over tw-transition__scale-over--enter-done")[video_select+1].getElementsByClassName("side-nav-card tw-align-items-center tw-flex tw-relative")[0].getElementsByClassName("side-nav-card__link tw-align-items-center tw-flex tw-flex-nowrap tw-full-width tw-interactive tw-link tw-link--hover-underline-none tw-pd-x-1 tw-pd-y-05")[0].removeAttribute("style");
+			}
 		}
 	}
 
@@ -107,7 +138,7 @@ onkeydown = onkeyup = function(e){
 
 		//Streamers
 		else {
-			console.log("Streamers");
+			document.getElementsByClassName("tw-transition tw-transition--duration-medium tw-transition--enter-done tw-transition__scale-over tw-transition__scale-over--enter-done")[video_select].getElementsByClassName("side-nav-card tw-align-items-center tw-flex tw-relative")[0].getElementsByClassName("side-nav-card__link tw-align-items-center tw-flex tw-flex-nowrap tw-full-width tw-interactive tw-link tw-link--hover-underline-none tw-pd-x-1 tw-pd-y-05")[0].click();
 		}
 	}
 
