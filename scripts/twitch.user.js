@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name 		Twitch
 // @namespace 	tarinnik.gitlab.io/gmscripts
-// @version 	1.1
+// @version 	1.1.1
 // @include 	https://www.twitch.tv/*
 // @icon 		https://twitch.tv/favicon.ico
 // ==/UserScript==
@@ -40,13 +40,8 @@ onkeydown = onkeyup = function(e){
 	// CTRL + ALT + N - Highlight next video/streamer
 	if (map[17] && map[18] && map[78]) {
 
-		//Streamers
-		if (window.location.href == "https://www.twitch.tv/*/videos*") {
-			console.log("Videos");
-		} 
-
 		//Videos
-		else {
+		if (window.location.href.includes("videos")) {
 			//If it's the first video
 			if (video_select == -1) {
 				video_select++;
@@ -70,17 +65,18 @@ onkeydown = onkeyup = function(e){
 
 			document.getElementsByClassName("tw-flex-wrap tw-tower tw-tower--300 tw-tower--gutter-sm")[0].getElementsByClassName("tw-mg-b-2")[0].getElementsByClassName("tw-interactive tw-link")	
 		}
+
+		//Streamers
+		else {
+			console.log("Streamers");
+		}
 	}
 
 	// CTRL + ALT + M - Highlight previous video/streamer
 	if (map[17] && map[18] && map[77]) {
-		//Streamers
-		if (window.location.href == "https://www.twitch.tv/*/videos*") {
-			console.log("Videos");
-		}
 
 		//Videos
-		else {
+		if (window.location.href.includes("videos")) {
 
 			var length = document.getElementsByClassName("tw-flex-wrap tw-tower tw-tower--300 tw-tower--gutter-sm")[0].getElementsByClassName("tw-mg-b-2").length;
 
@@ -97,18 +93,23 @@ onkeydown = onkeyup = function(e){
 				document.getElementsByClassName("tw-flex-wrap tw-tower tw-tower--300 tw-tower--gutter-sm")[0].getElementsByClassName("tw-mg-b-2")[video_select+1].removeAttribute("style");
 			}
 		}
+
+		//Streamers
+		else {
+			console.log("Streamers");
+		}
 	}
 
 	// CTRL + ALT + S - Select highlighted video
 	if (map[17] && map[18] && map[83]) {
-		//Streamers
-		if (window.location.href == "https://www.twitch.tv/*/videos*") {
-			console.log("Videos");
+		//Videos
+		if (window.location.href.includes("videos")) {
+			document.getElementsByClassName("tw-flex-wrap tw-tower tw-tower--300 tw-tower--gutter-sm")[0].getElementsByClassName("tw-mg-b-2")[video_select].getElementsByClassName("tw-interactive tw-link")[0].click();
 		}
 
-		//Videos
+		//Streamers
 		else {
-			document.getElementsByClassName("tw-flex-wrap tw-tower tw-tower--300 tw-tower--gutter-sm")[0].getElementsByClassName("tw-mg-b-2")[video_select].getElementsByClassName("tw-interactive tw-link")[0].click();
+			console.log("Streamers");
 		}
 	}
 
