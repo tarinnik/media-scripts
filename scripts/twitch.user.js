@@ -62,13 +62,11 @@ onkeydown = onkeyup = function(e){
 				document.getElementsByClassName("tw-flex-wrap tw-tower tw-tower--300 tw-tower--gutter-sm")[0].getElementsByClassName("tw-mg-b-2")[video_select-1].removeAttribute("style");
 			}
 
-
-			document.getElementsByClassName("tw-flex-wrap tw-tower tw-tower--300 tw-tower--gutter-sm")[0].getElementsByClassName("tw-mg-b-2")[0].getElementsByClassName("tw-interactive tw-link")	
 		}
 
 		//Streamers
 		else {
-			console.log("Streamers");
+			//document.getElementsByClassName("tw-transition tw-transition--duration-medium tw-transition--enter-done tw-transition__scale-over tw-transition__scale-over--enter-done");
 		}
 	}
 
