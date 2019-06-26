@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name 		Twitch
 // @namespace 	tarinnik.gitlab.io/gmscripts
-// @version 	1.1.1
+// @version 	1.1.2
 // @include 	https://www.twitch.tv/*
 // @icon 		https://twitch.tv/favicon.ico
 // ==/UserScript==
