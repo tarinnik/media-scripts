@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name 	Twitch
 // @namespace 	tarinnik.gitlab.io/gmscripts
-// @version 	1.4
+// @version 	1.4.1
 // @include 	https://www.twitch.tv/*
 // @icon 	https://twitch.tv/favicon.ico
 // ==/UserScript==
@@ -56,9 +56,9 @@ onkeydown = onkeyup = function(e){
 		recents();
 	}
 
-	// CTRL + ALT + O - Search
-	if (map[17] && map[18] && map[79]) {
-		document.getElementById("nav-search-input").focus();
+  // CTRL + ALT + O - Search
+  if (map[17] && map[18] && map[79]) {
+      document.getElementById("nav-search-input").focus();
 	}
 
 	// CTRL + ALT + N - Highlight next video/streamer
