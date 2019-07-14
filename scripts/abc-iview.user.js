@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name     	ABC iview
 // @namespace 	tarinnik.gitlab.io/gmscripts
-// @version  	2.1.1
+// @version  	2.1.2
 // @include		https://iview.abc.net.au/*
 // @icon		https://iview.abc.net.au/favicon.ico
 // ==/UserScript==
