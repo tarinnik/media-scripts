@@ -107,7 +107,11 @@ onkeydown = onkeyup = function(e){
 
 		else if (window.location.href.slice(0,30) == "https://iview.abc.net.au/show/") {
 			selectNext("iv-2Nzsw");
-			scroll(video_select, "iv-hsfpe", "iv-2Nzsw", 1);
+			if (document.getElementsByClassName("iv-hsfpe") === 'undefined') {
+				scroll(video_select, "iv-x90Qp", "iv-2Nzsw", 1);
+			} else {
+				scroll(video_select, "iv-hsfpe", "iv-2Nzsw", 1);
+			}
 		}
 
 
@@ -124,7 +128,11 @@ onkeydown = onkeyup = function(e){
 
 		else if(window.location.href.slice(0,30) == "https://iview.abc.net.au/show/") {
 			selectPrevious("iv-2Nzsw");
-			scroll(video_select, "iv-hsfpe", "iv-2Nzsw", 1);
+			if (document.getElementsByClassName("iv-hsfpe") === 'undefined') {
+				scroll(video_select, "iv-x90Qp", "iv-2Nzsw", 1);
+			} else {
+				scroll(video_select, "iv-hsfpe", "iv-2Nzsw", 1);
+			}
 		}
 	}
 
