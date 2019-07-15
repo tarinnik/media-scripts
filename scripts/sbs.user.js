@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name     	SBS
 // @namespace   tarinnik.gitlab.io/gmscripts
-// @version	    0.1
+// @version	    0.2
 // @include	    https://www.sbs.com.au/ondemand/*
 // ==/UserScript==
 
@@ -10,7 +10,7 @@ if (typeof video_select === 'undefined') {
 }
 
 // Background colour
-var selectionColour = "background:#fdaf2c";
+var selectionColour = "background:#6f521e";
 
 //Scroll when loading page
 if (window.location.href.slice(0,40) == "https://www.sbs.com.au/ondemand/program/") {
@@ -94,9 +94,11 @@ onkeydown = onkeyup = function(e){
 	        document.getElementsByClassName("icon icon--m icon--right rn-carousel-control rn-carousel-control-next animation-all")[0].click();
         }
 
+	    else if (window.location.href.slice(0,40) == "https://www.sbs.com.au/ondemand/program/") {
+            selectNext("episode__details");
+            scroll(video_select, "text lighter text--t2 latest-episode__detail__title", "episode__details", 1);
 
-
-
+        }
 	}
 
 	// CTRL + ALT + M - Highlight previous video
@@ -104,6 +106,11 @@ onkeydown = onkeyup = function(e){
 
 	    if (window.location.href == "https://www.sbs.com.au/ondemand/") {
 	        document.getElementsByClassName("icon icon--m icon--left rn-carousel-control rn-carousel-control-prev animation-all")[0].click();
+        }
+
+	    else if (window.location.href.slice(0,40) == "https://www.sbs.com.au/ondemand/program/") {
+            selectPrevious("episode__details");
+            scroll(video_select, "text lighter text--t2 latest-episode__detail__title", "episode__details", 1);
         }
 
 	}
@@ -116,6 +123,13 @@ onkeydown = onkeyup = function(e){
 	        document.getElementsByClassName("text lighter preview-hero__title")[0].getElementsByClassName("ng-binding")[0].click();
         }
 
+	    else if (window.location.href.slice(0,40) == "https://www.sbs.com.au/ondemand/program/") {
+            document.getElementsByClassName("episode__image")[video_select].getElementsByClassName("icon icon--play icon--xl icon--feature")[0].click();
+        }
+
+	    else if (window.location.href.slice(0,38) == "https://www.sbs.com.au/ondemand/video/") {
+
+        }
 	}
 
 
