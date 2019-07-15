@@ -1,7 +1,7 @@
 // ==UserScript==
-// @name     	ABC iview
-// @namespace 	tarinnik.gitlab.io/gmscripts
-// @version  	2.1.3
+// @name		ABC iview
+// @namespace	tarinnik.gitlab.io/gmscripts
+// @version		2.1.4
 // @include		https://iview.abc.net.au/*
 // @icon		https://iview.abc.net.au/favicon.ico
 // ==/UserScript==
@@ -128,7 +128,7 @@ onkeydown = onkeyup = function(e){
 
 		else if(window.location.href.slice(0,30) == "https://iview.abc.net.au/show/") {
 			selectPrevious("iv-2Nzsw");
-			if (document.getElementsByClassName("iv-hsfpe") === 'undefined') {
+			if (!!document.getElementsByClassName("iv-hsfpe")) {
 				scroll(video_select, "iv-x90Qp", "iv-2Nzsw", 1);
 			} else {
 				scroll(video_select, "iv-hsfpe", "iv-2Nzsw", 1);
