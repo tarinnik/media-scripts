@@ -1,10 +1,12 @@
 // ==UserScript==
 // @name 	Twitch
 // @namespace 	tarinnik.gitlab.io/gmscripts
-// @version 	1.4.1
+// @version 	1.4.2
 // @include 	https://www.twitch.tv/*
 // @icon 	https://twitch.tv/favicon.ico
 // ==/UserScript==
+
+const THEATRE_MODE_INDEX = 1;
 
 if (typeof video_select === 'undefined') {
 	var video_select = -1;
@@ -14,7 +16,7 @@ var selectionColour = "background:#4b367c";
 
 //Toggle theatre mode
 function theatre_mode() {
-	document.getElementsByClassName("player-button qa-theatre-mode-button")[0].click();
+	document.getElementsByClassName("player-controls__right-control-group tw-align-items-center tw-flex tw-flex-grow-1 tw-justify-content-end")[0].getElementsByClassName("tw-align-items-center tw-align-middle tw-border-bottom-left-radius-medium tw-border-bottom-right-radius-medium tw-border-top-left-radius-medium tw-border-top-right-radius-medium tw-button-icon tw-button-icon--overlay tw-core-button tw-core-button--border tw-core-button--overlay tw-inline-flex tw-interactive tw-justify-content-center tw-overflow-hidden tw-relative")[THEATRE_MODE_INDEX].click();
 }
 
 //Toggle fullscreen mode
