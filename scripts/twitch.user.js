@@ -1,12 +1,30 @@
 // ==UserScript==
 // @name        Twitch
 // @namespace   tarinnik.gitlab.io/gmscripts
-// @version     1.4.3
+// @version     1.4.4
 // @include     https://www.twitch.tv/*
 // @icon        https://static.twitchcdn.net/assets/favicon-32-d6025c14e900565d6177.png
 // ==/UserScript==
 
-const BOTTOM_RIGHT_NAV_ARRAY = document.getElementsByClassName(
+const SELECTION_COLOUR = "background:#4b367c";
+
+let video_select;
+if (typeof video_select === 'undefined') {
+	video_select = -1;
+}
+
+/*
+function goToVideos() {
+	url = window.location.href;
+	if (url.slice(url.length-6, url.length -1) == "video") {
+		window.location = "/?filter=archives&sort=time";
+	}
+}
+ */
+
+// Returns the bottom right navigation bar array
+function getBottomRightNav() {
+	return document.getElementsByClassName(
 		"player-controls__right-"+
 		"control-group tw-align-items-center tw-flex tw-flex-grow-1 tw-justify"+
 		"-content-end")[0].
@@ -17,18 +35,11 @@ const BOTTOM_RIGHT_NAV_ARRAY = document.getElementsByClassName(
 		"--overlay tw-core-button tw-core-button--border tw-core-button--"+
 		"overlay tw-inline-flex tw-interactive tw-justify-content-center "+
 		"tw-overflow-hidden tw-relative");
-
-const SELECTION_COLOUR = "background:#4b367c";
-
-let video_select;
-if (typeof video_select === 'undefined') {
-	video_select = -1;
 }
-
-var selectionColour = "background:#4b367c";
 
 // Toggle theatre mode
 function theatre_mode() {
+	const BOTTOM_RIGHT_NAV_ARRAY = getBottomRightNav();
 	let THEATRE_MODE_INDEX;
 	if (BOTTOM_RIGHT_NAV_ARRAY.length === 4) {
 		THEATRE_MODE_INDEX = 2;
