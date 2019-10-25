@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name                ABC iview
 // @namespace           tarinnik.gitlab.io/gmscripts
-// @version             2.1.7
+// @version             2.1.7-a
 // @include             https://iview.abc.net.au/*
 // @icon                https://iview.abc.net.au/favicon.ico
 // ==/UserScript==
@@ -57,7 +57,7 @@ function getShowElements() {
  * @returns {Element}
  */
 function getShowClickableElement(videoToWatch) {
-	return videoToWatch.getElementsByClassName(SHOW_CLICKABLE_ELEMENT)[0];
+	return getShowElements()[videoToWatch].getElementsByClassName(SHOW_CLICKABLE_ELEMENT)[0];
 }
 
 //
@@ -112,10 +112,10 @@ function previous(className) {
 // Selects the current selection
 function select() {
 	// Elements of the videos on the show page
-	const showSelect = getShowClickableElement(getShowElements()[VIDEO_SELECT]);
+	const showSelect = getShowClickableElement(VIDEO_SELECT);
 
 	if (window.location.href.slice(0,30) === "https://iview.abc.net.au/show/") {
-		showSelect[VIDEO_SELECT + 1].click();
+		showSelect.click();
 	} else if (window.location.href === "https://iview.abc.net.au/your/recents") {
 		const link = document.getElementsByClassName("iv-1AY7n iv-3RSim iv-2U3lE")[VIDEO_SELECT].innerHTML.split('"')[1];
 		window.location = "https://iview.abc.net.au" + link;
@@ -158,8 +158,6 @@ onkeydown = onkeyup = function(e){
 				scroll(VIDEO_SELECT, "iv-x90Qp", "iv-2Nzsw", 1);
 			}
 		}
-
-
 	}
 
 	// CTRL + ALT + M - Highlight previous video
