@@ -1,4 +1,4 @@
-# Greasemonkey Scripts - DEV
+# Greasemonkey Scripts
 
 These are just some scripts that make my life a little easier on the internet.
 
