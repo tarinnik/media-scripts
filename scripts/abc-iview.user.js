@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name                ABC iview
 // @namespace           tarinnik.gitlab.io/gmscripts
-// @version             2.1.7-a
+// @version             2.1.7
 // @include             https://iview.abc.net.au/*
 // @icon                https://iview.abc.net.au/favicon.ico
 // ==/UserScript==
@@ -16,11 +16,12 @@ const RECENTS_URL = "https://iview.abc.net.au/your/recents";
 const SHOW_URL = "https://iview.abc.net.au/show/";
 // Length of the base show url, not specific to any show
 const SHOW_URL_LENGTH = 30;
+// Class name of highlightable element
 const SHOW_HIGHLIGHT_ELEMENT = "iv-2Nzsw";
+// Class name of clickable element
 const SHOW_CLICKABLE_ELEMENT = "iv-1yw_p";
 // Distance to scroll on the show page if elements haven't loaded
 const SHOW_MAIN_VIDEO_SCROLL = 650;
-
 
 if (VIDEO_SELECT === undefined) {
 	VIDEO_SELECT = -1;
@@ -60,7 +61,13 @@ function getShowClickableElement(videoToWatch) {
 	return getShowElements()[videoToWatch].getElementsByClassName(SHOW_CLICKABLE_ELEMENT)[0];
 }
 
-//
+/**
+ * Scrolls so the selected element is in view
+ * @param video index of the element
+ * @param defaultPosition element to scroll to for the first row
+ * @param onScrollPosition element to scroll to for all other rows
+ * @param rowLength the row that should be in view
+ */
 function scroll(video, defaultPosition, onScrollPosition, rowLength) {
 	if (video < rowLength) {
 		document.getElementsByClassName(defaultPosition)[0].scrollIntoView();
@@ -69,6 +76,10 @@ function scroll(video, defaultPosition, onScrollPosition, rowLength) {
 	}
 }
 
+/**
+ * Highlight the next element
+ * @param className name of the class to highlight
+ */
 function next(className) {
 	//If it's the first video
 	if (VIDEO_SELECT === -1) {
@@ -91,6 +102,10 @@ function next(className) {
 	}
 }
 
+/**
+ * Highlight the previous element
+ * @param className name of the class to highlight
+ */
 function previous(className) {
 	const length = document.getElementsByClassName(className).length;
 
@@ -109,7 +124,9 @@ function previous(className) {
 	}
 }
 
-// Selects the current selection
+/**
+ * Select the currently highlighted element
+ */
 function select() {
 	// Elements of the videos on the show page
 	const showSelect = getShowClickableElement(VIDEO_SELECT);
