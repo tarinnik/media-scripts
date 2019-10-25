@@ -29,8 +29,11 @@ if (VIDEO_SELECT === undefined) {
 
 // Scroll on initial load
 if (window.location.href === RECENTS_URL) {
-  document.getElementsByClassName("iv-33kfb iv-uxMpK iv-2bylY iv-" +
-	  	"2s_Ue iv-3h0O3")[0].scrollIntoView();
+	const scrollElement = document.getElementsByClassName("iv-30EH9 iv-2nZkO iv-3776S iv-3-ftZ iv-_" +
+		"x-Fk iv-1F28div-1Z3fY iv-2s_Ue iv-1iYjC")[0];
+  	if (scrollElement !== undefined) {
+  		scrollElement.scrollIntoView();
+	}
   VIDEO_SELECT = -1;
 } else if (window.location.href.slice(0, SHOW_URL_LENGTH) === SHOW_URL) {
 	const scrollElement = document.getElementsByClassName("iv-30EH9 iv-2nZkO iv-3776S iv-3" +
