@@ -1,95 +1,157 @@
 // ==UserScript==
-// @name		ABC iview
-// @namespace	tarinnik.gitlab.io/gmscripts
-// @version		2.1.6
-// @include		https://iview.abc.net.au/*
-// @icon		https://iview.abc.net.au/favicon.ico
+// @name                ABC iview
+// @namespace           tarinnik.gitlab.io/gmscripts
+// @version             2.1.7
+// @include             https://iview.abc.net.au/*
+// @icon                https://iview.abc.net.au/favicon.ico
 // ==/UserScript==
 
+// Background colour of the currently selected item
+const SELECTION_COLOUR = "background:#326060";
+// Index of the selected video (-1 if not defined)
+let VIDEO_SELECT;
+// Recents URL
+const RECENTS_URL = "https://iview.abc.net.au/your/recents";
+// Show URL
+const SHOW_URL = "https://iview.abc.net.au/show/";
+// Length of the base show url, not specific to any show
+const SHOW_URL_LENGTH = 30;
+// Class name of highlightable element
+const SHOW_HIGHLIGHT_ELEMENT = "iv-2Nzsw";
+// Class name of clickable element
+const SHOW_CLICKABLE_ELEMENT = "iv-1yw_p";
+// Distance to scroll on the show page if elements haven't loaded
+const SHOW_MAIN_VIDEO_SCROLL = 650;
 
-if (typeof video_select === 'undefined') {
-	var video_select = -1;
+if (VIDEO_SELECT === undefined) {
+	VIDEO_SELECT = -1;
 }
-
-// Background colour
-var selectionColour = "background:#326060";
 
 // Scroll on initial load
-if (window.location.href == "https://iview.abc.net.au/your/recents") {
-  document.getElementsByClassName("iv-1fREI")[0].scrollIntoView();
-  video_select = -1;
-} else if (window.location.href.slice(0,30) == "https://iview.abc.net.au/show/") {
-  document.getElementsByClassName("iv-2NeoO iv-2-wcB")[0].scrollIntoView();
-  video_select = -1;
+if (window.location.href === RECENTS_URL) {
+  document.getElementsByClassName("iv-33kfb iv-uxMpK iv-2bylY iv-" +
+	  	"2s_Ue iv-3h0O3")[0].scrollIntoView();
+  VIDEO_SELECT = -1;
+} else if (window.location.href.slice(0, SHOW_URL_LENGTH) === SHOW_URL) {
+	const scrollElement = document.getElementsByClassName("iv-30EH9 iv-2nZkO iv-3776S iv-3" +
+		"-ftZ iv-_x-Fk iv-1F28d iv-1Z3fY iv-2s_Ue iv-3hNJh")[0];
+
+	if (scrollElement === undefined) {
+		window.scrollBy(0, SHOW_MAIN_VIDEO_SCROLL);
+	} else {
+		scrollElement.scrollIntoView();
+	}
+
+  VIDEO_SELECT = -1;
 }
 
-//
-function scroll(video, firstPos, secondPos, firstPosNum) {
-	if (video < firstPosNum) {
-		document.getElementsByClassName(firstPos)[0].scrollIntoView();
+/**
+ * Gets the video elements on the show page
+ * @returns {HTMLCollectionOf<Element>}
+ */
+function getShowElements() {
+	return document.getElementsByClassName(SHOW_HIGHLIGHT_ELEMENT);
+}
+
+/**
+ * Gets the clickable element of the video on the show page
+ * @returns {Element}
+ */
+function getShowClickableElement(videoToWatch) {
+	return getShowElements()[videoToWatch].getElementsByClassName(SHOW_CLICKABLE_ELEMENT)[0];
+}
+
+/**
+ * Scrolls so the selected element is in view
+ * @param video index of the element
+ * @param defaultPosition element to scroll to for the first row
+ * @param onScrollPosition element to scroll to for all other rows
+ * @param rowLength the row that should be in view
+ */
+function scroll(video, defaultPosition, onScrollPosition, rowLength) {
+	if (video < rowLength) {
+		document.getElementsByClassName(defaultPosition)[0].scrollIntoView();
 	} else {
-		document.getElementsByClassName(secondPos)[video-firstPosNum].scrollIntoView();
+		document.getElementsByClassName(onScrollPosition)[video-rowLength].scrollIntoView();
 	}
 }
 
-function selectNext(className) {
+/**
+ * Highlight the next element
+ * @param className name of the class to highlight
+ */
+function next(className) {
 	//If it's the first video
-	if (video_select == -1) {
-		video_select++;
-		document.getElementsByClassName(className)[video_select].setAttribute("style", selectionColour);
+	if (VIDEO_SELECT === -1) {
+		VIDEO_SELECT++;
+		document.getElementsByClassName(className)[VIDEO_SELECT].setAttribute("style", SELECTION_COLOUR);
 	}
 
 	//If it's the end of the available videos
-	else if (video_select >= document.getElementsByClassName(className).length - 1) {
-		document.getElementsByClassName(className)[0].setAttribute("style", selectionColour);
-		document.getElementsByClassName(className)[video_select].removeAttribute("style");
-		video_select = 0;
+	else if (VIDEO_SELECT >= document.getElementsByClassName(className).length - 1) {
+		document.getElementsByClassName(className)[0].setAttribute("style", SELECTION_COLOUR);
+		document.getElementsByClassName(className)[VIDEO_SELECT].removeAttribute("style");
+		VIDEO_SELECT = 0;
 	}
 
 	//Anything else
 	else {
-		video_select++;
-		document.getElementsByClassName(className)[video_select].setAttribute("style", selectionColour);
-		document.getElementsByClassName(className)[video_select - 1].removeAttribute("style");
+		VIDEO_SELECT++;
+		document.getElementsByClassName(className)[VIDEO_SELECT].setAttribute("style", SELECTION_COLOUR);
+		document.getElementsByClassName(className)[VIDEO_SELECT - 1].removeAttribute("style");
 	}
 }
 
-function selectPrevious(className) {
-	var length = document.getElementsByClassName(className).length;
+/**
+ * Highlight the previous element
+ * @param className name of the class to highlight
+ */
+function previous(className) {
+	const length = document.getElementsByClassName(className).length;
 
 	//If it's the first video
-	if (video_select == 0 || video_select == -1) {
-		document.getElementsByClassName(className)[length - 1].setAttribute("style", selectionColour);
+	if (VIDEO_SELECT === 0 || VIDEO_SELECT === -1) {
+		document.getElementsByClassName(className)[length - 1].setAttribute("style", SELECTION_COLOUR);
 		document.getElementsByClassName(className)[0].removeAttribute("style");
-		video_select = length - 1;
+		VIDEO_SELECT = length - 1;
 	}
 
 	//Anything else
 	else {
-		video_select--;
-		document.getElementsByClassName(className)[video_select].setAttribute("style", selectionColour);
-		document.getElementsByClassName(className)[video_select + 1].removeAttribute("style");
+		VIDEO_SELECT--;
+		document.getElementsByClassName(className)[VIDEO_SELECT].setAttribute("style", SELECTION_COLOUR);
+		document.getElementsByClassName(className)[VIDEO_SELECT + 1].removeAttribute("style");
+	}
+}
+
+/**
+ * Select the currently highlighted element
+ */
+function select() {
+	// Elements of the videos on the show page
+	const showSelect = getShowClickableElement(VIDEO_SELECT);
+
+	if (window.location.href.slice(0,30) === "https://iview.abc.net.au/show/") {
+		showSelect.click();
+	} else if (window.location.href === "https://iview.abc.net.au/your/recents") {
+		const link = document.getElementsByClassName("iv-1AY7n iv-3RSim iv-2U3lE")[VIDEO_SELECT].innerHTML.split('"')[1];
+		window.location = "https://iview.abc.net.au" + link;
 	}
 }
 
 // Key mappings
-var map = {};
+const map = {};
 onkeydown = onkeyup = function(e){
-	map[e.keyCode] = e.type == 'keydown';
+	map[e.keyCode] = e.type === 'keydown';
 
 	// CTRL + ALT + R - Recently viewed shows
 	if (map[17] && map[18] && map[82]) {
 		window.location = "https://iview.abc.net.au/your/recents";
 	}
 
-	// CTRL + ALT + W - Play main video
-	else if (map[17] && map[18] && map[87]) {
-		document.getElementsByClassName("iv-1yw_p")[0].click();
-	}
-
 	// CTRL + ALT + F - Fullscreen
 	else if (map[17] && map[18] && map[70]){
-		document.getElemetsByClassName("jw-video jw-reset")[0].mozRequestFullScreen();
+		document.getElementsByClassName("jw-video jw-reset")[0].mozRequestFullScreen();
 	}
 
 	// CTRL + ALT + C - Close player
@@ -100,61 +162,43 @@ onkeydown = onkeyup = function(e){
 	// CTRL + ALT + N - Highlight next video
 	else if (map[17] && map[18] && map[78]) {
 
-		if (window.location.href == "https://iview.abc.net.au/your/recents") {
-			selectNext("iv-1AY7n iv-3RSim iv-2U3lE");
-			scroll(video_select, "iv-1fREI", "iv-1AY7n iv-3RSim iv-2U3lE", 4);
+		if (window.location.href === "https://iview.abc.net.au/your/recents") {
+			next("iv-1AY7n iv-3RSim iv-2U3lE");
+			scroll(VIDEO_SELECT, "iv-1fREI", "iv-1AY7n iv-3RSim iv-2U3lE", 4);
 		}
 
-		else if (window.location.href.slice(0,30) == "https://iview.abc.net.au/show/") {
-			selectNext("iv-2Nzsw");
+		else if (window.location.href.slice(0,30) === "https://iview.abc.net.au/show/") {
+			next("iv-2Nzsw");
 			if (!!document.getElementsByClassName("iv-hsfpe")[0]) {
-				scroll(video_select, "iv-hsfpe", "iv-2Nzsw", 1);
+				scroll(VIDEO_SELECT, "iv-hsfpe", "iv-2Nzsw", 1);
 			} else {
-				scroll(video_select, "iv-x90Qp", "iv-2Nzsw", 1);
+				scroll(VIDEO_SELECT, "iv-x90Qp", "iv-2Nzsw", 1);
 			}
 		}
-
-
 	}
 
 	// CTRL + ALT + M - Highlight previous video
 	else if (map[17] && map[18] && map[77]) {
 
-		if (window.location.href == "https://iview.abc.net.au/your/recents") {
+		if (window.location.href === "https://iview.abc.net.au/your/recents") {
 
-			selectPrevious("iv-1AY7n iv-3RSim iv-2U3lE");
-			scroll(video_select, "iv-1fREI", "iv-1AY7n iv-3RSim iv-2U3lE", 4);
+			previous("iv-1AY7n iv-3RSim iv-2U3lE");
+			scroll(VIDEO_SELECT, "iv-1fREI", "iv-1AY7n iv-3RSim iv-2U3lE", 4);
 		}
 
-		else if(window.location.href.slice(0,30) == "https://iview.abc.net.au/show/") {
-			selectPrevious("iv-2Nzsw");
+		else if(window.location.href.slice(0,30) === "https://iview.abc.net.au/show/") {
+			previous("iv-2Nzsw");
 			if (!!document.getElementsByClassName("iv-hsfpe")[0]) {
-				scroll(video_select, "iv-hsfpe", "iv-2Nzsw", 1);
+				scroll(VIDEO_SELECT, "iv-hsfpe", "iv-2Nzsw", 1);
 			} else {
-				scroll(video_select, "iv-x90Qp", "iv-2Nzsw", 1);
+				scroll(VIDEO_SELECT, "iv-x90Qp", "iv-2Nzsw", 1);
 			}
 		}
 	}
 
-
 	// CTRL + ALT + S - Select highlighted video
 	else if (map[17] && map[18] && map[83]) {
-		if (window.location.href.slice(0,30) == "https://iview.abc.net.au/show/" && video_select == -1) {
-			document.getElementsByClassName("iv-1yw_p")[0].click();
-		}
-
-		else if (window.location.href.slice(0,30) == "https://iview.abc.net.au/show/") {
-			document.getElementsByClassName("iv-2Nzsw")[0].getElementsByClassName("iv-Mnr16")[0].getElementsByClassName("iv-1yw_p")[0].click();
-		}
-
-		else if (window.location.href == "https://iview.abc.net.au/your/recents") {
-			var link = document.getElementsByClassName("iv-1AY7n iv-3RSim iv-2U3lE")[video_select].innerHTML.split('"')[1];
-			var finalURL = "https://iview.abc.net.au" + link;
-			window.location = finalURL;
-		}
+		select();
 	}
-
-
-
-}
+};
 
