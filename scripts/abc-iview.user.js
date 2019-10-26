@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name                ABC iview
 // @namespace           tarinnik.gitlab.io/gmscripts
-// @version             2.1.8
+// @version             2.1.9
 // @include             https://iview.abc.net.au/*
 // @icon                https://iview.abc.net.au/favicon.ico
 // ==/UserScript==
@@ -22,6 +22,8 @@ const SHOW_HIGHLIGHT_ELEMENT = "iv-2Nzsw";
 const SHOW_CLICKABLE_ELEMENT = "iv-1yw_p";
 // Distance to scroll on the show page if elements haven't loaded
 const SHOW_MAIN_VIDEO_SCROLL = 650;
+// Close video player button class name
+const CLOSE_PLAYER = "iv-1LlPw iv-3bAEn iv-Xjw7_ iconLarge iv-3mcSv iv-2Ba9R";
 
 if (VIDEO_SELECT === undefined) {
 	VIDEO_SELECT = -1;
@@ -34,7 +36,7 @@ if (window.location.href === RECENTS_URL) {
   	if (scrollElement !== undefined) {
   		scrollElement.scrollIntoView();
 	}
-  VIDEO_SELECT = -1;
+  	VIDEO_SELECT = -1;
 } else if (window.location.href.slice(0, SHOW_URL_LENGTH) === SHOW_URL) {
 	const scrollElement = document.getElementsByClassName("iv-30EH9 iv-2nZkO iv-3776S iv-3" +
 		"-ftZ iv-_x-Fk iv-1F28d iv-1Z3fY iv-2s_Ue iv-3hNJh")[0];
@@ -45,7 +47,7 @@ if (window.location.href === RECENTS_URL) {
 		scrollElement.scrollIntoView();
 	}
 
-  VIDEO_SELECT = -1;
+  	VIDEO_SELECT = -1;
 }
 
 /**
@@ -62,6 +64,13 @@ function getShowElements() {
  */
 function getShowClickableElement(videoToWatch) {
 	return getShowElements()[videoToWatch].getElementsByClassName(SHOW_CLICKABLE_ELEMENT)[0];
+}
+
+/**
+ * Closes the video player
+ */
+function close() {
+	document.getElementsByClassName(CLOSE_PLAYER)[0].click();
 }
 
 /**
@@ -131,11 +140,8 @@ function previous(className) {
  * Select the currently highlighted element
  */
 function select() {
-	// Elements of the videos on the show page
-	const showSelect = getShowClickableElement(VIDEO_SELECT);
-
 	if (window.location.href.slice(0,30) === "https://iview.abc.net.au/show/") {
-		showSelect.click();
+		getShowClickableElement(VIDEO_SELECT).click();
 	} else if (window.location.href === "https://iview.abc.net.au/your/recents") {
 		const link = document.getElementsByClassName("iv-1AY7n iv-3RSim iv-2U3lE")[VIDEO_SELECT].innerHTML.split('"')[1];
 		window.location = "https://iview.abc.net.au" + link;
@@ -159,7 +165,7 @@ onkeydown = onkeyup = function(e){
 
 	// CTRL + ALT + C - Close player
 	else if (map[17] && map[18] && map[67]) {
-		document.getElementsByClassName("iv-PfJvL iv-3bAEn iv-2npVU iconLarge iv-1NR5s iv-25r32")[0].click();
+		close();
 	}
 
 	// CTRL + ALT + N - Highlight next video
