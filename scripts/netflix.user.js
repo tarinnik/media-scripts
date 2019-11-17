@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name     	Netflix
 // @namespace   tarinnik.github.io/gmscripts
-// @version		0.2
+// @version		0.3
 // @include		https://www.netflix.com/*
 // @icon		https://www.netflix.com/favicon.ico
 // ==/UserScript==
@@ -100,6 +100,7 @@ function select() {
 		document.getElementsByClassName(PROFILES_CLASS)[selection].
 				getElementsByTagName("a")[0].click();
 		selection = -1;
+		section = -1;
 	} else if (window.location.href.indexOf("my-list") !== -1) {
 
 	} else if (window.location.href.indexOf("browse") !== -1) {
@@ -131,6 +132,9 @@ function next(elements) {
 		elements[selection].setAttribute("style", BACKGROUND_COLOUR);
 		elements[selection - 1].removeAttribute("style");
 	}
+
+	let defaultPos = document.getElementsByClassName("info-wrapper")[0];
+	scroll(selection, defaultPos, elements, 1);
 }
 
 function previous(elements) {
@@ -143,6 +147,19 @@ function previous(elements) {
 		selection--;
 		elements[selection].setAttribute("style", BACKGROUND_COLOUR);
 		elements[selection + 1].removeAttribute("style");
+	}
+
+	let defaultPos = document.getElementsByClassName("info-wrapper")[0];
+	scroll(selection, defaultPos, elements, 1);
+}
+
+function scroll(index, defaultPosition, onScrollPosition, rowLength) {
+	if (index < rowLength) {
+		try {
+			defaultPosition.scrollIntoView();
+		} catch (TypeError) {}
+	} else {
+		onScrollPosition[index - rowLength].scrollIntoView();
 	}
 }
 
