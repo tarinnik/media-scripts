@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name     	Netflix
 // @namespace   tarinnik.github.io/gmscripts
-// @version		0.3
+// @version		0.4
 // @include		https://www.netflix.com/*
 // @icon		https://www.netflix.com/favicon.ico
 // ==/UserScript==
@@ -9,6 +9,8 @@
 const BACKGROUND_COLOUR = "background:#bf180f";
 const PROFILES_CLASS = "profile";
 const VIDEO_ROW_CLASS = "lolomoRow lolomoRow_title_card";
+const VIDEO_CLASS = "slider-item";
+const VIDEO_OPTIONS_CLASS = "jawbone-actions";
 
 const movement = {
 	SELECTION: 1,
@@ -53,29 +55,57 @@ function key(event) {
 	}
 }
 
-function check_profile() {
+function checkProfile() {
 	return document.getElementsByClassName(PROFILES_CLASS).length !== 0;
+}
+
+function checkBrowse() {
+	let url = window.location.href;
+	return url.length - 6 === url.indexOf("browse");
+}
+
+function checkVideoOptions() {
+	return document.getElementsByClassName(VIDEO_OPTIONS_CLASS).length !== 0;
+}
+
+function enterVideoRow() {
+	let rowIdName = "row-" + (section + 1);
+	let element = document.getElementById(rowIdName).getElementsByClassName(VIDEO_CLASS);
+	if (selection === -1) {
+		document.getElementsByClassName(VIDEO_ROW_CLASS)[section].removeAttribute("style");
+	}
+	return element;
 }
 
 function right() {
 	//Profile select
-	if (check_profile()) {
+	if (checkProfile()) {
 		next(document.getElementsByClassName(PROFILES_CLASS));
+	} else if (checkBrowse()) {
+		next(enterVideoRow());
+	} else if (checkVideoOptions()) {
+		next(document.getElementsByClassName(VIDEO_OPTIONS_CLASS)[0].getElementsByTagName("a"));
 	}
 }
 
 function left() {
 	//Profile select
-	if (check_profile()) {
+	if (checkProfile()) {
 		previous(document.getElementsByClassName(PROFILES_CLASS));
+	} else if (checkBrowse()) {
+		previous(enterVideoRow());
+	} else if (checkVideoOptions()) {
+		previous(document.getElementsByClassName(VIDEO_OPTIONS_CLASS)[0].getElementsByTagName("a"));
 	}
 }
 
 function up() {
-	if (!check_profile()) {
+	if (!checkProfile()) {
 		selection = section;
-		if (window.location.href.indexOf("browse") !== -1) {
+		if (checkBrowse()) {
 			previous(document.getElementsByClassName(VIDEO_ROW_CLASS));
+			let defaultPos = document.getElementsByClassName("info-wrapper")[0];
+			scroll(selection, defaultPos, document.getElementsByClassName(VIDEO_ROW_CLASS), 1);
 		}
 		section = selection;
 		selection = -1;
@@ -83,35 +113,59 @@ function up() {
 }
 
 function down() {
-	if (!check_profile()) {
+	if (!checkProfile()) {
 		selection = section;
 		if (window.location.href.indexOf("my-list") !== -1) {
 
-		} else if (window.location.href.indexOf("browse") !== -1) {
+		} else if (checkBrowse()) {
 			next(document.getElementsByClassName(VIDEO_ROW_CLASS));
+			let defaultPos = document.getElementsByClassName("info-wrapper")[0];
+			scroll(selection, defaultPos, document.getElementsByClassName(VIDEO_ROW_CLASS), 1);
 		}
 		section = selection;
 		selection = -1;
 	}
 }
 
+/**
+ * Select the currently highlighted option
+ */
 function select() {
-	if (check_profile()) {
+	// Profile to sign in as
+	if (checkProfile()) {
 		document.getElementsByClassName(PROFILES_CLASS)[selection].
 				getElementsByTagName("a")[0].click();
 		selection = -1;
 		section = -1;
 	} else if (window.location.href.indexOf("my-list") !== -1) {
 
-	} else if (window.location.href.indexOf("browse") !== -1) {
-		if (section !== -1) {
+	// Selecting the row expands the list
+	} else if (checkBrowse()) {
+		if (selection === -1) {
 			let link = document.getElementsByClassName(VIDEO_ROW_CLASS)[section].
 					getElementsByTagName("h2")[0].
 					getElementsByTagName("a");
 			if (link.length !== 0) {
 				link[0].click();
 			}
+
+
+		// Selecting a video in a row
+		} else {
+			let rowIdName = "row-" + (section + 1);
+			document.getElementById(rowIdName).getElementsByClassName(VIDEO_CLASS)[selection].
+					getElementsByTagName("a")[0].click();
+			selection = -1;
+			section = 0;
 		}
+
+	// Selecting an option in the video popup after selecting a video from a row
+	} else if (checkVideoOptions()) {
+		document.getElementsByClassName(VIDEO_OPTIONS_CLASS)[0].
+		getElementsByTagName("a")[selection].click();
+		selection = -1;
+
+
 	}
 }
 
@@ -133,8 +187,7 @@ function next(elements) {
 		elements[selection - 1].removeAttribute("style");
 	}
 
-	let defaultPos = document.getElementsByClassName("info-wrapper")[0];
-	scroll(selection, defaultPos, elements, 1);
+
 }
 
 function previous(elements) {
@@ -149,8 +202,7 @@ function previous(elements) {
 		elements[selection + 1].removeAttribute("style");
 	}
 
-	let defaultPos = document.getElementsByClassName("info-wrapper")[0];
-	scroll(selection, defaultPos, elements, 1);
+
 }
 
 function scroll(index, defaultPosition, onScrollPosition, rowLength) {
