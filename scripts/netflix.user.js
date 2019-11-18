@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name     	Netflix
 // @namespace   tarinnik.github.io/gmscripts
-// @version		0.4
+// @version		0.5
 // @include		https://www.netflix.com/*
 // @icon		https://www.netflix.com/favicon.ico
 // ==/UserScript==
@@ -11,6 +11,13 @@ const PROFILES_CLASS = "profile";
 const VIDEO_ROW_CLASS = "lolomoRow lolomoRow_title_card";
 const VIDEO_CLASS = "slider-item";
 const VIDEO_OPTIONS_CLASS = "jawbone-actions";
+const VIDEO_SELECT_CLOSE_CLASS = "close-button";
+const VIDEO_CLOSE_CLASS1 = "touchable PlayerControls--control-element " +
+		"nfp-button-control circle-control-button button-nfplayerExit " +
+		"tooltip-button tooltip-button-pos-bottom tooltip-button-align-right";
+const VIDEO_CLOSE_CLASS2 = "touchable PlayerControls--control-element " +
+		"nfp-button-control default-control-button button-nfplayerBack " +
+		"tooltip-button tooltip-button-pos-center tooltip-button-align-right";
 
 const movement = {
 	SELECTION: 1,
@@ -49,6 +56,7 @@ function key(event) {
 			up();
 			break;
 		case '9':
+			close();
 			break;
 		case '0':
 			break;
@@ -66,6 +74,10 @@ function checkBrowse() {
 
 function checkVideoOptions() {
 	return document.getElementsByClassName(VIDEO_OPTIONS_CLASS).length !== 0;
+}
+
+function checkWatch() {
+	return window.location.href.indexOf("watch") !== -1;
 }
 
 function enterVideoRow() {
@@ -153,10 +165,10 @@ function select() {
 		// Selecting a video in a row
 		} else {
 			let rowIdName = "row-" + (section + 1);
+			document.getElementsByClassName(VIDEO_CLASS)[selection].removeAttribute("style");
 			document.getElementById(rowIdName).getElementsByClassName(VIDEO_CLASS)[selection].
 					getElementsByTagName("a")[0].click();
 			selection = -1;
-			section = 0;
 		}
 
 	// Selecting an option in the video popup after selecting a video from a row
@@ -166,6 +178,22 @@ function select() {
 		selection = -1;
 
 
+	}
+}
+
+/**
+ * Closes the current option or video
+ */
+function close() {
+	if (checkVideoOptions()) {
+		document.getElementsByClassName(VIDEO_SELECT_CLOSE_CLASS)[0].click();
+	} else if (checkWatch()) {
+		try {
+			document.getElementsByClassName(VIDEO_CLOSE_CLASS1)[0].click();
+		} catch (TypeError) {}
+		try {
+			document.getElementsByClassName(VIDEO_CLOSE_CLASS2)[0].click();
+		} catch (TypeError) {}
 	}
 }
 
