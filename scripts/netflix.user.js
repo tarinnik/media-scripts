@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name     	Netflix
 // @namespace   tarinnik.github.io/gmscripts
-// @version		0.5
+// @version		0.6
 // @include		https://www.netflix.com/*
 // @icon		https://www.netflix.com/favicon.ico
 // ==/UserScript==
@@ -11,6 +11,7 @@ const PROFILES_CLASS = "profile";
 const VIDEO_ROW_CLASS = "lolomoRow lolomoRow_title_card";
 const VIDEO_CLASS = "slider-item";
 const VIDEO_OPTIONS_CLASS = "jawbone-actions";
+const VIDEO_OPTIONS_MENU_CLASS = "menu";
 const VIDEO_SELECT_CLOSE_CLASS = "close-button";
 const VIDEO_CLOSE_CLASS1 = "touchable PlayerControls--control-element " +
 		"nfp-button-control circle-control-button button-nfplayerExit " +
@@ -18,10 +19,13 @@ const VIDEO_CLOSE_CLASS1 = "touchable PlayerControls--control-element " +
 const VIDEO_CLOSE_CLASS2 = "touchable PlayerControls--control-element " +
 		"nfp-button-control default-control-button button-nfplayerBack " +
 		"tooltip-button tooltip-button-pos-center tooltip-button-align-right";
+const VIDEO_EPISODE_CLASS = "episodeWrapper";
 
-const movement = {
-	SELECTION: 1,
-	SECTION: 2
+let STATE = {
+	main: 0,
+	selection: -1,
+	section: -1,
+	videoOptions: 0
 };
 
 let selection = -1;
@@ -30,6 +34,19 @@ let section = -1;
 document.addEventListener('keydown', function(event) {
 	key(event);
 });
+
+function getElement(name) {
+	switch (name) {
+		// Video options when clicking on a video (play, add to list, like)
+		case VIDEO_OPTIONS_CLASS:
+			return document.getElementsByClassName(name)[0].getElementsByTagName("a");
+		// Bottom menu on video options (episodes, overview)
+		case VIDEO_OPTIONS_MENU_CLASS:
+			return document.getElementsByClassName(name)[0].childNodes;
+		case VIDEO_EPISODE_CLASS:
+			return document.getElementsByClassName(name)[0].getElementsByClassName("slider-item");
+	}
+}
 
 function key(event) {
 	switch (event.key) {
@@ -73,11 +90,37 @@ function checkBrowse() {
 }
 
 function checkVideoOptions() {
-	return document.getElementsByClassName(VIDEO_OPTIONS_CLASS).length !== 0;
+	return document.getElementsByClassName("jawBoneContent open").length !== 0;
+}
+
+function checkEpisodes() {
+	return document.getElementsByClassName(VIDEO_EPISODE_CLASS).length !== 0;
 }
 
 function checkWatch() {
 	return window.location.href.indexOf("watch") !== -1;
+}
+
+/**
+ * Toggles the focus on the video options section
+ */
+function toggleVideoOptions() {
+	if (STATE.videoOptions === 0) {
+		getElement(VIDEO_OPTIONS_CLASS)[selection].removeAttribute("style");
+		STATE.videoOptions = 1;
+		getElement(VIDEO_OPTIONS_MENU_CLASS)[0].setAttribute("style", BACKGROUND_COLOUR);
+	} else if (STATE.videoOptions === 1) {
+		if (checkEpisodes()) {
+			STATE.videoOptions = 2;
+		} else {
+			getElement(VIDEO_OPTIONS_MENU_CLASS)[selection].removeAttribute("style");
+			STATE.videoOptions = 0;
+			getElement(VIDEO_OPTIONS_CLASS)[0].setAttribute("style", BACKGROUND_COLOUR);
+		}
+	} else {
+		STATE.videoOptions = 1;
+	}
+	selection = 0;
 }
 
 function enterVideoRow() {
@@ -96,9 +139,15 @@ function right() {
 	} else if (checkBrowse()) {
 		next(enterVideoRow());
 	} else if (checkVideoOptions()) {
-		next(document.getElementsByClassName(VIDEO_OPTIONS_CLASS)[0].getElementsByTagName("a"));
+		if (STATE.videoOptions === 0) {
+			next(document.getElementsByClassName(VIDEO_OPTIONS_CLASS)[0].getElementsByTagName("a"));
+		} else if (STATE.videoOptions === 1) {
+			next(getElement(VIDEO_OPTIONS_MENU_CLASS));
+		} else {
+			next(getElement(VIDEO_EPISODE_CLASS));
+		}
 	}
-}
+}6
 
 function left() {
 	//Profile select
@@ -107,35 +156,51 @@ function left() {
 	} else if (checkBrowse()) {
 		previous(enterVideoRow());
 	} else if (checkVideoOptions()) {
-		previous(document.getElementsByClassName(VIDEO_OPTIONS_CLASS)[0].getElementsByTagName("a"));
+		if (STATE.videoOptions === 0) {
+			previous(document.getElementsByClassName(VIDEO_OPTIONS_CLASS)[0].getElementsByTagName("a"));
+		} else if (STATE.videoOptions === 1) {
+			previous(getElement(VIDEO_OPTIONS_MENU_CLASS));
+		} else {
+			previous(getElement(VIDEO_EPISODE_CLASS));
+		}
 	}
 }
 
 function up() {
 	if (!checkProfile()) {
-		selection = section;
 		if (checkBrowse()) {
+			selection = section;
 			previous(document.getElementsByClassName(VIDEO_ROW_CLASS));
 			let defaultPos = document.getElementsByClassName("info-wrapper")[0];
 			scroll(selection, defaultPos, document.getElementsByClassName(VIDEO_ROW_CLASS), 1);
+			section = selection;
+			selection = -1;
+
+		// Toggles between the play video options and episodes section
+		} else if (checkVideoOptions()) {
+			toggleVideoOptions();
 		}
-		section = selection;
-		selection = -1;
+
 	}
 }
 
 function down() {
 	if (!checkProfile()) {
-		selection = section;
+
 		if (window.location.href.indexOf("my-list") !== -1) {
 
 		} else if (checkBrowse()) {
+			selection = section;
 			next(document.getElementsByClassName(VIDEO_ROW_CLASS));
 			let defaultPos = document.getElementsByClassName("info-wrapper")[0];
 			scroll(selection, defaultPos, document.getElementsByClassName(VIDEO_ROW_CLASS), 1);
+			section = selection;
+			selection = -1;
+
+		// Toggles between the play video options and episodes section
+		} else if (checkVideoOptions()) {
+			toggleVideoOptions();
 		}
-		section = selection;
-		selection = -1;
 	}
 }
 
@@ -173,11 +238,16 @@ function select() {
 
 	// Selecting an option in the video popup after selecting a video from a row
 	} else if (checkVideoOptions()) {
-		document.getElementsByClassName(VIDEO_OPTIONS_CLASS)[0].
-		getElementsByTagName("a")[selection].click();
-		selection = -1;
-
-
+		if (STATE.videoOptions === 0) {
+			getElement(VIDEO_OPTIONS_CLASS)[selection].click();
+			selection = -1;
+		} else if (STATE.videoOptions === 1) {
+			getElement(VIDEO_OPTIONS_MENU_CLASS)[selection].getElementsByTagName("a")[0].click();
+			selection = -1;
+		} else {
+			getElement(VIDEO_EPISODE_CLASS)[selection].getElementsByTagName("a")[0].click();
+			selection = -1;
+		}
 	}
 }
 
