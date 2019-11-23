@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name     	Netflix
 // @namespace   tarinnik.github.io/gmscripts
-// @version		0.6
+// @version		0.7
 // @include		https://www.netflix.com/*
 // @icon		https://www.netflix.com/favicon.ico
 // ==/UserScript==
@@ -20,6 +20,14 @@ const VIDEO_CLOSE_CLASS2 = "touchable PlayerControls--control-element " +
 		"nfp-button-control default-control-button button-nfplayerBack " +
 		"tooltip-button tooltip-button-pos-center tooltip-button-align-right";
 const VIDEO_EPISODE_CLASS = "episodeWrapper";
+const PLAY_CLASS = "touchable PlayerControls--control-element nfp-button-control " +
+		"default-control-button button-nfplayerPlay";
+const PAUSE_CLASS = "touchable PlayerControls--control-element nfp-button-control " +
+		"default-control-button button-nfplayerPause";
+const FULLSCREEN_CLASS = "touchable PlayerControls--control-element nfp-button-control " +
+	"default-control-button button-nfplayerFullscreen";
+const WINDOWED_CLASS = "touchable PlayerControls--control-element nfp-button-control " +
+	"default-control-button button-nfplayerWindowed";
 
 let STATE = {
 	main: 0,
@@ -45,6 +53,10 @@ function getElement(name) {
 			return document.getElementsByClassName(name)[0].childNodes;
 		case VIDEO_EPISODE_CLASS:
 			return document.getElementsByClassName(name)[0].getElementsByClassName("slider-item");
+		case PLAY_CLASS:
+			return document.getElementsByClassName(name)[0];
+		case PAUSE_CLASS:
+			return document.getElementsByClassName(name)[0];
 	}
 }
 
@@ -56,6 +68,7 @@ function key(event) {
 			down();
 			break;
 		case '3':
+			fullscreen();
 			break;
 		case '4':
 			left();
@@ -76,6 +89,9 @@ function key(event) {
 			close();
 			break;
 		case '0':
+			break;
+		case 'Enter':
+			playpause();
 			break;
 	}
 }
@@ -147,7 +163,7 @@ function right() {
 			next(getElement(VIDEO_EPISODE_CLASS));
 		}
 	}
-}6
+}
 
 function left() {
 	//Profile select
@@ -264,6 +280,24 @@ function close() {
 		try {
 			document.getElementsByClassName(VIDEO_CLOSE_CLASS2)[0].click();
 		} catch (TypeError) {}
+	}
+}
+
+function fullscreen() {
+	if (document.getElementsByClassName(FULLSCREEN_CLASS).length !== 0) {
+		document.getElementsByClassName(FULLSCREEN_CLASS)[0].click();
+	} else {
+		document.getElementsByClassName(WINDOWED_CLASS)[0].click();
+	}
+}
+
+function playpause() {
+	if (checkWatch()) {
+		if (document.getElementsByClassName(PLAY_CLASS).length !== 0) {
+			getElement(PAUSE_CLASS).click();
+		} else {
+			getElement(PLAY_CLASS).click();
+		}
 	}
 }
 
