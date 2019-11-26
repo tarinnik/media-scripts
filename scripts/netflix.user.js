@@ -1,9 +1,9 @@
 // ==UserScript==
-// @name     	Netflix
+// @name        Netflix
 // @namespace   tarinnik.github.io/gmscripts
-// @version		0.7
-// @include		https://www.netflix.com/*
-// @icon		https://www.netflix.com/favicon.ico
+// @version	    0.8
+// @include	    https://www.netflix.com/*
+// @icon        https://www.netflix.com/favicon.ico
 // ==/UserScript==
 
 const BACKGROUND_COLOUR = "background:#bf180f";
@@ -28,6 +28,7 @@ const FULLSCREEN_CLASS = "touchable PlayerControls--control-element nfp-button-c
 	"default-control-button button-nfplayerFullscreen";
 const WINDOWED_CLASS = "touchable PlayerControls--control-element nfp-button-control " +
 	"default-control-button button-nfplayerWindowed";
+const MY_LIST_ROW_CLASS = "rowContainer_title_card";
 
 let STATE = {
 	main: 0,
@@ -63,6 +64,7 @@ function getElement(name) {
 function key(event) {
 	switch (event.key) {
 		case '1':
+            list();
 			break;
 		case '2':
 			down();
@@ -93,6 +95,9 @@ function key(event) {
 		case 'Enter':
 			playpause();
 			break;
+		case '.':
+            console.log("hi");
+            break;
 	}
 }
 
@@ -117,6 +122,11 @@ function checkWatch() {
 	return window.location.href.indexOf("watch") !== -1;
 }
 
+function checkMyList() {
+    let url = window.location.href;
+    return url.indexOf("my-list") === url.length - 7;
+}
+
 /**
  * Toggles the focus on the video options section
  */
@@ -139,21 +149,33 @@ function toggleVideoOptions() {
 	selection = 0;
 }
 
-function enterVideoRow() {
-	let rowIdName = "row-" + (section + 1);
+function enterVideoRow(browse) {
+    let row;
+    if (browse === 1) {
+        row = VIDEO_ROW_CLASS;
+    } else {
+        row = MY_LIST_ROW_CLASS;
+    }
+
+	let rowIdName = "row-" + (section + browse);
 	let element = document.getElementById(rowIdName).getElementsByClassName(VIDEO_CLASS);
 	if (selection === -1) {
-		document.getElementsByClassName(VIDEO_ROW_CLASS)[section].removeAttribute("style");
+		document.getElementsByClassName(row)[section].removeAttribute("style");
 	}
 	return element;
 }
+
+function list() {
+    selection = -1;
+    section = -1;
+    document.getElementsByClassName("navigation-tab")[4].getElementsByTagName("a")[0].click();}
 
 function right() {
 	//Profile select
 	if (checkProfile()) {
 		next(document.getElementsByClassName(PROFILES_CLASS));
 	} else if (checkBrowse()) {
-		next(enterVideoRow());
+		next(enterVideoRow(1));
 	} else if (checkVideoOptions()) {
 		if (STATE.videoOptions === 0) {
 			next(document.getElementsByClassName(VIDEO_OPTIONS_CLASS)[0].getElementsByTagName("a"));
@@ -162,7 +184,9 @@ function right() {
 		} else {
 			next(getElement(VIDEO_EPISODE_CLASS));
 		}
-	}
+	} else if (checkMyList()) {
+        next(enterVideoRow(0));
+    }
 }
 
 function left() {
@@ -170,7 +194,7 @@ function left() {
 	if (checkProfile()) {
 		previous(document.getElementsByClassName(PROFILES_CLASS));
 	} else if (checkBrowse()) {
-		previous(enterVideoRow());
+		previous(enterVideoRow(1));
 	} else if (checkVideoOptions()) {
 		if (STATE.videoOptions === 0) {
 			previous(document.getElementsByClassName(VIDEO_OPTIONS_CLASS)[0].getElementsByTagName("a"));
@@ -179,7 +203,9 @@ function left() {
 		} else {
 			previous(getElement(VIDEO_EPISODE_CLASS));
 		}
-	}
+	} else if (checkMyList()) {
+        previous(enterVideoRow(0));
+    }
 }
 
 function up() {
@@ -195,17 +221,21 @@ function up() {
 		// Toggles between the play video options and episodes section
 		} else if (checkVideoOptions()) {
 			toggleVideoOptions();
-		}
 
+		} else if (checkMyList()) {
+            selection = section;
+            previous(document.getElementsByClassName(MY_LIST_ROW_CLASS));
+            const defaultPosition = document.getElementsByClassName("pinning-header")[0];
+            scroll(selection, defaultPosition, document.getElementsByClassName(MY_LIST_ROW_CLASS), 1);
+            section = selection;
+            selection = -1;
+        }
 	}
 }
 
 function down() {
 	if (!checkProfile()) {
-
-		if (window.location.href.indexOf("my-list") !== -1) {
-
-		} else if (checkBrowse()) {
+		if (checkBrowse()) {
 			selection = section;
 			next(document.getElementsByClassName(VIDEO_ROW_CLASS));
 			let defaultPos = document.getElementsByClassName("info-wrapper")[0];
@@ -216,7 +246,15 @@ function down() {
 		// Toggles between the play video options and episodes section
 		} else if (checkVideoOptions()) {
 			toggleVideoOptions();
-		}
+
+		} else if (checkMyList()) {
+		    selection = section;
+		    next(document.getElementsByClassName(MY_LIST_ROW_CLASS));
+		    const defaultPosition = document.getElementsByClassName("pinning-header")[0];
+		    scroll(selection, defaultPosition, document.getElementsByClassName(MY_LIST_ROW_CLASS), 1);
+		    section = selection;
+		    selection = -1;
+        }
 	}
 }
 
@@ -230,7 +268,11 @@ function select() {
 				getElementsByTagName("a")[0].click();
 		selection = -1;
 		section = -1;
-	} else if (window.location.href.indexOf("my-list") !== -1) {
+	} else if (checkMyList()) {
+        document.getElementsByClassName(MY_LIST_ROW_CLASS)[section].
+                getElementsByClassName(VIDEO_CLASS)[selection].
+                getElementsByTagName("a")[0].click();
+        selection = -1;
 
 	// Selecting the row expands the list
 	} else if (checkBrowse()) {
