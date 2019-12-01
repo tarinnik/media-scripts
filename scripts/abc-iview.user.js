@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name                ABC iview
 // @namespace           tarinnik.github.io/gmscripts
-// @version             2.1.10
+// @version             2.2
 // @include             https://iview.abc.net.au/*
 // @icon                https://iview.abc.net.au/favicon.ico
 // ==/UserScript==
@@ -154,22 +154,22 @@ onkeydown = onkeyup = function(e){
 	map[e.keyCode] = e.type === 'keydown';
 
 	// CTRL + ALT + R - Recently viewed shows
-	if (map[17] && map[18] && map[82]) {
+	if ((map[17] && map[18] && map[82]) || map[97]) {
 		window.location = "https://iview.abc.net.au/your/recents";
 	}
 
 	// CTRL + ALT + F - Fullscreen
-	else if (map[17] && map[18] && map[70]){
-		document.getElementsByClassName("jw-video jw-reset")[0].mozRequestFullScreen();
+	else if ((map[17] && map[18] && map[70]) || map[99]){
+		document.getElementsByClassName("jw-icon jw-icon-inline jw-button-color jw-reset jw-icon-fullscreen")[0].click();
 	}
 
 	// CTRL + ALT + C - Close player
-	else if (map[17] && map[18] && map[67]) {
+	else if ((map[17] && map[18] && map[67]) || map[105]) {
 		close();
 	}
 
 	// CTRL + ALT + N - Highlight next video
-	else if (map[17] && map[18] && map[78]) {
+	else if ((map[17] && map[18] && map[78]) || map[102]) {
 
 		if (window.location.href === "https://iview.abc.net.au/your/recents") {
 			next("iv-1AY7n iv-3RSim iv-2U3lE");
@@ -187,7 +187,7 @@ onkeydown = onkeyup = function(e){
 	}
 
 	// CTRL + ALT + M - Highlight previous video
-	else if (map[17] && map[18] && map[77]) {
+	else if ((map[17] && map[18] && map[77]) || map[100]) {
 
 		if (window.location.href === "https://iview.abc.net.au/your/recents") {
 
@@ -206,8 +206,16 @@ onkeydown = onkeyup = function(e){
 	}
 
 	// CTRL + ALT + S - Select highlighted video
-	else if (map[17] && map[18] && map[83]) {
+	else if ((map[17] && map[18] && map[83]) || map [101]) {
 		select();
+	}
+
+	else if (map[103]) {
+		window.history.go(0 - (window.history.length - 1));
+	}
+
+	else if (map[13]) {
+		document.getElementsByClassName("jw-icon jw-icon-inline jw-button-color jw-reset jw-icon-playback")[0].click();
 	}
 };
 
