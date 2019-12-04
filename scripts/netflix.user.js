@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        Netflix
 // @namespace   tarinnik.github.io/gmscripts
-// @version	    0.8
+// @version	    0.9
 // @include	    https://www.netflix.com/*
 // @icon        https://www.netflix.com/favicon.ico
 // ==/UserScript==
@@ -29,6 +29,9 @@ const FULLSCREEN_CLASS = "touchable PlayerControls--control-element nfp-button-c
 const WINDOWED_CLASS = "touchable PlayerControls--control-element nfp-button-control " +
 	"default-control-button button-nfplayerWindowed";
 const MY_LIST_ROW_CLASS = "rowContainer_title_card";
+const ACCOUNT_DROPDOWN_CLASS = "account-menu-item";
+const ACTIVE_ACCOUNT_DROPDOWN_CLASS = "active account-menu-item";
+const ACCOUNT_DROPDOWN_ID = "account-dropdown";
 
 let STATE = {
 	main: 0,
@@ -95,8 +98,8 @@ function key(event) {
 		case 'Enter':
 			playpause();
 			break;
-		case '.':
-            console.log("hi");
+		case '+':
+            account_switch()
             break;
 	}
 }
@@ -168,7 +171,12 @@ function enterVideoRow(browse) {
 function list() {
     selection = -1;
     section = -1;
-    document.getElementsByClassName("navigation-tab")[4].getElementsByTagName("a")[0].click();}
+    document.getElementsByClassName("navigation-tab")[4].getElementsByTagName("a")[0].click();
+}
+
+function account_switch() {
+	window.location = "https://www.netflix.com/ProfilesGate";
+}
 
 function right() {
 	//Profile select
@@ -390,5 +398,5 @@ function scroll(index, defaultPosition, onScrollPosition, rowLength) {
 }
 
 function home() {
-	window.history.go(0 - (window.history.length - 1));
+	window.location = "https://tarinnik.github.io/media/";
 }
