@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        Netflix
 // @namespace   tarinnik.github.io/gmscripts
-// @version	    0.9
+// @version	    0.9.1
 // @include	    https://www.netflix.com/*
 // @icon        https://www.netflix.com/favicon.ico
 // ==/UserScript==
@@ -29,9 +29,6 @@ const FULLSCREEN_CLASS = "touchable PlayerControls--control-element nfp-button-c
 const WINDOWED_CLASS = "touchable PlayerControls--control-element nfp-button-control " +
 	"default-control-button button-nfplayerWindowed";
 const MY_LIST_ROW_CLASS = "rowContainer_title_card";
-const ACCOUNT_DROPDOWN_CLASS = "account-menu-item";
-const ACTIVE_ACCOUNT_DROPDOWN_CLASS = "active account-menu-item";
-const ACCOUNT_DROPDOWN_ID = "account-dropdown";
 
 let STATE = {
 	main: 0,
@@ -99,8 +96,8 @@ function key(event) {
 			playpause();
 			break;
 		case '+':
-            account_switch()
-            break;
+			account_switch();
+			break;
 	}
 }
 
