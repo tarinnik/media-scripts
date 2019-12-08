@@ -1,12 +1,13 @@
 // ==UserScript==
 // @name        Netflix
 // @namespace   tarinnik.github.io/gmscripts
-// @version	    0.10
+// @version	    0.11
 // @include	    https://www.netflix.com/*
 // @icon        https://www.netflix.com/favicon.ico
 // ==/UserScript==
 
 const BACKGROUND_COLOUR = "background:#bf180f";
+const LOGO_CLASS = "logo";
 const PROFILES_CLASS = "profile";
 const VIDEO_ROW_CLASS = "lolomoRow lolomoRow_title_card";
 const VIDEO_CLASS = "slider-item";
@@ -156,7 +157,7 @@ function checkWatch() {
 
 function checkMyList() {
     let url = window.location.href;
-    return url.indexOf("my-list") === url.length - 7;
+    return (url.indexOf("my-list") === url.length - 7) || (url.slice(0, 30) === "https://www.netflix.com/search");
 }
 
 /**
@@ -213,26 +214,26 @@ function search() {
 	t.id = "query";
 	t.style.paddingLeft = "10px";
 	d.appendChild(t);
+	window.scrollTo(0, 0);
 	STATE.search = true;
 }
 
 function searchKey(key) {
 	if (key === "Enter") {
-		STATE.search = false;
 		let q = STATE.searchQuery + STATE.changingChar;
-		STATE.searchQuery = "";
-		STATE.changingChar = '';
-		STATE.lastKeyPressed = '';
-		STATE.numSameKeyPresses = 0;
+		resetSearch();
 		window.location = SEARCH_URL + q;
 	} else if (key === '-') {
 		if (STATE.changingChar !== '') {
 			STATE.changingChar = '';
-			STATE.numSameKeyPresses = 0;
 			STATE.lastKeyPressed = '';
+			STATE.numSameKeyPresses = 0;
 		} else if (STATE.searchQuery.length !== 0) {
 			STATE.searchQuery = STATE.searchQuery.slice(0, length - 1);
 		}
+	} else if (key === '*') {
+		resetSearch();
+		document.getElementById("search").remove();
 	} else if (key !== STATE.lastKeyPressed || key === '.') {
 		STATE.searchQuery += STATE.changingChar;
 		STATE.changingChar = '';
@@ -248,6 +249,14 @@ function searchKey(key) {
 	}
 
 	document.getElementById("query").innerHTML = SEARCH_TEXT + STATE.searchQuery + STATE.changingChar;
+}
+
+function resetSearch() {
+	STATE.searchQuery = "";
+	STATE.changingChar = '';
+	STATE.lastKeyPressed = '';
+	STATE.numSameKeyPresses = 0;
+	STATE.search = false;
 }
 
 function account_switch() {
@@ -406,6 +415,12 @@ function close() {
 		try {
 			document.getElementsByClassName(VIDEO_CLOSE_CLASS2)[0].click();
 		} catch (TypeError) {}
+	} else {
+		STATE.section = -1;
+		STATE.selection = -1;
+		selection = -1;
+		section = -1;
+		document.getElementsByClassName(LOGO_CLASS)[0].click();
 	}
 }
 
