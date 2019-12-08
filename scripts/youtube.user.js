@@ -1,41 +1,31 @@
 // ==UserScript==
 // @name     	Youtube
-// @namespace	tarinnik.gitlab.io/gmscripts
-// @version  	1.1.1
+// @namespace	tarinnik.github.io/gmscripts
+// @version  	0.0.1
 // @include		https://www.youtube.com/*
 // @icon		https://youtube.com/favicon.ico
 // ==/UserScript==
 
+const BACKGROUND_COLOUR = "background:red";
+const SUBSCRIPTION_BOX = "style-scope ytd-guide-renderer";
+const SUBSCRIPTION_TAG_NAME = "style-scope ytd-guide-section-renderer";
+const ROOT_URL = "https://www.youtube.com/";
+const WATCH_URL = "https://www.youtube.com/watch?v=";
+const RECENTS_URL = "https://www.youtube.com/feed/subscriptions";
+const CHANNEL_VIDEOS = "/videos";
+const CHANNEL_URL_LENGTH = 31;
+const EMBED_URL_LENGTH = 30;
+
 // Redirecting embeded youtube links to full youtube
-if (window.location.href.slice(0,30) == "https://www.youtube.com/embed/") {
-	var url = window.location.href;
-	var videoID = url.slice(30, 41);
-	var finalURL = "https://www.youtube.com/watch?v=" + videoID;
-	window.location = finalURL;
+if (window.location.href.slice(0, EMBED_URL_LENGTH) === "https://www.youtube.com/embed/") {
+	let url = window.location.href;
+	let videoID = url.slice(30, 41);
+	window.location = WATCH_URL + videoID;
 }
 
-// Expand subscription list
-document.getElementsByTagName("ytd-guide-collapsible-entry-renderer")[1].setAttribute("expanded", "");
+let STATE = {
+	main: 0,
+	section: 0,
+	selection: 0,
+};
 
-// Video selector index
-var video_select = 0
-
-// Key mappings
-var map = {};
-onkeydown = onkeyup = function(e){
-	map[e.keyCode] = e.type == 'keydown';
-
-	// CTRL + ALT +
-	if (map[17] && map[18] && map[77]) {
-		if (video_select == 0) {
-			document.getElementsByTagName("ytd-grid-video-renderer")[video_select].setAttribute("style", "background:darkblue");
-			video_select++;
-		} else {
-			document.getElementsByTagName("ytd-grid-video-renderer")[video_select].setAttribute("style", "background:darkblue");
-			document.getElementsByTagName("ytd-grid-video-renderer")[video_select-1].removeAttribute("style");
-			video_select++;
-		}
-	}
-
-
-}
