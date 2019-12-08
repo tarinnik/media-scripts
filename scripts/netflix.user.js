@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        Netflix
 // @namespace   tarinnik.github.io/gmscripts
-// @version	    0.9.1
+// @version	    0.10
 // @include	    https://www.netflix.com/*
 // @icon        https://www.netflix.com/favicon.ico
 // ==/UserScript==
@@ -29,19 +29,45 @@ const FULLSCREEN_CLASS = "touchable PlayerControls--control-element nfp-button-c
 const WINDOWED_CLASS = "touchable PlayerControls--control-element nfp-button-control " +
 	"default-control-button button-nfplayerWindowed";
 const MY_LIST_ROW_CLASS = "rowContainer_title_card";
+const SEARCH_URL = "https://www.netflix.com/search?q=";
+const SEARCH_TEXT = "Search: ";
 
 let STATE = {
 	main: 0,
 	selection: -1,
 	section: -1,
-	videoOptions: 0
+	videoOptions: 0,
+	search: false,
+	numSameKeyPresses: 0,
+	lastKeyPressed: '',
+	searchQuery: "",
+	changingChar: ''
 };
+
+const searchLetters = [
+	[' ', '0'],
+	['q', 'r', 's', '1'],
+	['t', 'u', 'v', '2'],
+	['w', 'x', 'y', 'z', '3'],
+	['g', 'h', 'i', '4'],
+	['j', 'k', 'l', '5'],
+	['m', 'n', 'o', 'p', '6'],
+	['7'],
+	['a', 'b', 'c', '8'],
+	['d', 'e', 'f', '9']
+];
 
 let selection = -1;
 let section = -1;
 
 document.addEventListener('keydown', function(event) {
 	key(event);
+});
+
+window.addEventListener('load', function () {
+	if (window.location.href.slice(0, 30) === "https://www.netflix.com/search") {
+		document.getElementsByClassName("searchInput")[0].getElementsByTagName("input")[0].blur();
+	}
 });
 
 function getElement(name) {
@@ -62,6 +88,11 @@ function getElement(name) {
 }
 
 function key(event) {
+	if (STATE.search) {
+		searchKey(event.key);
+		return;
+	}
+
 	switch (event.key) {
 		case '1':
             list();
@@ -91,6 +122,7 @@ function key(event) {
 			close();
 			break;
 		case '0':
+			search();
 			break;
 		case 'Enter':
 			playpause();
@@ -169,6 +201,53 @@ function list() {
     selection = -1;
     section = -1;
     document.getElementsByClassName("navigation-tab")[4].getElementsByTagName("a")[0].click();
+}
+
+function search() {
+	let d = document.createElement("div");
+	d.id = "search";
+	document.getElementsByTagName("body")[0].insertBefore(d,
+			document.getElementById("appMountPoint"));
+	let t = document.createElement("h1");
+	t.innerHTML = SEARCH_TEXT;
+	t.id = "query";
+	t.style.paddingLeft = "10px";
+	d.appendChild(t);
+	STATE.search = true;
+}
+
+function searchKey(key) {
+	if (key === "Enter") {
+		STATE.search = false;
+		let q = STATE.searchQuery + STATE.changingChar;
+		STATE.searchQuery = "";
+		STATE.changingChar = '';
+		STATE.lastKeyPressed = '';
+		STATE.numSameKeyPresses = 0;
+		window.location = SEARCH_URL + q;
+	} else if (key === '-') {
+		if (STATE.changingChar !== '') {
+			STATE.changingChar = '';
+			STATE.numSameKeyPresses = 0;
+			STATE.lastKeyPressed = '';
+		} else if (STATE.searchQuery.length !== 0) {
+			STATE.searchQuery = STATE.searchQuery.slice(0, length - 1);
+		}
+	} else if (key !== STATE.lastKeyPressed || key === '.') {
+		STATE.searchQuery += STATE.changingChar;
+		STATE.changingChar = '';
+		STATE.lastKeyPressed = key;
+		STATE.numSameKeyPresses = 0;
+	}
+
+	let num = parseInt(key);
+	if (!isNaN(num)) {
+		let len = searchLetters[num].length;
+		STATE.changingChar = searchLetters[num][STATE.numSameKeyPresses % len];
+		STATE.numSameKeyPresses++;
+	}
+
+	document.getElementById("query").innerHTML = SEARCH_TEXT + STATE.searchQuery + STATE.changingChar;
 }
 
 function account_switch() {
