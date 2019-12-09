@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name     	Youtube
 // @namespace	tarinnik.github.io/media
-// @version  	0.3.1
+// @version  	0.3.2
 // @include		https://www.youtube.com/*
 // @icon		https://youtube.com/favicon.ico
 // ==/UserScript==
@@ -168,6 +168,24 @@ function getNumColumns() {
 	}
 }
 
+function sectionElement(direction) {
+	let elements = getElements();
+	if (direction === DIRECTION.none) {
+		return (elements[STATE.selection].localName === SECTION_TAG_NAME) ? 0 : -1;
+	}
+	let rowLength = getNumColumns();
+	let i;
+	let s = false;
+	for (i = 1; i < rowLength; i++) {
+		if (elements[STATE.selection + (direction * i)].localName === SECTION_TAG_NAME) {
+			s = true;
+			break;
+		}
+	}
+	return (s) ? i : -1;
+
+}
+
 function scroll(index, defaultPosition, onScrollPosition, rowLength) {
 	if (index < rowLength) {
 		try {
@@ -176,14 +194,8 @@ function scroll(index, defaultPosition, onScrollPosition, rowLength) {
 			window.scrollTo(0, 0);
 		}
 	} else {
-		let elements = getElements();
-		let i;
-		for (i = 1; i < rowLength; i++) {
-			if (elements[STATE.selection - i].localName === SECTION_TAG_NAME) {
-				break;
-			}
-		}
-		let scrollNum = (i === 0) ? rowLength : i;
+		let i = sectionElement(DIRECTION.backwards);
+		let scrollNum = (i === -1) ? rowLength : i;
 		onScrollPosition[index - scrollNum].scrollIntoView();
 	}
 }
@@ -239,6 +251,8 @@ function left() {
 function up() {
 	if (checkMenu()) {
 		highlight(DIRECTION.backwards);
+	} else if (checkHome()) {
+
 	}
 }
 
