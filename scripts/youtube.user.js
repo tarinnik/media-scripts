@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name     	Youtube
 // @namespace	tarinnik.github.io/media
-// @version  	0.3
+// @version  	0.3.1
 // @include		https://www.youtube.com/*
 // @icon		https://youtube.com/favicon.ico
 // ==/UserScript==
@@ -13,10 +13,11 @@ const SUB_VIDEOS_ID = "items";
 const HOME_ID = "logo";
 const SUBSCRIPTION_BOX = "style-scope ytd-guide-renderer";
 const SUBSCRIPTION_TAG_NAME = "style-scope ytd-guide-section-renderer";
+const SECTION_TAG_NAME = "ytd-rich-section-renderer";
 const ROOT_URL = "https://www.youtube.com/";
 const WATCH_URL = "https://www.youtube.com/watch?v=";
 const SUBS_URL = "https://www.youtube.com/feed/subscriptions";
-const CHANNEL_URL = "https://www.youtube.com/channel"
+const CHANNEL_URL = "https://www.youtube.com/channel";
 const CHANNEL_VIDEOS = "/videos";
 const CHANNEL_URL_LENGTH = 31;
 const EMBED_URL_LENGTH = 30;
@@ -30,16 +31,6 @@ if (window.location.href.slice(0, EMBED_URL_LENGTH) === "https://www.youtube.com
 	window.location = WATCH_URL + videoID;
 }
 
-const SECTION = {
-	none: -1,
-	homeVideos: 0,
-	menu: 1,
-	subVideos: 2,
-	watch: 3,
-	channel: 4,
-	trending: 5,
-};
-
 const DIRECTION = {
 	none: 0,
 	forwards: 1,
@@ -47,13 +38,12 @@ const DIRECTION = {
 };
 
 let STATE = {
-	section: SECTION.homeVideos,
 	selection: 0,
+	inMenu: false,
 	menuExpanded: false,
 };
 
 window.addEventListener('load', function () {
-	checkLocation();
 	highlight(DIRECTION.none);
 });
 
@@ -101,32 +91,29 @@ function key(event) {
 		case 'Enter':
 			playpause();
 			break;
+		case '/':
+			refresh();
+			break;
 	}
 }
 
-function checkLocation() {
-	let url = window.location.href;
-	if (url === ROOT_URL) {
-		STATE.section = SECTION.homeVideos;
-	} else if (url === SUBS_URL) {
-		STATE.section = SECTION.subVideos;
-	} else if (url.slice(0, CHANNEL_URL_LENGTH) === CHANNEL_URL) {
-		STATE.section = SECTION.channel;
-	} else {
-		STATE.section = SECTION.none;
-	}
+function newPage() {
+	STATE.selection = 0;
+	setTimeout(function () {
+		highlight(DIRECTION.none);
+	}, 750);
 }
 
 function checkHome() {
-	return STATE.section === SECTION.homeVideos;
+	return window.location.href === ROOT_URL && !checkMenu();
 }
 
 function checkMenu() {
-	return STATE.section === SECTION.menu;
+	return STATE.inMenu;
 }
 
 function checkSubs() {
-	return STATE.section === SECTION.subVideos;
+	return window.location.href === SUBS_URL && !checkMenu();
 }
 
 function getMenuElement(main) {
@@ -159,36 +146,45 @@ function getMenuElement(main) {
 	return a;
 }
 
-function getElements(section) {
-	switch (section) {
-		case SECTION.homeVideos:
-			return document.getElementById(HOME_VIDEOS_ID).childNodes;
-		case SECTION.menu:
-			return getMenuElement(document.getElementById(MENU_ID).childNodes);
-		case SECTION.subVideos:
-			return document.getElementById(SUB_VIDEOS_ID).childNodes;
+
+function getElements() {
+	let url = window.location.href;
+	if (checkHome()) {
+		return document.getElementById(HOME_VIDEOS_ID).childNodes;
+	} else if (checkMenu()) {
+		return getMenuElement(document.getElementById(MENU_ID).childNodes);
+	} else if (checkSubs()) {
+		return document.getElementById(SUB_VIDEOS_ID).childNodes;
 	}
 }
 
 function getNumColumns() {
-	let a = document.getElementsByTagName(SCROLL_COLUMNS_TAG)[0].getAttribute("style");
-	let i = a.indexOf(SCROLL_COLUMNS_STYLE);
-	a = a.slice(i, a.length);
-	a = a.split(':')[1];
-	return parseInt(a);
+	if (checkHome()) {
+		let a = document.getElementsByTagName(SCROLL_COLUMNS_TAG)[0].getAttribute("style");
+		let i = a.indexOf(SCROLL_COLUMNS_STYLE);
+		a = a.slice(i, a.length);
+		a = a.split(':')[1];
+		return parseInt(a);
+	}
 }
 
 function scroll(index, defaultPosition, onScrollPosition, rowLength) {
-	if (checkHome() || checkSubs()) {
-		if (index < rowLength) {
-			try {
-				defaultPosition.scrollIntoView();
-			} catch (TypeError) {
-				window.scrollTo(0, 0);
-			}
-		} else {
-			onScrollPosition[index - rowLength].scrollIntoView();
+	if (index < rowLength) {
+		try {
+			defaultPosition.scrollIntoView();
+		} catch (TypeError) {
+			window.scrollTo(0, 0);
 		}
+	} else {
+		let elements = getElements();
+		let i;
+		for (i = 1; i < rowLength; i++) {
+			if (elements[STATE.selection - i].localName === SECTION_TAG_NAME) {
+				break;
+			}
+		}
+		let scrollNum = (i === 0) ? rowLength : i;
+		onScrollPosition[index - scrollNum].scrollIntoView();
 	}
 }
 
@@ -197,11 +193,11 @@ function scroll(index, defaultPosition, onScrollPosition, rowLength) {
  * @param direction to highlight
  */
 function highlight(direction) {
-	let elements = getElements(STATE.section);
+	let elements = getElements();
 	if (STATE.selection === 0 && direction === DIRECTION.backwards) {
 		if (checkHome() || checkSubs()) {
 			elements[0].removeAttribute("style");
-			STATE.section = SECTION.menu;
+			STATE.inMenu = true;
 			STATE.selection = 0;
 			highlight(DIRECTION.none);
 		} else {
@@ -219,18 +215,18 @@ function highlight(direction) {
 		elements[STATE.selection].setAttribute("style", BACKGROUND_COLOUR);
 	}
 	if (checkHome() || checkSubs()) {
-		scroll(STATE.selection, null, getElements(STATE.section), getNumColumns());
+		scroll(STATE.selection, null, getElements(), getNumColumns());
 	}
 }
 
 function right() {
-	if (checkHome() || checkSubs()) {
-		highlight(DIRECTION.forwards);
-	} else if (checkMenu()) {
-		getElements(STATE.section)[STATE.selection].removeAttribute("style");
-		checkLocation();
+	if (checkMenu()) {
+		getElements()[STATE.selection].removeAttribute("style");
 		STATE.selection = 0;
+		STATE.inMenu = false;
 		highlight(DIRECTION.none);
+	} else if (checkHome() || checkSubs()) {
+		highlight(DIRECTION.forwards);
 	}
 }
 
@@ -254,37 +250,40 @@ function down() {
 
 function select() {
 	if (checkHome() || checkSubs()) {
-		getElements(STATE.section)[STATE.selection].getElementsByTagName("a")[0].click();
+		getElements()[STATE.selection].getElementsByTagName("a")[0].click();
 	} else if (checkMenu()) {
-		let elements = getElements(STATE.section);
+		let elements = getElements();
 		if (STATE.selection === elements.length - 1) {
 			if (STATE.menuExpanded) {
 				elements[STATE.selection].click();
-				STATE.menuExpanded = !STATE.menuExpanded;
-				elements = getElements(STATE.section);
+				STATE.menuExpanded = false;
+				elements = getElements();
 				STATE.selection = elements.length - 1;
 			} else {
 				elements[STATE.selection].getElementsByTagName("ytd-guide-entry-renderer")[0].click();
-				STATE.menuExpanded = !STATE.menuExpanded;
+				elements[STATE.selection].removeAttribute("style");
+				STATE.menuExpanded = true;
+				highlight(DIRECTION.none);
 			}
-			elements[STATE.selection].removeAttribute("style");
-			highlight(DIRECTION.none);
 		} else {
 			elements[STATE.selection].click();
-			STATE.selection = 0;
-			setTimeout(function () {
-				checkLocation();
-			}, 750);
+			elements[STATE.selection].removeAttribute("style");
+			STATE.inMenu = false;
+			newPage();
 		}
 	}
 }
 
 function close() {
-	document.getElementById(HOME_ID).click();
-	STATE.section = SECTION.homeVideos;
-	STATE.selection = 0;
+	document.getElementById(HOME_ID).getElementsByTagName("a")[0].click();
+	STATE.inMenu = false;
+	newPage();
 }
 
 function home() {
 	window.location = "https://tarinnik.github.io/media/";
+}
+
+function refresh() {
+	window.location = window.location.href;
 }
