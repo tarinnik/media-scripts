@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name     	Youtube
 // @namespace	tarinnik.github.io/media
-// @version  	0.2
+// @version  	0.3
 // @include		https://www.youtube.com/*
 // @icon		https://youtube.com/favicon.ico
 // ==/UserScript==
@@ -10,11 +10,13 @@ const BACKGROUND_COLOUR = "background:red";
 const HOME_VIDEOS_ID = "contents";
 const MENU_ID = "sections";
 const SUB_VIDEOS_ID = "items";
+const HOME_ID = "logo";
 const SUBSCRIPTION_BOX = "style-scope ytd-guide-renderer";
 const SUBSCRIPTION_TAG_NAME = "style-scope ytd-guide-section-renderer";
 const ROOT_URL = "https://www.youtube.com/";
 const WATCH_URL = "https://www.youtube.com/watch?v=";
 const SUBS_URL = "https://www.youtube.com/feed/subscriptions";
+const CHANNEL_URL = "https://www.youtube.com/channel"
 const CHANNEL_VIDEOS = "/videos";
 const CHANNEL_URL_LENGTH = 31;
 const EMBED_URL_LENGTH = 30;
@@ -29,9 +31,13 @@ if (window.location.href.slice(0, EMBED_URL_LENGTH) === "https://www.youtube.com
 }
 
 const SECTION = {
+	none: -1,
 	homeVideos: 0,
 	menu: 1,
 	subVideos: 2,
+	watch: 3,
+	channel: 4,
+	trending: 5,
 };
 
 const DIRECTION = {
@@ -43,6 +49,7 @@ const DIRECTION = {
 let STATE = {
 	section: SECTION.homeVideos,
 	selection: 0,
+	menuExpanded: false,
 };
 
 window.addEventListener('load', function () {
@@ -98,13 +105,15 @@ function key(event) {
 }
 
 function checkLocation() {
-	switch (window.location.href) {
-		case ROOT_URL:
-			STATE.section = SECTION.homeVideos;
-			break;
-		case SUBS_URL:
-			STATE.section = SECTION.subVideos;
-			break;
+	let url = window.location.href;
+	if (url === ROOT_URL) {
+		STATE.section = SECTION.homeVideos;
+	} else if (url === SUBS_URL) {
+		STATE.section = SECTION.subVideos;
+	} else if (url.slice(0, CHANNEL_URL_LENGTH) === CHANNEL_URL) {
+		STATE.section = SECTION.channel;
+	} else {
+		STATE.section = SECTION.none;
 	}
 }
 
@@ -120,12 +129,42 @@ function checkSubs() {
 	return STATE.section === SECTION.subVideos;
 }
 
+function getMenuElement(main) {
+	let a = [];
+	let b = main[0].getElementsByTagName("div")[0].childNodes;
+	for (let i = 0; i < 3; i++) {
+		a.push(b[i]);
+	}
+	a.push(b[3].getElementsByTagName("div")[0]);
+	for (let i = 0; i < 5; i++) {
+		a.push(b[3].getElementsByTagName("div")[2].getElementsByTagName("ytd-guide-entry-renderer")[i]);
+	}
+
+	let subs = main[1].getElementsByTagName("div")[0].childNodes;
+	if (!STATE.menuExpanded) {
+		for (let i = 0; i < subs.length; i++) {
+			a.push(subs[i]);
+		}
+	} else {
+		for (let i = 0; i < subs.length - 1; i++) {
+			a.push(subs[i]);
+		}
+		let moreSubs = subs[subs.length -1].getElementsByTagName("div")[2].childNodes;
+		for (let i = 0; i < moreSubs.length; i++) {
+			a.push(moreSubs[i]);
+		}
+		a.push(subs[subs.length -1].getElementsByTagName("div")[1].childNodes[3]);
+	}
+
+	return a;
+}
+
 function getElements(section) {
 	switch (section) {
 		case SECTION.homeVideos:
 			return document.getElementById(HOME_VIDEOS_ID).childNodes;
 		case SECTION.menu:
-			return document.getElementById(MENU_ID).childNodes;
+			return getMenuElement(document.getElementById(MENU_ID).childNodes);
 		case SECTION.subVideos:
 			return document.getElementById(SUB_VIDEOS_ID).childNodes;
 	}
@@ -216,7 +255,34 @@ function down() {
 function select() {
 	if (checkHome() || checkSubs()) {
 		getElements(STATE.section)[STATE.selection].getElementsByTagName("a")[0].click();
+	} else if (checkMenu()) {
+		let elements = getElements(STATE.section);
+		if (STATE.selection === elements.length - 1) {
+			if (STATE.menuExpanded) {
+				elements[STATE.selection].click();
+				STATE.menuExpanded = !STATE.menuExpanded;
+				elements = getElements(STATE.section);
+				STATE.selection = elements.length - 1;
+			} else {
+				elements[STATE.selection].getElementsByTagName("ytd-guide-entry-renderer")[0].click();
+				STATE.menuExpanded = !STATE.menuExpanded;
+			}
+			elements[STATE.selection].removeAttribute("style");
+			highlight(DIRECTION.none);
+		} else {
+			elements[STATE.selection].click();
+			STATE.selection = 0;
+			setTimeout(function () {
+				checkLocation();
+			}, 750);
+		}
 	}
+}
+
+function close() {
+	document.getElementById(HOME_ID).click();
+	STATE.section = SECTION.homeVideos;
+	STATE.selection = 0;
 }
 
 function home() {
