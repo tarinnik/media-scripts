@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name     	Youtube
 // @namespace	tarinnik.github.io/media
-// @version  	0.3.2
+// @version  	0.4
 // @include		https://www.youtube.com/*
 // @icon		https://youtube.com/favicon.ico
 // ==/UserScript==
@@ -32,9 +32,12 @@ if (window.location.href.slice(0, EMBED_URL_LENGTH) === "https://www.youtube.com
 }
 
 const DIRECTION = {
+	remove: 'r',
 	none: 0,
 	forwards: 1,
 	backwards: -1,
+	up: 2,
+	down: 3,
 };
 
 let STATE = {
@@ -206,7 +209,9 @@ function scroll(index, defaultPosition, onScrollPosition, rowLength) {
  */
 function highlight(direction) {
 	let elements = getElements();
-	if (STATE.selection === 0 && direction === DIRECTION.backwards) {
+	if (direction === DIRECTION.remove) {
+		elements[STATE.selection].removeAttribute("style");
+	} else if (STATE.selection === 0 && direction === DIRECTION.backwards) {
 		if (checkHome() || checkSubs()) {
 			elements[0].removeAttribute("style");
 			STATE.inMenu = true;
@@ -221,6 +226,22 @@ function highlight(direction) {
 		STATE.selection = 0;
 		elements[elements.length - 1].removeAttribute("style");
 		elements[STATE.selection].setAttribute("style", BACKGROUND_COLOUR);
+
+	// Direction up or down, but only if left and right are unavailable
+	} else if (direction === DIRECTION.up || direction === DIRECTION.down) {
+		let multiplier = (direction === DIRECTION.up) ? -1 : 1;
+		let s = (direction === DIRECTION.up) ? sectionElement(DIRECTION.backwards) : sectionElement(DIRECTION.forwards);
+		if (s !== -1) {
+			elements[STATE.selection].removeAttribute("style");
+			STATE.selection += (s * multiplier);
+			elements[STATE.selection].setAttribute("style", BACKGROUND_COLOUR);
+		} else if (direction === DIRECTION.down && sectionElement(DIRECTION.none) === 0) {
+			highlight(DIRECTION.forwards);
+		} else {
+			elements[STATE.selection].removeAttribute("style");
+			STATE.selection += (getNumColumns() * multiplier);
+			elements[STATE.selection].setAttribute("style", BACKGROUND_COLOUR);
+		}
 	} else {
 		STATE.selection += direction;
 		elements[STATE.selection - direction].removeAttribute("style");
@@ -252,13 +273,15 @@ function up() {
 	if (checkMenu()) {
 		highlight(DIRECTION.backwards);
 	} else if (checkHome()) {
-
+		highlight(DIRECTION.up);
 	}
 }
 
 function down() {
 	if (checkMenu()) {
 		highlight(DIRECTION.forwards);
+	} else if (checkHome()) {
+		highlight(DIRECTION.down);
 	}
 }
 
@@ -289,6 +312,7 @@ function select() {
 }
 
 function close() {
+	highlight(DIRECTION.remove);
 	document.getElementById(HOME_ID).getElementsByTagName("a")[0].click();
 	STATE.inMenu = false;
 	newPage();
