@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name     	Youtube
 // @namespace	tarinnik.github.io/media
-// @version  	0.4
+// @version  	0.5
 // @include		https://www.youtube.com/*
 // @icon		https://youtube.com/favicon.ico
 // ==/UserScript==
@@ -9,10 +9,10 @@
 const BACKGROUND_COLOUR = "background:red";
 const HOME_VIDEOS_ID = "contents";
 const MENU_ID = "sections";
-const SUB_VIDEOS_ID = "items";
 const HOME_ID = "logo";
-const SUBSCRIPTION_BOX = "style-scope ytd-guide-renderer";
-const SUBSCRIPTION_TAG_NAME = "style-scope ytd-guide-section-renderer";
+const SUB_TAG_1 = "ytd-grid-renderer";
+const SUB_TAG_2 = "div";
+const SUB_COLUMN_TAG = "ytd-two-column-browse-results-renderer";
 const SECTION_TAG_NAME = "ytd-rich-section-renderer";
 const ROOT_URL = "https://www.youtube.com/";
 const WATCH_URL = "https://www.youtube.com/watch?v=";
@@ -104,7 +104,7 @@ function newPage() {
 	STATE.selection = 0;
 	setTimeout(function () {
 		highlight(DIRECTION.none);
-	}, 750);
+	}, 2000);
 }
 
 function checkHome() {
@@ -149,6 +149,18 @@ function getMenuElement(main) {
 	return a;
 }
 
+function getSubElements() {
+	let a = [];
+	let sections = document.getElementsByTagName(SUB_TAG_1);
+	for (let i = 0; i < sections.length; i++) {
+		let videos = sections[i].getElementsByTagName(SUB_TAG_2)[0].childNodes;
+		for (let j = 0; j < videos.length; j++) {
+			a.push(videos[j]);
+		}
+	}
+	return a;
+}
+
 
 function getElements() {
 	let url = window.location.href;
@@ -157,7 +169,7 @@ function getElements() {
 	} else if (checkMenu()) {
 		return getMenuElement(document.getElementById(MENU_ID).childNodes);
 	} else if (checkSubs()) {
-		return document.getElementById(SUB_VIDEOS_ID).childNodes;
+		return getSubElements();
 	}
 }
 
@@ -168,6 +180,10 @@ function getNumColumns() {
 		a = a.slice(i, a.length);
 		a = a.split(':')[1];
 		return parseInt(a);
+	} else if (checkSubs()) {
+		let e = document.getElementsByTagName(SUB_COLUMN_TAG)[0].getAttribute("class");
+		let i = e.indexOf("grid");
+		return parseInt(e.slice(i, e.length - 1).split('-')[1]);
 	}
 }
 
@@ -272,7 +288,7 @@ function left() {
 function up() {
 	if (checkMenu()) {
 		highlight(DIRECTION.backwards);
-	} else if (checkHome()) {
+	} else if (checkHome() || checkSubs()) {
 		highlight(DIRECTION.up);
 	}
 }
@@ -280,7 +296,7 @@ function up() {
 function down() {
 	if (checkMenu()) {
 		highlight(DIRECTION.forwards);
-	} else if (checkHome()) {
+	} else if (checkHome() || checkSubs()) {
 		highlight(DIRECTION.down);
 	}
 }
@@ -303,9 +319,9 @@ function select() {
 				highlight(DIRECTION.none);
 			}
 		} else {
-			elements[STATE.selection].click();
-			elements[STATE.selection].removeAttribute("style");
+			highlight(DIRECTION.remove);
 			STATE.inMenu = false;
+			elements[STATE.selection].click();
 			newPage();
 		}
 	}
