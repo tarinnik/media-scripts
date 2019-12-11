@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name     	Youtube
 // @namespace	tarinnik.github.io/media
-// @version  	0.5
+// @version  	0.6
 // @include		https://www.youtube.com/*
 // @icon		https://youtube.com/favicon.ico
 // ==/UserScript==
@@ -16,13 +16,18 @@ const SUB_COLUMN_TAG = "ytd-two-column-browse-results-renderer";
 const SECTION_TAG_NAME = "ytd-rich-section-renderer";
 const ROOT_URL = "https://www.youtube.com/";
 const WATCH_URL = "https://www.youtube.com/watch?v=";
+const WATCH_URL_LENGTH = 32;
 const SUBS_URL = "https://www.youtube.com/feed/subscriptions";
 const CHANNEL_URL = "https://www.youtube.com/channel";
-const CHANNEL_VIDEOS = "/videos";
 const CHANNEL_URL_LENGTH = 31;
 const EMBED_URL_LENGTH = 30;
 const SCROLL_COLUMNS_TAG = "ytd-browse";
 const SCROLL_COLUMNS_STYLE = "--ytd-rich-grid-items-per-row";
+const LEFT_PLAYER_CONTROLS_CLASS = "ytp-left-controls";
+const PLAY_INDEX = 1;
+const RIGHT_PLAYER_CONTROLS_CLASS = "ytp-right-controls";
+const THEATRE_INDEX = 6;
+const FULLSCREEN_INDEX = 8;
 
 // Redirecting embeded youtube links to full youtube
 if (window.location.href.slice(0, EMBED_URL_LENGTH) === "https://www.youtube.com/embed/") {
@@ -68,7 +73,6 @@ function key(event) {
 			down();
 			break;
 		case '3':
-			fullscreen();
 			break;
 		case '4':
 			left();
@@ -86,10 +90,18 @@ function key(event) {
 			up();
 			break;
 		case '9':
-			close();
 			break;
 		case '0':
 			search();
+			break;
+		case '.':
+			theatre();
+			break;
+		case '+':
+			fullscreen();
+			break;
+		case '-':
+			close();
 			break;
 		case 'Enter':
 			playpause();
@@ -101,10 +113,10 @@ function key(event) {
 }
 
 function newPage() {
-	STATE.selection = 0;
 	setTimeout(function () {
+		STATE.selection = 0;
 		highlight(DIRECTION.none);
-	}, 2000);
+	}, 500);
 }
 
 function checkHome() {
@@ -117,6 +129,10 @@ function checkMenu() {
 
 function checkSubs() {
 	return window.location.href === SUBS_URL && !checkMenu();
+}
+
+function checkWatch() {
+	return window.location.href.slice(0, WATCH_URL_LENGTH) === WATCH_URL;
 }
 
 function getMenuElement(main) {
@@ -163,7 +179,6 @@ function getSubElements() {
 
 
 function getElements() {
-	let url = window.location.href;
 	if (checkHome()) {
 		return document.getElementById(HOME_VIDEOS_ID).childNodes;
 	} else if (checkMenu()) {
@@ -327,11 +342,28 @@ function select() {
 	}
 }
 
+function fullscreen() {
+	document.getElementsByClassName(RIGHT_PLAYER_CONTROLS_CLASS)[0].childNodes[FULLSCREEN_INDEX].click();
+}
+
+function theatre() {
+	document.getElementsByClassName(RIGHT_PLAYER_CONTROLS_CLASS)[0].childNodes[THEATRE_INDEX].click();
+}
+
+function playpause() {
+	document.getElementsByClassName(LEFT_PLAYER_CONTROLS_CLASS)[0].childNodes[PLAY_INDEX].click();
+}
+
 function close() {
-	highlight(DIRECTION.remove);
-	document.getElementById(HOME_ID).getElementsByTagName("a")[0].click();
-	STATE.inMenu = false;
-	newPage();
+	if (checkWatch()) {
+		window.history.go(-1);
+		newPage();
+	} else {
+		highlight(DIRECTION.remove);
+		document.getElementById(HOME_ID).getElementsByTagName("a")[0].click();
+		STATE.inMenu = false;
+		newPage();
+	}
 }
 
 function home() {
