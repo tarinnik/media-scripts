@@ -1,13 +1,16 @@
 // ==UserScript==
 // @name     	Youtube
 // @namespace	tarinnik.github.io/media
-// @version  	0.6
+// @version  	0.6.1
 // @include		https://www.youtube.com/*
 // @icon		https://youtube.com/favicon.ico
 // ==/UserScript==
 
 const BACKGROUND_COLOUR = "background:red";
-const HOME_VIDEOS_ID = "contents";
+const PAGE_ID = "page-manager";
+const BROWSE_VIDEOS_TAG = "ytd-browse";
+const PAGE_ATTRIBUTE = "page-subtype";
+const HOME_VIDEOS_SUBTYPE = "home";
 const MENU_ID = "sections";
 const HOME_ID = "logo";
 const SUB_TAG_1 = "ytd-grid-renderer";
@@ -180,7 +183,17 @@ function getSubElements() {
 
 function getElements() {
 	if (checkHome()) {
-		return document.getElementById(HOME_VIDEOS_ID).childNodes;
+		let elements = document.getElementById(PAGE_ID).getElementsByTagName(BROWSE_VIDEOS_TAG);
+		for (let i = 0; i < elements.length; i++) {
+			if (elements[i].getAttribute(PAGE_ATTRIBUTE) === HOME_VIDEOS_SUBTYPE) {
+				let more = elements[i].getElementsByTagName("ytd-rich-grid-renderer")[0].getElementsByTagName("div");
+				for (let j = 0; j < more.length; j++) {
+					if (more[j].getAttribute("id") === "contents") {
+						return more[j].childNodes;
+					}
+				}
+			}
+		}
 	} else if (checkMenu()) {
 		return getMenuElement(document.getElementById(MENU_ID).childNodes);
 	} else if (checkSubs()) {
@@ -280,6 +293,8 @@ function highlight(direction) {
 	}
 	if (checkHome() || checkSubs()) {
 		scroll(STATE.selection, null, getElements(), getNumColumns());
+	} else if (checkMenu()) {
+		scroll(STATE.selection, null, getElements(), 1);
 	}
 }
 
@@ -359,7 +374,9 @@ function close() {
 		window.history.go(-1);
 		newPage();
 	} else {
-		highlight(DIRECTION.remove);
+		try {
+			highlight(DIRECTION.remove);
+		} catch (Error) {}
 		document.getElementById(HOME_ID).getElementsByTagName("a")[0].click();
 		STATE.inMenu = false;
 		newPage();
