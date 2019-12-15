@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        Netflix
 // @namespace   tarinnik.github.io/media
-// @version	    0.11.2
+// @version	    0.11.3
 // @include	    https://www.netflix.com/*
 // @icon        https://www.netflix.com/favicon.ico
 // ==/UserScript==
@@ -105,7 +105,7 @@ function key(event) {
 			down();
 			break;
 		case '3':
-			fullscreen();
+			account_switch();
 			break;
 		case '4':
 			left();
@@ -123,7 +123,6 @@ function key(event) {
 			up();
 			break;
 		case '9':
-			close();
 			break;
 		case '0':
 			search();
@@ -132,7 +131,10 @@ function key(event) {
 			playpause();
 			break;
 		case '+':
-			account_switch();
+			fullscreen();
+			break;
+		case '-':
+			close();
 			break;
 		case '/':
 			refresh();
