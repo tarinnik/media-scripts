@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        Netflix
 // @namespace   tarinnik.github.io/media
-// @version	    0.11.1
+// @version	    0.11.2
 // @include	    https://www.netflix.com/*
 // @icon        https://www.netflix.com/favicon.ico
 // ==/UserScript==
@@ -37,6 +37,9 @@ let STATE = {
 	main: 0,
 	selection: -1,
 	section: -1,
+	// 0 is play, add to list
+	// 1 is overview, episodes
+	// 2 is episode selection
 	videoOptions: 0,
 	search: false,
 	numSameKeyPresses: 0,
@@ -130,6 +133,9 @@ function key(event) {
 			break;
 		case '+':
 			account_switch();
+			break;
+		case '/':
+			refresh();
 			break;
 	}
 }
@@ -231,7 +237,7 @@ function searchKey(key) {
 		} else if (STATE.searchQuery.length !== 0) {
 			STATE.searchQuery = STATE.searchQuery.slice(0, length - 1);
 		}
-	} else if (key === '*') {
+	} else if (key === '+') {
 		resetSearch();
 		document.getElementById("search").remove();
 	} else if (key !== STATE.lastKeyPressed || key === '.') {
@@ -361,11 +367,6 @@ function select() {
 				getElementsByTagName("a")[0].click();
 		selection = -1;
 		section = -1;
-	} else if (checkMyList()) {
-        document.getElementsByClassName(MY_LIST_ROW_CLASS)[section].
-                getElementsByClassName(VIDEO_CLASS)[selection].
-                getElementsByTagName("a")[0].click();
-        selection = -1;
 
 	// Selecting the row expands the list
 	} else if (checkBrowse()) {
@@ -377,14 +378,13 @@ function select() {
 				link[0].click();
 			}
 
-
 		// Selecting a video in a row
 		} else {
 			let rowIdName = "row-" + (section + 1);
 			document.getElementsByClassName(VIDEO_CLASS)[selection].removeAttribute("style");
 			document.getElementById(rowIdName).getElementsByClassName(VIDEO_CLASS)[selection].
 					getElementsByTagName("a")[0].click();
-			selection = -1;
+			selection = 0;
 		}
 
 	// Selecting an option in the video popup after selecting a video from a row
@@ -399,6 +399,11 @@ function select() {
 			getElement(VIDEO_EPISODE_CLASS)[selection].getElementsByTagName("a")[0].click();
 			selection = -1;
 		}
+	} else if (checkMyList()) {
+		document.getElementsByClassName(MY_LIST_ROW_CLASS)[section].
+		getElementsByClassName(VIDEO_CLASS)[selection].
+		getElementsByTagName("a")[0].click();
+		selection = -1;
 	}
 }
 
@@ -490,4 +495,8 @@ function scroll(index, defaultPosition, onScrollPosition, rowLength) {
 
 function home() {
 	window.location = "https://tarinnik.github.io/media/";
+}
+
+function refresh() {
+	window.location = window.location.href;
 }
