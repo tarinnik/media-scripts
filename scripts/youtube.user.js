@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name     	Youtube
 // @namespace	tarinnik.github.io/media
-// @version  	0.7
+// @version  	0.8
 // @include		https://www.youtube.com/*
 // @icon		https://youtube.com/favicon.ico
 // ==/UserScript==
@@ -32,6 +32,10 @@ const RIGHT_PLAYER_CONTROLS_CLASS = "ytp-right-controls";
 const THEATRE_INDEX = 6;
 const FULLSCREEN_INDEX = 8;
 const SEARCH_ID = "search-form";
+const SEARCH_URL = "https://www.youtube.com/results?search_query=";
+const SEARCH_URL_LENGTH = 45;
+const SEARCH_VIDEOS_TAG = "ytd-search";
+const VIDEO_TAG = "ytd-video-renderer";
 
 // Redirecting embeded youtube links to full youtube
 if (window.location.href.slice(0, EMBED_URL_LENGTH) === "https://www.youtube.com/embed/") {
@@ -157,6 +161,10 @@ function checkWatch() {
 	return window.location.href.slice(0, WATCH_URL_LENGTH) === WATCH_URL;
 }
 
+function checkSearch() {
+	return window.location.href.slice(0, SEARCH_URL_LENGTH) === SEARCH_URL;
+}
+
 function getMenuElement(main) {
 	let a = [];
 	let b = main[0].getElementsByTagName("div")[0].childNodes;
@@ -217,6 +225,8 @@ function getElements() {
 		return getMenuElement(document.getElementById(MENU_ID).childNodes);
 	} else if (checkSubs()) {
 		return getSubElements();
+	} else if (checkSearch()) {
+		return document.getElementById(PAGE_ID).getElementsByTagName(SEARCH_VIDEOS_TAG)[0].getElementsByTagName(VIDEO_TAG);
 	}
 }
 
@@ -310,9 +320,11 @@ function highlight(direction) {
 		elements[STATE.selection - direction].removeAttribute("style");
 		elements[STATE.selection].setAttribute("style", BACKGROUND_COLOUR);
 	}
+
+	//Scrolling
 	if (checkHome() || checkSubs()) {
 		scroll(STATE.selection, null, getElements(), getNumColumns());
-	} else if (checkMenu()) {
+	} else if (checkMenu() || checkSearch()) {
 		scroll(STATE.selection, null, getElements(), 1);
 	}
 }
@@ -335,7 +347,7 @@ function left() {
 }
 
 function up() {
-	if (checkMenu()) {
+	if (checkMenu() || checkSearch()) {
 		highlight(DIRECTION.backwards);
 	} else if (checkHome() || checkSubs()) {
 		highlight(DIRECTION.up);
@@ -343,7 +355,7 @@ function up() {
 }
 
 function down() {
-	if (checkMenu()) {
+	if (checkMenu() || checkSearch()) {
 		highlight(DIRECTION.forwards);
 	} else if (checkHome() || checkSubs()) {
 		highlight(DIRECTION.down);
@@ -351,7 +363,7 @@ function down() {
 }
 
 function select() {
-	if (checkHome() || checkSubs()) {
+	if (checkHome() || checkSubs() || checkSearch()) {
 		getElements()[STATE.selection].getElementsByTagName("a")[0].click();
 	} else if (checkMenu()) {
 		let elements = getElements();
