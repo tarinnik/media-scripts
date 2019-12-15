@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name     	Youtube
 // @namespace	tarinnik.github.io/media
-// @version  	0.6.1
+// @version  	0.7
 // @include		https://www.youtube.com/*
 // @icon		https://youtube.com/favicon.ico
 // ==/UserScript==
@@ -31,6 +31,7 @@ const PLAY_INDEX = 1;
 const RIGHT_PLAYER_CONTROLS_CLASS = "ytp-right-controls";
 const THEATRE_INDEX = 6;
 const FULLSCREEN_INDEX = 8;
+const SEARCH_ID = "search-form";
 
 // Redirecting embeded youtube links to full youtube
 if (window.location.href.slice(0, EMBED_URL_LENGTH) === "https://www.youtube.com/embed/") {
@@ -52,7 +53,25 @@ let STATE = {
 	selection: 0,
 	inMenu: false,
 	menuExpanded: false,
+	search: false,
+	numSameKeyPresses: 0,
+	lastKeyPressed: '',
+	searchQuery: "",
+	changingChar: ''
 };
+
+const searchLetters = [
+	[' ', '0'],
+	['q', 'r', 's', '1'],
+	['t', 'u', 'v', '2'],
+	['w', 'x', 'y', 'z', '3'],
+	['g', 'h', 'i', '4'],
+	['j', 'k', 'l', '5'],
+	['m', 'n', 'o', 'p', '6'],
+	['7'],
+	['a', 'b', 'c', '8'],
+	['d', 'e', 'f', '9']
+];
 
 window.addEventListener('load', function () {
 	highlight(DIRECTION.none);
@@ -381,6 +400,52 @@ function close() {
 		STATE.inMenu = false;
 		newPage();
 	}
+}
+
+function search() {
+	document.getElementById(SEARCH_ID).setAttribute("style", BACKGROUND_COLOUR);
+	STATE.search = true;
+}
+
+function searchKey(key) {
+	if (key === "Enter") {
+		document.getElementById(SEARCH_ID).getElementsByTagName("button")[0].click();
+		resetSearch();
+	} else if (key === '-') {
+		if (STATE.changingChar !== '') {
+			STATE.changingChar = '';
+			STATE.lastKeyPressed = '';
+			STATE.numSameKeyPresses = 0;
+		} else if (STATE.searchQuery.length !== 0) {
+			STATE.searchQuery = STATE.searchQuery.slice(0, length - 1);
+		}
+	} else if (key === '*') {
+		resetSearch();
+		document.getElementById("search").remove();
+	} else if (key !== STATE.lastKeyPressed || key === '.') {
+		STATE.searchQuery += STATE.changingChar;
+		STATE.changingChar = '';
+		STATE.lastKeyPressed = key;
+		STATE.numSameKeyPresses = 0;
+	}
+
+	let num = parseInt(key);
+	if (!isNaN(num)) {
+		let len = searchLetters[num].length;
+		STATE.changingChar = searchLetters[num][STATE.numSameKeyPresses % len];
+		STATE.numSameKeyPresses++;
+	}
+
+	document.getElementById(SEARCH_ID).getElementsByTagName("input")[0].value = STATE.searchQuery + STATE.changingChar;
+}
+
+function resetSearch() {
+	STATE.searchQuery = "";
+	STATE.changingChar = '';
+	STATE.lastKeyPressed = '';
+	STATE.numSameKeyPresses = 0;
+	STATE.search = false;
+	document.getElementById(SEARCH_ID).removeAttribute("style");
 }
 
 function home() {
