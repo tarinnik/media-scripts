@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name     	Youtube
 // @namespace	tarinnik.github.io/media
-// @version  	0.8
+// @version  	0.9
 // @include		https://www.youtube.com/*
 // @icon		https://youtube.com/favicon.ico
 // ==/UserScript==
@@ -36,6 +36,10 @@ const SEARCH_URL = "https://www.youtube.com/results?search_query=";
 const SEARCH_URL_LENGTH = 45;
 const SEARCH_VIDEOS_TAG = "ytd-search";
 const VIDEO_TAG = "ytd-video-renderer";
+const CHANNEL_TAB_ID = "tabsContent";
+const CHANNEL_TAB_ITEMS_TAG = "paper-tab";
+const CHANNEL_VIDEOS_TAG_1 = "ytd-grid-renderer";
+const CHANNEL_VIDEOS_TAG_2 = "ytd-grid-video-renderer";
 
 // Redirecting embeded youtube links to full youtube
 if (window.location.href.slice(0, EMBED_URL_LENGTH) === "https://www.youtube.com/embed/") {
@@ -53,10 +57,22 @@ const DIRECTION = {
 	down: 3,
 };
 
+const CHANNEL_LOCATION = {
+	none: 0,
+	home: '',
+	home2: 'featured',
+	videos: 'videos',
+	playlists: 'playlists',
+	community: 'community',
+	channels: 'channels',
+	about: 'about',
+};
+
 let STATE = {
 	selection: 0,
 	inMenu: false,
 	menuExpanded: false,
+	channelMenu: true,
 	search: false,
 	numSameKeyPresses: 0,
 	lastKeyPressed: '',
@@ -165,6 +181,25 @@ function checkSearch() {
 	return window.location.href.slice(0, SEARCH_URL_LENGTH) === SEARCH_URL;
 }
 
+function checkChannel() {
+	return window.location.href.slice(0, CHANNEL_URL_LENGTH) === CHANNEL_URL;
+}
+
+function checkChannelLocation() {
+	let url = window.location.href;
+	if (url.slice(56) === CHANNEL_LOCATION.home) {
+		return CHANNEL_LOCATION.home;
+	} else if (url.slice(57, 65) === CHANNEL_LOCATION.home2) {
+		return CHANNEL_LOCATION.home2;
+	} else if (url.slice(57, 63) === CHANNEL_LOCATION.videos) {
+		return CHANNEL_LOCATION.videos;
+	} else if (url.slice(57, 66) === CHANNEL_LOCATION.playlists) {
+		return CHANNEL_LOCATION.playlists;
+	} else {
+		return CHANNEL_LOCATION.none;
+	}
+}
+
 function getMenuElement(main) {
 	let a = [];
 	let b = main[0].getElementsByTagName("div")[0].childNodes;
@@ -207,6 +242,30 @@ function getSubElements() {
 	return a;
 }
 
+function getChannelElements() {
+	// Channel menu
+	if (STATE.channelMenu) {
+		let e = document.getElementById(CHANNEL_TAB_ID).getElementsByTagName(CHANNEL_TAB_ITEMS_TAG);
+		let final = [];
+		for (let i = 0; i < e.length - 1; i++) {
+			final.push(e[i]);
+		}
+		return final;
+	}
+	let l = checkChannelLocation();
+	switch (l) {
+		case CHANNEL_LOCATION.home:
+			break;
+		case CHANNEL_LOCATION.videos:
+			let e = document.getElementsByTagName(SUB_COLUMN_TAG);
+			for (let i = 0; i < e.length; i++) {
+				if (e[i].getAttribute("page-subtype") === "channels") {
+					return e[i].getElementsByTagName(CHANNEL_VIDEOS_TAG_1)[0].getElementsByTagName(CHANNEL_VIDEOS_TAG_2);
+				}
+			}
+
+	}
+}
 
 function getElements() {
 	if (checkHome()) {
@@ -227,6 +286,8 @@ function getElements() {
 		return getSubElements();
 	} else if (checkSearch()) {
 		return document.getElementById(PAGE_ID).getElementsByTagName(SEARCH_VIDEOS_TAG)[0].getElementsByTagName(VIDEO_TAG);
+	} else if (checkChannel()) {
+		return getChannelElements();
 	}
 }
 
@@ -237,7 +298,7 @@ function getNumColumns() {
 		a = a.slice(i, a.length);
 		a = a.split(':')[1];
 		return parseInt(a);
-	} else if (checkSubs()) {
+	} else if (checkSubs() || checkChannel()) {
 		let e = document.getElementsByTagName(SUB_COLUMN_TAG)[0].getAttribute("class");
 		let i = e.indexOf("grid");
 		return parseInt(e.slice(i, e.length - 1).split('-')[1]);
@@ -322,7 +383,7 @@ function highlight(direction) {
 	}
 
 	//Scrolling
-	if (checkHome() || checkSubs()) {
+	if (checkHome() || checkSubs() || (checkChannel() && !STATE.channelMenu)) {
 		scroll(STATE.selection, null, getElements(), getNumColumns());
 	} else if (checkMenu() || checkSearch()) {
 		scroll(STATE.selection, null, getElements(), 1);
@@ -335,13 +396,13 @@ function right() {
 		STATE.selection = 0;
 		STATE.inMenu = false;
 		highlight(DIRECTION.none);
-	} else if (checkHome() || checkSubs()) {
+	} else if (checkHome() || checkSubs() || checkChannel()) {
 		highlight(DIRECTION.forwards);
 	}
 }
 
 function left() {
-	if (checkHome() || checkSubs()) {
+	if (checkHome() || checkSubs() || checkChannel()) {
 		highlight(DIRECTION.backwards);
 	}
 }
@@ -359,6 +420,13 @@ function down() {
 		highlight(DIRECTION.forwards);
 	} else if (checkHome() || checkSubs()) {
 		highlight(DIRECTION.down);
+	} else if (checkChannel()) {
+		if (STATE.channelMenu) {
+			highlight(DIRECTION.remove);
+			STATE.channelMenu = false;
+			STATE.selection = 0;
+			highlight(DIRECTION.none);
+		}
 	}
 }
 
@@ -384,6 +452,14 @@ function select() {
 			STATE.inMenu = false;
 			elements[STATE.selection].click();
 			newPage();
+		}
+
+	// Channel selection
+	} else if (checkChannel()) {
+		if (STATE.channelMenu) {
+			getElements()[STATE.selection].click();
+		} else {
+			getElements()[STATE.selection].getElementsByTagName("a")[0].click();
 		}
 	}
 }
