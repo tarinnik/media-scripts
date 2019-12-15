@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name     	SBS
-// @namespace   tarinnik.github.io/gmscripts
-// @version	    1.2
+// @namespace   tarinnik.github.io/media
+// @version	    1.2.1
 // @include	    https://www.sbs.com.au/ondemand/*
 // @icon        https://www.sbs.com.au/favicon.ico
 // ==/UserScript==

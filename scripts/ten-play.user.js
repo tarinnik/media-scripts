@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name     	Ten Play
-// @namespace   tarinnik.gitlab.io/gmscripts
+// @namespace   tarinnik.github.io/media
 // @version	    0
 // @include	    https://tenplay.com.au/*
 // ==/UserScript==

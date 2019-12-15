@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        Netflix
-// @namespace   tarinnik.github.io/gmscripts
-// @version	    0.11
+// @namespace   tarinnik.github.io/media
+// @version	    0.11.1
 // @include	    https://www.netflix.com/*
 // @icon        https://www.netflix.com/favicon.ico
 // ==/UserScript==
