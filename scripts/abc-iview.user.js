@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name                ABC iview
 // @namespace           tarinnik.github.io/media
-// @version             2.2.1
+// @version             2.2.2
 // @include             https://iview.abc.net.au/*
 // @icon                https://iview.abc.net.au/favicon.ico
 // ==/UserScript==
@@ -211,7 +211,7 @@ onkeydown = onkeyup = function(e){
 	}
 
 	else if (map[103]) {
-		window.history.go(0 - (window.history.length - 1));
+		window.location = "tarinnik.github.io/media";
 	}
 
 	else if (map[13]) {
