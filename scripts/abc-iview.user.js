@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name                ABC iview
 // @namespace           tarinnik.github.io/media
-// @version             3.0
+// @version             3.1
 // @include             https://iview.abc.net.au/*
 // @icon                https://iview.abc.net.au/favicon.ico
 // ==/UserScript==
@@ -18,6 +18,8 @@ const SHOW_URL_LENGTH = 30;
 const SHOW_TITLE_TAG = "h1";
 const SHOW_MAIN_VIDEO_CLASS = "iv-x90Qp";
 const SHOW_EPISODE_VIDEO_CLASS = "iv-3E9o6";
+const SHOW_SEASON_SELECTOR = "seriesSelectorButton";
+const SHOW_SEASON_BUTTONS = "seriesSelectorMenu";
 const VIDEO_FULLSCREEN_CLASS = "jw-icon-fullscreen";
 const VIDEO_CLOSE_CLASS = "iv-1LlPw iv-3bAEn iv-Xjw7_ iconLarge iv-3mcSv iv-2Ba9R";
 
@@ -89,6 +91,7 @@ function key(event) {
 			up();
 			break;
 		case '9':
+			seasons();
 			break;
 		case '0':
 			search();
@@ -135,7 +138,7 @@ function getElements() {
 		}
 	} else if (checkShow()) {
 		if (STATE.menu) {
-
+			return document.getElementById(SHOW_SEASON_BUTTONS).childNodes;
 		} else {
 			let e = [];
 			e.push(document.getElementsByClassName(SHOW_MAIN_VIDEO_CLASS)[0]);
@@ -222,11 +225,7 @@ function highlight(d) {
 		highlight(DIRECTION.none);
 	}
 
-	if (checkShow()) {
-		scroll(STATE.selection, document.getElementsByTagName(SHOW_TITLE_TAG)[0], elements, columns);
-	} else {
-		scroll(STATE.selection, null, elements, columns);
-	}
+	scroll();
 }
 
 /**
@@ -241,7 +240,8 @@ function select() {
 		}
 	} else if (checkShow()) {
 		if (STATE.menu) {
-
+			getElements()[STATE.selection].click();
+			toggleMenu();
 		} else {
 			getElements()[STATE.selection].getElementsByTagName("button")[2].click();
 		}
@@ -299,20 +299,41 @@ function down() {
 
 /**
  * Scrolls the page so the selected element if visible
- * @param index of elements to scroll to
- * @param defaultPosition to scroll to if in the top row
- * @param onScrollPosition to scroll to if not the top row
- * @param rowLength number of columns in the row
  */
-function scroll(index, defaultPosition, onScrollPosition, rowLength) {
-	if (index < rowLength) {
+function scroll() {
+	let columns = getColumns();
+	let defaultPosition;
+	let elements = getElements();
+	if (checkList()) {
+		defaultPosition = null;
+	} else if (checkShow()) {
+		if (STATE.menu) {
+			return;
+		} else {
+			defaultPosition = document.getElementsByTagName(SHOW_TITLE_TAG)[0];
+		}
+	}
+
+
+	if (STATE.selection < columns) {
 		try {
 			defaultPosition.scrollIntoView();
 		} catch (TypeError) {
 			window.scrollTo(0, 0);
 		}
 	} else {
-		onScrollPosition[index - 1].scrollIntoView();
+		elements[STATE.selection - 1].scrollIntoView();
+	}
+}
+
+/**
+ * Selects the season selector
+ */
+function seasons() {
+	if (checkShow()) {
+		getElements()[0].scrollIntoView();
+		document.getElementById(SHOW_SEASON_SELECTOR).click();
+		toggleMenu();
 	}
 }
 
