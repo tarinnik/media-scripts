@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name                ABC iview
 // @namespace           tarinnik.github.io/media
-// @version             3.2
+// @version             3.3
 // @include             https://iview.abc.net.au/*
 // @icon                https://iview.abc.net.au/favicon.ico
 // ==/UserScript==
@@ -143,12 +143,15 @@ function checkShow() {
  * Gets the elements that are to be selected
  */
 function getElements() {
+	// My list or watch history
 	if (checkList()) {
 		if (STATE.menu) {
 			return document.getElementsByClassName(MY_LIST_MENU_CLASS)[0].getElementsByTagName("a");
 		} else {
 			return document.getElementsByTagName(VIDEO_TAG);
 		}
+
+	// Episode page
 	} else if (checkShow()) {
 		if (STATE.menu) {
 			return document.getElementById(SHOW_SEASON_BUTTONS).childNodes;
@@ -161,6 +164,8 @@ function getElements() {
 			}
 			return e;
 		}
+
+	// Home page
 	} else if (checkHome()) {
 		// Selecting a video, not a category
 		if (STATE.menu) {
@@ -226,6 +231,16 @@ function removeHomeVideoHighlight() {
 	}
 }
 
+function scrollVideos(d) {
+	if (checkHome()) {
+		if (d === DIRECTION.forwards && STATE.selection % MY_LIST_COLUMNS === 0 && STATE.selection > 0) {
+			getElements()[STATE.selection].parentNode.parentNode.parentNode.parentNode.parentNode.parentNode.childNodes[2].click();
+		} else if (d === DIRECTION.backwards && STATE.selection % MY_LIST_COLUMNS === 3) {
+			getElements()[STATE.selection].parentNode.parentNode.parentNode.parentNode.parentNode.parentNode.childNodes[1].click();
+		}
+	}
+}
+
 /**
  * Highlights an element
  * @param d direction to highlight in
@@ -244,9 +259,11 @@ function highlight(d) {
 
 	// Highlight forward but at the end of the elements
 	} else if (STATE.selection === elements.length - 1 && d === DIRECTION.forwards) {
-		highlight(DIRECTION.remove);
-		STATE.selection = 0;
-		highlight(DIRECTION.none);
+		return;
+
+	// Highlight backwards but at the start of the elements
+	} else if (STATE.selection === 0 && d === DIRECTION.backwards) {
+		return;
 
 	// Highlights the element in the row above or below
 	} else if (d === DIRECTION.up || d === DIRECTION.down) {
@@ -263,12 +280,6 @@ function highlight(d) {
 			}
 		}
 		STATE.selection += (columns * multiplier);
-		highlight(DIRECTION.none);
-
-	// Highlight backwards but at the start of the elements
-	} else if (STATE.selection === 0 && d === DIRECTION.backwards) {
-		highlight(DIRECTION.remove);
-		STATE.selection = elements.length - 1;
 		highlight(DIRECTION.none);
 
 	// Highlighting forwards or backwards with an element on the relevant side
@@ -316,6 +327,7 @@ function right() {
 		swapState();
 		STATE.menu = true;
 		highlight(DIRECTION.forwards);
+		scrollVideos(DIRECTION.forwards);
 		swapState();
 	}
 }
@@ -330,6 +342,7 @@ function left() {
 		swapState();
 		STATE.menu = true;
 		highlight(DIRECTION.backwards);
+		scrollVideos(DIRECTION.backwards);
 		swapState();
 	}
 }
