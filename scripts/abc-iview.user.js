@@ -1,13 +1,17 @@
 // ==UserScript==
 // @name                ABC iview
 // @namespace           tarinnik.github.io/media
-// @version             3.1
+// @version             3.2
 // @include             https://iview.abc.net.au/*
 // @icon                https://iview.abc.net.au/favicon.ico
 // ==/UserScript==
 
 const BACKGROUND_COLOUR = "background:#326060";
+const HOME_PAGE_CLASS = "iv-1JC6x iv-6HDyC iv-csH9g iv-3f8vH";
 const VIDEO_TAG = "article";
+const ROOT_URL = "https://iview.abc.net.au/";
+const HOME_SECTION_CLASS = "flickity-enabled is-draggable";
+const HOME_VIDEO_SELECT_CLASS = "iv-2xRQL";
 const MY_LIST_BUTTON_CLASS = "iv-2YNoA iv-25IKG iv-1JC6x iv-csH9g iv-3ho3D";
 const MY_LIST_URL = "https://iview.abc.net.au/your/watchlist";
 const RECENT_URL = "https://iview.abc.net.au/your/recent";
@@ -26,6 +30,7 @@ const VIDEO_CLOSE_CLASS = "iv-1LlPw iv-3bAEn iv-Xjw7_ iconLarge iv-3mcSv iv-2Ba9
 let STATE = {
 	selection: 0,
 	menu: false,
+	videoSelection: 0,
 };
 
 const DIRECTION = {
@@ -111,6 +116,14 @@ function key(event) {
 }
 
 /**
+ * Checks if the current page is the home page
+ * @return {boolean} if the current page is the home page
+ */
+function checkHome() {
+	return window.location.href === ROOT_URL;
+}
+
+/**
  * Checks if the current page is the watchlist
  * @returns {boolean} if the current page is my list
  */
@@ -148,6 +161,24 @@ function getElements() {
 			}
 			return e;
 		}
+	} else if (checkHome()) {
+		// Selecting a video, not a category
+		if (STATE.menu) {
+			let e = [];
+			let elements = document.getElementsByClassName(HOME_SECTION_CLASS)[STATE.videoSelection].getElementsByTagName("a");
+			for (let i = 0; i < elements.length; i++) {
+				e.push(elements[i].getElementsByClassName(HOME_VIDEO_SELECT_CLASS)[0]);
+			}
+			return e;
+		} else {
+			let e = [];
+			let sections = document.getElementsByClassName(HOME_SECTION_CLASS);
+			e.push(sections[0]);
+			for (let i = 1; i < sections.length; i++) {
+				e.push(sections[i].getElementsByTagName("a")[0].getElementsByClassName(HOME_VIDEO_SELECT_CLASS)[0]);
+			}
+			return e;
+		}
 	}
 }
 
@@ -171,6 +202,28 @@ function toggleMenu() {
 	STATE.menu = !STATE.menu;
 	STATE.selection = 0;
 	highlight(DIRECTION.none);
+}
+
+/**
+ * Swaps STATE.videoSelection and STATE.selection
+ */
+function swapState() {
+	let temp = STATE.selection;
+	STATE.selection = STATE.videoSelection;
+	STATE.videoSelection = temp;
+}
+
+/**
+ * Removes the highlighting of a video on the home page
+ */
+function removeHomeVideoHighlight() {
+	if (STATE.menu) {
+		swapState();
+		highlight(DIRECTION.remove);
+		swapState();
+		STATE.videoSelection = 0;
+		STATE.menu = false;
+	}
 }
 
 /**
@@ -245,6 +298,11 @@ function select() {
 		} else {
 			getElements()[STATE.selection].getElementsByTagName("button")[2].click();
 		}
+	} else if (checkHome()) {
+		if (STATE.menu) {
+			swapState();
+		}
+		getElements()[STATE.selection].parentNode.parentNode.click();
 	}
 }
 
@@ -254,6 +312,11 @@ function select() {
 function right() {
 	if (checkList()) {
 		highlight(DIRECTION.forwards);
+	} else if (checkHome()) {
+		swapState();
+		STATE.menu = true;
+		highlight(DIRECTION.forwards);
+		swapState();
 	}
 }
 
@@ -263,6 +326,11 @@ function right() {
 function left() {
 	if (checkList()) {
 		highlight(DIRECTION.backwards);
+	} else if (checkHome()) {
+		swapState();
+		STATE.menu = true;
+		highlight(DIRECTION.backwards);
+		swapState();
 	}
 }
 
@@ -278,6 +346,9 @@ function up() {
 		}
 	} else if (checkShow()) {
 		highlight(DIRECTION.up);
+	} else if (checkHome()) {
+		removeHomeVideoHighlight();
+		highlight(DIRECTION.backwards);
 	}
 
 }
@@ -294,6 +365,9 @@ function down() {
 		}
 	} else if (checkShow()) {
 		highlight(DIRECTION.down);
+	} else if (checkHome()) {
+		removeHomeVideoHighlight();
+		highlight(DIRECTION.forwards);
 	}
 }
 
@@ -311,6 +385,12 @@ function scroll() {
 			return;
 		} else {
 			defaultPosition = document.getElementsByTagName(SHOW_TITLE_TAG)[0];
+		}
+	} else if (checkHome()) {
+		if (STATE.menu) {
+			return;
+		} else {
+			defaultPosition = null;
 		}
 	}
 
@@ -337,8 +417,15 @@ function seasons() {
 	}
 }
 
+/**
+ * Closes the video if one is open, otherwise goes to the home page
+ */
 function back() {
-	document.getElementsByClassName(VIDEO_CLOSE_CLASS)[0].click();
+	if (document.getElementsByTagName("video").length !== 0) {
+		document.getElementsByClassName(VIDEO_CLOSE_CLASS)[0].click();
+	} else {
+		document.getElementsByClassName(HOME_PAGE_CLASS)[0].click();
+	}
 }
 
 /**
