@@ -1,12 +1,12 @@
 // ==UserScript==
 // @name        Netflix
 // @namespace   tarinnik.github.io/media
-// @version	    0.11.3
+// @version	    0.11.4
 // @include	    https://www.netflix.com/*
 // @icon        https://www.netflix.com/favicon.ico
 // ==/UserScript==
 
-const BACKGROUND_COLOUR = "background:#bf180f";
+const BACKGROUND_COLOUR = "background:#bf180f;padding:10px";
 const LOGO_CLASS = "logo";
 const PROFILES_CLASS = "profile";
 const VIDEO_ROW_CLASS = "lolomoRow lolomoRow_title_card";
@@ -25,6 +25,7 @@ const PLAY_CLASS = "touchable PlayerControls--control-element nfp-button-control
 		"default-control-button button-nfplayerPlay";
 const PAUSE_CLASS = "touchable PlayerControls--control-element nfp-button-control " +
 		"default-control-button button-nfplayerPause";
+const PLAY_INVISIBLE_CLASS = "visually-hidden  playLink";
 const FULLSCREEN_CLASS = "touchable PlayerControls--control-element nfp-button-control " +
 	"default-control-button button-nfplayerFullscreen";
 const WINDOWED_CLASS = "touchable PlayerControls--control-element nfp-button-control " +
@@ -78,7 +79,14 @@ function getElement(name) {
 	switch (name) {
 		// Video options when clicking on a video (play, add to list, like)
 		case VIDEO_OPTIONS_CLASS:
-			return document.getElementsByClassName(name)[0].getElementsByTagName("a");
+			let e = [];
+			let elements = document.getElementsByClassName(name)[0].getElementsByTagName("a");
+			for (let i = 0; i < elements.length; i++) {
+				if (elements[i].getAttribute("class") !== PLAY_INVISIBLE_CLASS) {
+					e.push(elements[i]);
+				}
+			}
+			return e;
 		// Bottom menu on video options (episodes, overview)
 		case VIDEO_OPTIONS_MENU_CLASS:
 			return document.getElementsByClassName(name)[0].childNodes;
@@ -279,7 +287,7 @@ function right() {
 		next(enterVideoRow(1));
 	} else if (checkVideoOptions()) {
 		if (STATE.videoOptions === 0) {
-			next(document.getElementsByClassName(VIDEO_OPTIONS_CLASS)[0].getElementsByTagName("a"));
+			next(getElement(VIDEO_OPTIONS_CLASS));
 		} else if (STATE.videoOptions === 1) {
 			next(getElement(VIDEO_OPTIONS_MENU_CLASS));
 		} else {
@@ -298,7 +306,7 @@ function left() {
 		previous(enterVideoRow(1));
 	} else if (checkVideoOptions()) {
 		if (STATE.videoOptions === 0) {
-			previous(document.getElementsByClassName(VIDEO_OPTIONS_CLASS)[0].getElementsByTagName("a"));
+			previous(getElement(VIDEO_OPTIONS_CLASS));
 		} else if (STATE.videoOptions === 1) {
 			previous(getElement(VIDEO_OPTIONS_MENU_CLASS));
 		} else {
@@ -309,9 +317,17 @@ function left() {
     }
 }
 
+function removeHighlight(s) {
+	if (section !== -1 && selection !== -1) {
+		let rowIdName = "row-" + (section + s);
+		document.getElementById(rowIdName).getElementsByClassName(VIDEO_CLASS)[selection].removeAttribute("style");
+	}
+}
+
 function up() {
 	if (!checkProfile()) {
 		if (checkBrowse()) {
+			removeHighlight(1);
 			selection = section;
 			previous(document.getElementsByClassName(VIDEO_ROW_CLASS));
 			let defaultPos = document.getElementsByClassName("info-wrapper")[0];
@@ -324,6 +340,7 @@ function up() {
 			toggleVideoOptions();
 
 		} else if (checkMyList()) {
+			removeHighlight(0);
             selection = section;
             previous(document.getElementsByClassName(MY_LIST_ROW_CLASS));
             const defaultPosition = document.getElementsByClassName("pinning-header")[0];
@@ -337,6 +354,7 @@ function up() {
 function down() {
 	if (!checkProfile()) {
 		if (checkBrowse()) {
+			removeHighlight(1);
 			selection = section;
 			next(document.getElementsByClassName(VIDEO_ROW_CLASS));
 			let defaultPos = document.getElementsByClassName("info-wrapper")[0];
@@ -349,6 +367,7 @@ function down() {
 			toggleVideoOptions();
 
 		} else if (checkMyList()) {
+			removeHighlight(0);
 		    selection = section;
 		    next(document.getElementsByClassName(MY_LIST_ROW_CLASS));
 		    const defaultPosition = document.getElementsByClassName("pinning-header")[0];
@@ -387,6 +406,7 @@ function select() {
 			document.getElementById(rowIdName).getElementsByClassName(VIDEO_CLASS)[selection].
 					getElementsByTagName("a")[0].click();
 			selection = 0;
+			getElement(VIDEO_OPTIONS_CLASS)[selection].setAttribute("style", BACKGROUND_COLOUR);
 		}
 
 	// Selecting an option in the video popup after selecting a video from a row
