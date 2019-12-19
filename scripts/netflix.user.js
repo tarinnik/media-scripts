@@ -35,6 +35,7 @@ const WINDOWED_CLASS = "touchable PlayerControls--control-element nfp-button-con
 const MY_LIST_ROW_CLASS = "rowContainer_title_card";
 const SEARCH_URL = "https://www.netflix.com/search?q=";
 const SEARCH_TEXT = "Search: ";
+const SEASON_SELECT_CLASS = "nfDropDown";
 
 let STATE = {
 	main: 0,
@@ -48,7 +49,8 @@ let STATE = {
 	numSameKeyPresses: 0,
 	lastKeyPressed: '',
 	searchQuery: "",
-	changingChar: ''
+	changingChar: '',
+	season: false,
 };
 
 const searchLetters = [
@@ -99,6 +101,8 @@ function getElement(name) {
 			return document.getElementsByClassName(name)[0];
 		case PAUSE_CLASS:
 			return document.getElementsByClassName(name)[0];
+		case SEASON_SELECT_CLASS:
+			return document.getElementsByClassName(name)[0].getElementsByTagName("li");
 	}
 }
 
@@ -134,6 +138,7 @@ function key(event) {
 			up();
 			break;
 		case '9':
+			season();
 			break;
 		case '0':
 			search();
@@ -372,7 +377,9 @@ function removeHighlight(s) {
 }
 
 function up() {
-	if (!checkProfile()) {
+	if (STATE.season) {
+		previous(getElement(SEASON_SELECT_CLASS));
+	} else if (!checkProfile()) {
 		if (checkBrowse()) {
 			removeHighlight(1);
 			selection = section;
@@ -399,7 +406,9 @@ function up() {
 }
 
 function down() {
-	if (!checkProfile()) {
+	if (STATE.season) {
+		next(getElement(SEASON_SELECT_CLASS));
+	} else if (!checkProfile()) {
 		if (checkBrowse()) {
 			removeHighlight(1);
 			selection = section;
@@ -429,8 +438,12 @@ function down() {
  * Select the currently highlighted option
  */
 function select() {
+	if (STATE.season) {
+		getElement(SEASON_SELECT_CLASS)[selection].getElementsByTagName("a")[0].click();
+		STATE.season = false;
+
 	// Profile to sign in as
-	if (checkProfile()) {
+	} else if (checkProfile()) {
 		document.getElementsByClassName(PROFILES_CLASS)[selection].
 				getElementsByTagName("a")[0].click();
 		selection = -1;
@@ -499,6 +512,7 @@ function close() {
 		section = -1;
 		document.getElementsByClassName(LOGO_CLASS)[0].click();
 	}
+	STATE.videoOptions = 0;
 }
 
 function fullscreen() {
@@ -562,6 +576,20 @@ function scroll(index, defaultPosition, onScrollPosition, rowLength) {
 		} catch (TypeError) {}
 	} else {
 		onScrollPosition[index - rowLength].scrollIntoView();
+	}
+}
+
+/**
+ * Clicks the select season button
+ */
+function season() {
+	if (STATE.videoOptions === 2) {
+		document.getElementsByClassName(SEASON_SELECT_CLASS)[0].childNodes[0].click();
+		STATE.season = !STATE.season;
+		selection = 0;
+	}
+	if (STATE.season) {
+		getElement(SEASON_SELECT_CLASS)[selection].setAttribute("style", BACKGROUND_COLOUR);
 	}
 }
 
