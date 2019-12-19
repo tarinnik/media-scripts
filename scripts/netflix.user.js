@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        Netflix
 // @namespace   tarinnik.github.io/media
-// @version	    0.11.4
+// @version	    0.12
 // @include	    https://www.netflix.com/*
 // @icon        https://www.netflix.com/favicon.ico
 // ==/UserScript==
@@ -9,6 +9,8 @@
 const BACKGROUND_COLOUR = "background:#bf180f;padding:10px";
 const LOGO_CLASS = "logo";
 const PROFILES_CLASS = "profile";
+const BROWSE_BILLBOARD_CLASS = "billboard-links button-layer forward-leaning";
+const BROWSE_BILLBOARD_ROW_CLASS = "lolomoRow lolomoRow_title_card lolomoBigRow";
 const VIDEO_ROW_CLASS = "lolomoRow lolomoRow_title_card";
 const VIDEO_CLASS = "slider-item";
 const VIDEO_OPTIONS_CLASS = "jawbone-actions";
@@ -64,6 +66,7 @@ const searchLetters = [
 
 let selection = -1;
 let section = -1;
+let billboard = false;
 
 document.addEventListener('keydown', function(event) {
 	key(event);
@@ -279,12 +282,45 @@ function account_switch() {
 	window.location = "https://www.netflix.com/ProfilesGate";
 }
 
+function billboardSelect(index) {
+	let element = document.getElementsByClassName(BROWSE_BILLBOARD_CLASS)[index].getElementsByTagName("a");
+	let d = [];
+	for (let i = 0; i < element.length; i++) {
+		if (element[i].getAttribute("class") !== PLAY_INVISIBLE_CLASS) {
+			d.push(element[i]);
+		}
+	}
+	return d;
+}
+
+function findBillboardIndex(element) {
+	element.removeAttribute("style");
+	let e = document.getElementsByClassName(BROWSE_BILLBOARD_ROW_CLASS);
+	let i;
+	for (i = 0; i < e.length; i++) {
+		if (element === e[i]) {
+			return i;
+		}
+	}
+}
+
 function right() {
 	//Profile select
 	if (checkProfile()) {
 		next(document.getElementsByClassName(PROFILES_CLASS));
 	} else if (checkBrowse()) {
-		next(enterVideoRow(1));
+		if (section === -1) {
+			next(billboardSelect(0));
+		} else {
+			let element = document.getElementsByClassName(VIDEO_ROW_CLASS)[section];
+			if (element.className === BROWSE_BILLBOARD_ROW_CLASS) {
+				let i = findBillboardIndex(element);
+				billboard = true;
+				next(billboardSelect(i + 1));
+			} else {
+				next(enterVideoRow(1));
+			}
+		}
 	} else if (checkVideoOptions()) {
 		if (STATE.videoOptions === 0) {
 			next(getElement(VIDEO_OPTIONS_CLASS));
@@ -303,7 +339,17 @@ function left() {
 	if (checkProfile()) {
 		previous(document.getElementsByClassName(PROFILES_CLASS));
 	} else if (checkBrowse()) {
-		previous(enterVideoRow(1));
+		if (section === -1) {
+			previous(billboardSelect(0));
+		} else {
+			let element = document.getElementsByClassName(VIDEO_ROW_CLASS)[section];
+			if (element.className === BROWSE_BILLBOARD_ROW_CLASS) {
+				let i = findBillboardIndex(element);
+				billboard = true;
+				previous(billboardSelect(i + 1));
+			} else {
+				previous(enterVideoRow(1));
+			}		}
 	} else if (checkVideoOptions()) {
 		if (STATE.videoOptions === 0) {
 			previous(getElement(VIDEO_OPTIONS_CLASS));
@@ -318,7 +364,8 @@ function left() {
 }
 
 function removeHighlight(s) {
-	if (section !== -1 && selection !== -1) {
+	if (section !== -1 && selection !== -1 && !billboard) {
+		billboard = false;
 		let rowIdName = "row-" + (section + s);
 		document.getElementById(rowIdName).getElementsByClassName(VIDEO_CLASS)[selection].removeAttribute("style");
 	}
@@ -392,12 +439,15 @@ function select() {
 	// Selecting the row expands the list
 	} else if (checkBrowse()) {
 		if (selection === -1) {
-			let link = document.getElementsByClassName(VIDEO_ROW_CLASS)[section].
-					getElementsByTagName("h2")[0].
-					getElementsByTagName("a");
+			let link = document.getElementsByClassName(VIDEO_ROW_CLASS)[section].getElementsByTagName("h2")[0].getElementsByTagName("a");
 			if (link.length !== 0) {
 				link[0].click();
 			}
+		} else if (section === -1) {
+			billboardSelect(0)[selection].click();
+		} else if (billboard) {
+			let i = findBillboardIndex(document.getElementsByClassName(VIDEO_ROW_CLASS)[section]);
+			billboardSelect(i + 1)[selection].click();
 
 		// Selecting a video in a row
 		} else {
