@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name     	Prime Video
 // @namespace	tarinnik.github.io/media
-// @version  	0.1
+// @version  	0.2
 // @include		https://www.primevideo.com/*
 // @icon		https://www.primevideo.com/favicon.ico
 // ==/UserScript==
@@ -156,6 +156,10 @@ function getElements() {
 function getColumns() {
     if (checkHome()) {
 
+    } else if (checkList() && !STATE.menu) {
+        let a = document.getElementsByClassName(LIST_VIDEO_CLASS)[0].parentElement;
+        let columns = window.getComputedStyle(a, null).getPropertyValue("grid-template-columns");
+        return columns.split(" ").length;
     } else {
         return 1;
     }
@@ -274,7 +278,13 @@ function up() {
     if (checkHome()) {
 
     } else if (checkList()) {
-
+        if (!STATE.menu) {
+            if (STATE.selection < getColumns()) {
+                toggleMenu();
+            } else {
+                highlight(DIRECTION.up);
+            }
+        }
     } else if (checkShow()) {
         if (!STATE.menu && STATE.selection === 0) {
             toggleMenu();
@@ -293,6 +303,8 @@ function down() {
     } else if (checkList()) {
         if (STATE.menu) {
             toggleMenu();
+        } else {
+            highlight(DIRECTION.down);
         }
     } else if (checkShow()) {
         if (STATE.menu) {
