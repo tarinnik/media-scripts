@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name     	Prime Video
 // @namespace	tarinnik.github.io/media
-// @version  	0.3
+// @version  	0.4
 // @include		https://www.primevideo.com/*
 // @icon		https://www.primevideo.com/favicon.ico
 // ==/UserScript==
@@ -15,6 +15,8 @@ const LIST_VIDEO_CLASS = "UaW15H";
 const SHOW_URL = "https://www.primevideo.com/detail";
 const SHOW_MENU_CLASS = "_2eqhmo _2Zapp7 _38qi5F";
 const SHOW_VIDEO_CLASS = "js-node-episode-container";
+const SHOW_SEASON_ID = "av-droplist-av-atf-season-selector";
+const SHOW_SEASON_ITEMS_CLASS = "_17a9Oy"
 const WATCH_FULLSCREEN_CLASS = "fullscreenButton";
 const WATCH_PLAY_ICON_CLASS = "playIcon";
 const WATCH_CLOSE_CLASS = "imageButton";
@@ -22,6 +24,7 @@ const WATCH_CLOSE_CLASS = "imageButton";
 let STATE = {
     selection: 0,
     menu: false,
+    season: false,
     videoSelection: 0,
 };
 
@@ -100,9 +103,9 @@ function key(event) {
         case '.':
             break;
         case '+':
+            seasons();
             break;
         case '-':
-            seasons();
             break;
         case '/':
             refresh();
@@ -155,7 +158,9 @@ function getElements() {
             return document.getElementsByClassName(LIST_VIDEO_CLASS);
         }
     } else if (checkShow()) {
-        if (STATE.menu) {
+        if (STATE.season) {
+            return document.getElementsByClassName(SHOW_SEASON_ITEMS_CLASS)[0].getElementsByTagName("li");
+        } else if (STATE.menu) {
             return document.getElementsByClassName(SHOW_MENU_CLASS)[0].childNodes;
         } else {
             return document.getElementsByClassName(SHOW_VIDEO_CLASS);
@@ -300,7 +305,9 @@ function up() {
             }
         }
     } else if (checkShow()) {
-        if (!STATE.menu && STATE.selection === 0) {
+        if (STATE.season) {
+            highlight(DIRECTION.backwards);
+        } else if (!STATE.menu && STATE.selection === 0) {
             toggleMenu();
         } else if (!STATE.menu) {
             highlight(DIRECTION.backwards);
@@ -321,7 +328,9 @@ function down() {
             highlight(DIRECTION.down);
         }
     } else if (checkShow()) {
-        if (STATE.menu) {
+        if (STATE.season) {
+            highlight(DIRECTION.forwards);
+        } else if (STATE.menu) {
             toggleMenu();
         } else {
             highlight(DIRECTION.forwards);
@@ -333,7 +342,7 @@ function down() {
  * Scrolls the page so the selected element if visible
  */
 function scroll() {
-    if (STATE.menu) {
+    if (STATE.menu || STATE.season) {
         window.scrollTo(0, 0);
         return;
     }
@@ -359,6 +368,18 @@ function scroll() {
     } else {
         elements[STATE.selection - 1].scrollIntoView();
     }
+}
+
+/**
+ * Selects the season menu
+ */
+function seasons() {
+    highlight(DIRECTION.remove);
+    STATE.selection = 0;
+    STATE.season = !STATE.season;
+    window.scrollTo(0, 0);
+    document.getElementById(SHOW_SEASON_ID).click();
+    highlight(DIRECTION.none);
 }
 
 /**
