@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name     	Prime Video
 // @namespace	tarinnik.github.io/media
-// @version  	0.2
+// @version  	0.3
 // @include		https://www.primevideo.com/*
 // @icon		https://www.primevideo.com/favicon.ico
 // ==/UserScript==
@@ -15,6 +15,9 @@ const LIST_VIDEO_CLASS = "UaW15H";
 const SHOW_URL = "https://www.primevideo.com/detail";
 const SHOW_MENU_CLASS = "_2eqhmo _2Zapp7 _38qi5F";
 const SHOW_VIDEO_CLASS = "js-node-episode-container";
+const WATCH_FULLSCREEN_CLASS = "fullscreenButton";
+const WATCH_PLAY_ICON_CLASS = "playIcon";
+const WATCH_CLOSE_CLASS = "imageButton";
 
 let STATE = {
     selection: 0,
@@ -68,6 +71,7 @@ function key(event) {
             down();
             break;
         case '3':
+            fullscreen();
             break;
         case '4':
             left();
@@ -85,18 +89,20 @@ function key(event) {
             up();
             break;
         case '9':
-            seasons();
+            back();
             break;
         case '0':
             search();
             break;
+        case 'Enter':
+            playpause();
+            break;
         case '.':
             break;
         case '+':
-            fullscreen();
             break;
         case '-':
-            back();
+            seasons();
             break;
         case '/':
             refresh();
@@ -126,6 +132,14 @@ function checkList() {
  */
 function checkShow() {
     return window.location.href.slice(0, SHOW_URL.length) === SHOW_URL;
+}
+
+/**
+ * Checks if the current page is the video
+ * @returns {boolean} if the current page is the video
+ */
+function checkWatch() {
+    return document.getElementsByTagName("video").length !== 0;
 }
 
 /**
@@ -357,11 +371,31 @@ function toggleMenu() {
     highlight(DIRECTION.none);
 }
 
+function playpause() {
+    let video = document.getElementsByTagName("video")[0];
+    if (document.getElementsByClassName(WATCH_PLAY_ICON_CLASS).length !== 0) {
+        video.play();
+    } else {
+        video.pause();
+    }
+}
+
+function fullscreen() {
+    if (checkWatch()) {
+        document.getElementsByClassName(WATCH_FULLSCREEN_CLASS)[0].click();
+    }
+}
+
 /**
  * Closes the video if one is open, otherwise goes to the home page
  */
 function back() {
-    window.location = HOME_URL;
+    if (checkWatch()) {
+        let e = document.getElementsByClassName(WATCH_CLOSE_CLASS);
+        e[e.length - 1].click();
+    } else {
+        window.location = HOME_URL;
+    }
 }
 
 /**
