@@ -422,6 +422,7 @@ function scroll() {
  */
 function search() {
     STATE.search = true;
+    document.getElementById(SEARCH_ID).setAttribute("style", BACKGROUND_COLOUR);
 }
 
 function searchKey(key) {
@@ -463,6 +464,7 @@ function resetSearch() {
     STATE.lastKeyPressed = '';
     STATE.numSameKeyPresses = 0;
     STATE.search = false;
+    document.getElementById(SEARCH_ID).removeAttribute("style");
 }
 
 /**
