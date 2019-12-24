@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name     	Prime Video
 // @namespace	tarinnik.github.io/media
-// @version  	0.4
+// @version  	0.5
 // @include		https://www.primevideo.com/*
 // @icon		https://www.primevideo.com/favicon.ico
 // ==/UserScript==
@@ -16,16 +16,24 @@ const SHOW_URL = "https://www.primevideo.com/detail";
 const SHOW_MENU_CLASS = "_2eqhmo _2Zapp7 _38qi5F";
 const SHOW_VIDEO_CLASS = "js-node-episode-container";
 const SHOW_SEASON_ID = "av-droplist-av-atf-season-selector";
-const SHOW_SEASON_ITEMS_CLASS = "_17a9Oy"
+const SHOW_SEASON_ITEMS_CLASS = "_17a9Oy";
 const WATCH_FULLSCREEN_CLASS = "fullscreenButton";
 const WATCH_PLAY_ICON_CLASS = "playIcon";
 const WATCH_CLOSE_CLASS = "imageButton";
+const SEARCH_URL = "https://www.primevideo.com/search/?phrase=";
+const SEARCH_ID = "pv-search-nav";
+const SEARCH_VIDEO_CLASS = "av-hover-wrapper";
 
 let STATE = {
     selection: 0,
     menu: false,
     season: false,
     videoSelection: 0,
+    search: false,
+    numSameKeyPresses: 0,
+    lastKeyPressed: '',
+    searchQuery: "",
+    changingChar: '',
 };
 
 const DIRECTION = {
@@ -36,6 +44,19 @@ const DIRECTION = {
     up: -2,
     down: 2,
 };
+
+const searchLetters = [
+    [' ', '0'],
+    ['q', 'r', 's', '1'],
+    ['t', 'u', 'v', '2'],
+    ['w', 'x', 'y', 'z', '3'],
+    ['g', 'h', 'i', '4'],
+    ['j', 'k', 'l', '5'],
+    ['m', 'n', 'o', 'p', '6'],
+    ['7'],
+    ['a', 'b', 'c', '8'],
+    ['d', 'e', 'f', '9']
+];
 
 /**
  * Triggered when the page loads
@@ -146,6 +167,14 @@ function checkWatch() {
 }
 
 /**
+ * Checks if the current page is the search page
+ * @returns {boolean} if the current page is the search page
+ */
+function checkSearch() {
+    return window.location.href.slice(0, SEARCH_URL.length) === SEARCH_URL;
+}
+
+/**
  * Gets the elements that are to be selected
  */
 function getElements() {
@@ -165,6 +194,8 @@ function getElements() {
         } else {
             return document.getElementsByClassName(SHOW_VIDEO_CLASS);
         }
+    } else if (checkSearch()) {
+        return document.getElementsByClassName(SEARCH_VIDEO_CLASS);
     }
 }
 
@@ -177,6 +208,10 @@ function getColumns() {
 
     } else if (checkList() && !STATE.menu) {
         let a = document.getElementsByClassName(LIST_VIDEO_CLASS)[0].parentElement;
+        let columns = window.getComputedStyle(a, null).getPropertyValue("grid-template-columns");
+        return columns.split(" ").length;
+    } else if (checkSearch()) {
+        let a = document.getElementsByClassName(SEARCH_VIDEO_CLASS)[0].parentElement;
         let columns = window.getComputedStyle(a, null).getPropertyValue("grid-template-columns");
         return columns.split(" ").length;
     } else {
@@ -252,7 +287,9 @@ function select() {
             getElements()[STATE.selection].getElementsByTagName("a")[0].click();
         }
     } else if (checkShow()) {
-        if (STATE.menu) {
+        if (STATE.season) {
+            getElements()[STATE.selection].getElementsByTagName("a")[0].click();
+        } else if (STATE.menu) {
             if (STATE.selection) {
                 getElements()[STATE.selection].getElementsByTagName("button")[0].click();
             } else {
@@ -261,6 +298,8 @@ function select() {
         } else {
             getElements()[STATE.selection].getElementsByTagName("a")[0].click();
         }
+    } else if (checkSearch()) {
+        getElements()[STATE.selection].getElementsByTagName("a")[0].click();
     }
 }
 
@@ -274,6 +313,8 @@ function right() {
         highlight(DIRECTION.forwards);
     } else if (checkShow() && STATE.menu) {
         highlight(DIRECTION.forwards);
+    } else if (checkSearch()) {
+        highlight(DIRECTION.forwards);
     }
 }
 
@@ -286,6 +327,8 @@ function left() {
     } else if (checkList()) {
         highlight(DIRECTION.backwards);
     } else if (checkShow() && STATE.menu) {
+        highlight(DIRECTION.backwards);
+    } else if (checkSearch()) {
         highlight(DIRECTION.backwards);
     }
 }
@@ -312,6 +355,8 @@ function up() {
         } else if (!STATE.menu) {
             highlight(DIRECTION.backwards);
         }
+    } else if (checkSearch()) {
+        highlight(DIRECTION.up);
     }
 }
 
@@ -335,6 +380,8 @@ function down() {
         } else {
             highlight(DIRECTION.forwards);
         }
+    } else if (checkSearch()) {
+        highlight(DIRECTION.down);
     }
 }
 
@@ -366,8 +413,56 @@ function scroll() {
             window.scrollTo(0, 0);
         }
     } else {
-        elements[STATE.selection - 1].scrollIntoView();
+        elements[STATE.selection - columns].scrollIntoView();
     }
+}
+
+/**
+ * Starts the search
+ */
+function search() {
+    STATE.search = true;
+}
+
+function searchKey(key) {
+    if (key === "Enter") {
+        window.location = SEARCH_URL + STATE.searchQuery + STATE.changingChar;
+    } else if (key === '-') {
+        if (STATE.changingChar !== '') {
+            STATE.changingChar = '';
+            STATE.lastKeyPressed = '';
+            STATE.numSameKeyPresses = 0;
+        } else if (STATE.searchQuery.length !== 0) {
+            STATE.searchQuery = STATE.searchQuery.slice(0, length - 1);
+        }
+    } else if (key === '+') {
+        resetSearch();
+    } else if (key !== STATE.lastKeyPressed || key === '.') {
+        STATE.searchQuery += STATE.changingChar;
+        STATE.changingChar = '';
+        STATE.lastKeyPressed = key;
+        STATE.numSameKeyPresses = 0;
+    }
+
+    let num = parseInt(key);
+    if (!isNaN(num)) {
+        let len = searchLetters[num].length;
+        STATE.changingChar = searchLetters[num][STATE.numSameKeyPresses % len];
+        STATE.numSameKeyPresses++;
+    }
+
+    document.getElementById(SEARCH_ID).value = STATE.searchQuery + STATE.changingChar;
+}
+
+/**
+ * Resets the search
+ */
+function resetSearch() {
+    STATE.searchQuery = "";
+    STATE.changingChar = '';
+    STATE.lastKeyPressed = '';
+    STATE.numSameKeyPresses = 0;
+    STATE.search = false;
 }
 
 /**
