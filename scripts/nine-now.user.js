@@ -1,16 +1,19 @@
 // ==UserScript==
 // @name        9 Now
 // @namespace   tarinnik.github.io/media
-// @version     0.1
+// @version     0.2
 // @include     https://www.9now.com.au/*
 // @icon        https://www.9now.com.au/favicon.ico
 // ==/UserScript==
 
 const BACKGROUND_COLOUR = "background:#0084cc";
+const PROGRESS_BAR_ID = "nprogress";
 const HOME_URL = "https://www.9now.com.au/";
 const LIST_URL = "https://www.9now.com.au/history";
 const LIST_VIDEO_CLASS = "w8sfks";
-const SHOW_URL = "";
+const SHOW_PAGE_CLASS = "eU6_I- _30dEKg _3E_qvM";
+const SHOW_MENU_CLASS = "_mz6c8 _2G1QMe";
+const SHOW_VIDEO_CLASS = "_1V5tPK";
 const SEARCH_URL = "";
 
 let STATE = {
@@ -51,7 +54,7 @@ const searchLetters = [
  * Triggered when the page loads
  */
 window.addEventListener('load', function() {
-
+    waitForLoad();
 });
 
 /**
@@ -60,6 +63,42 @@ window.addEventListener('load', function() {
 document.addEventListener('keydown', function(event) {
     key(event);
 });
+
+/**
+ * Waits for the page to load
+ */
+function waitForLoad() {
+    if (checkList()) {
+        let timer = window.setInterval(function() {
+            if (document.getElementsByClassName(LIST_VIDEO_CLASS).length !== 0) {
+                window.clearInterval(timer);
+                newPage();
+            }
+        }, 200);
+    } else {
+        let timer = window.setInterval(function() {
+            if (!document.getElementById(PROGRESS_BAR_ID)) {
+                window.clearInterval(timer);
+                newPage();
+            }
+        }, 200);
+    }
+}
+
+/**
+ * Prepares the page
+ */
+function newPage() {
+    STATE.selection = 0;
+    STATE.menu = false;
+    STATE.videoSelection = 0;
+
+    if (checkShow()) {
+        STATE.menu = true;
+    }
+
+    highlight(DIRECTION.none);
+}
 
 /**
  * Determines the key press
@@ -141,7 +180,7 @@ function checkList() {
  * @returns {boolean} if the current page is the show page
  */
 function checkShow() {
-
+    return document.getElementsByClassName(SHOW_PAGE_CLASS).length !== 0;
 }
 
 /**
@@ -149,7 +188,7 @@ function checkShow() {
  * @returns {boolean} if the current page is the video
  */
 function checkWatch() {
-
+    return document.getElementsByTagName("video").length !== 0;
 }
 
 /**
@@ -161,7 +200,11 @@ function getElements() {
     } else if (checkList()) {
         return document.getElementsByClassName(LIST_VIDEO_CLASS);
     } else if (checkShow()) {
-
+        if (STATE.menu) {
+            return document.getElementsByClassName(SHOW_MENU_CLASS);
+        } else {
+            return document.getElementsByClassName(SHOW_VIDEO_CLASS)[STATE.videoSelection].childNodes;
+        }
     }
 }
 
@@ -172,6 +215,10 @@ function getElements() {
 function getColumns() {
     if (checkHome()) {
 
+    } else if (checkList()) {
+        let a = document.getElementsByClassName(LIST_VIDEO_CLASS)[0];
+        let aWidth = getComputedStyle(a, null).getPropertyValue("width");
+        return Math.round(innerWidth / parseInt(aWidth));
     } else {
         return 1;
     }
@@ -236,8 +283,14 @@ function select() {
 
     } else if (checkList()) {
         getElements()[STATE.selection].getElementsByTagName("a")[0].click();
+        waitForLoad();
     } else if (checkShow()) {
-
+        if (STATE.menu) {
+            getElements()[STATE.selection].click();
+        } else {
+            getElements()[STATE.selection].getElementsByTagName("a")[0].click();
+        }
+        waitForLoad();
     }
 }
 
@@ -250,7 +303,7 @@ function right() {
     } else if (checkList()) {
         highlight(DIRECTION.forwards);
     } else if (checkShow()) {
-
+        highlight(DIRECTION.forwards);
     }
 }
 
@@ -263,7 +316,7 @@ function left() {
     } else if (checkList()) {
         highlight(DIRECTION.backwards);
     } else if (checkShow()) {
-
+        highlight(DIRECTION.backwards);
     }
 }
 
@@ -274,9 +327,16 @@ function up() {
     if (checkHome()) {
 
     } else if (checkList()) {
-
+        highlight(DIRECTION.up);
     } else if (checkShow()) {
-
+        if (!STATE.menu && STATE.videoSelection === 0) {
+            toggleMenu();
+        } else if (!STATE.menu && STATE.videoSelection === 1) {
+            highlight(DIRECTION.remove);
+            STATE.videoSelection = 0;
+            STATE.selection = 0;
+            highlight(DIRECTION.none);
+        }
     }
 }
 
@@ -287,10 +347,24 @@ function down() {
     if (checkHome()) {
 
     } else if (checkList()) {
-
+        highlight(DIRECTION.down);
     } else if (checkShow()) {
-
+        if (STATE.menu) {
+            toggleMenu();
+        } else if (STATE.videoSelection === 0) {
+            highlight(DIRECTION.remove);
+            STATE.videoSelection = 1;
+            STATE.selection = 0;
+            highlight(DIRECTION.none);
+        }
     }
+}
+
+function toggleMenu() {
+    highlight(DIRECTION.remove);
+    STATE.selection = 0;
+    STATE.menu = !STATE.menu;
+    highlight(DIRECTION.none);
 }
 
 /**
@@ -305,7 +379,18 @@ function scroll() {
     } else if (checkList()) {
 
     } else if (checkShow()) {
-
+        if (STATE.menu) {
+            window.scrollTo(0, 0);
+        } else if (STATE.videoSelection === 0) {
+            STATE.menu = true;
+            getElements()[0].scrollIntoView();
+            STATE.menu = false;
+        } else {
+            STATE.videoSelection = 0;
+            getElements()[0].scrollIntoView();
+            STATE.videoSelection = 1;
+        }
+        return;
     }
 
     if (STATE.selection < columns) {
@@ -345,10 +430,11 @@ function fullscreen() {
  */
 function back() {
     if (checkWatch()) {
-
+        window.history.back();
     } else {
         window.location = HOME_URL;
     }
+    waitForLoad();
 }
 
 /**
@@ -356,6 +442,7 @@ function back() {
  */
 function list() {
     window.location = LIST_URL;
+    waitForLoad();
 }
 
 /**
