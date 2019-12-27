@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        9 Now
 // @namespace   tarinnik.github.io/media
-// @version     0.2
+// @version     0.3
 // @include     https://www.9now.com.au/*
 // @icon        https://www.9now.com.au/favicon.ico
 // ==/UserScript==
@@ -14,6 +14,11 @@ const LIST_VIDEO_CLASS = "w8sfks";
 const SHOW_PAGE_CLASS = "eU6_I- _30dEKg _3E_qvM";
 const SHOW_MENU_CLASS = "_mz6c8 _2G1QMe";
 const SHOW_VIDEO_CLASS = "_1V5tPK";
+const SHOW_SEASONS_CLASS = "_2nf_Sj";
+const EPISODES_URL = "episodes";
+const EPISODES_VIDEO_CLASS = "w8sfks";
+const FULLSCREEN_CLASS = "vjs-fullscreen-control vjs-custom-fullscreen vjs-control";
+const PLAY_PAUSE_CLASS = "vjs-play-control vjs-control vjs-button";
 const SEARCH_URL = "";
 
 let STATE = {
@@ -192,6 +197,15 @@ function checkWatch() {
 }
 
 /**
+ * Checks if the current page is the episodes page
+ * @returns {boolean} if the current page is the episodes page
+ */
+function checkEpisodes() {
+    let url = window.location.href;
+    return url.slice(url.length - EPISODES_URL.length) === EPISODES_URL;
+}
+
+/**
  * Gets the elements that are to be selected
  */
 function getElements() {
@@ -205,6 +219,8 @@ function getElements() {
         } else {
             return document.getElementsByClassName(SHOW_VIDEO_CLASS)[STATE.videoSelection].childNodes;
         }
+    } else if (checkEpisodes()) {
+        return document.getElementsByClassName(EPISODES_VIDEO_CLASS);
     }
 }
 
@@ -215,12 +231,18 @@ function getElements() {
 function getColumns() {
     if (checkHome()) {
 
-    } else if (checkList()) {
-        let a = document.getElementsByClassName(LIST_VIDEO_CLASS)[0];
+    } else if (checkList() || (checkShow() && !STATE.menu) || checkEpisodes()) {
+        let a = getElements()[0];
         let aWidth = getComputedStyle(a, null).getPropertyValue("width");
         return Math.round(innerWidth / parseInt(aWidth));
     } else {
         return 1;
+    }
+}
+
+function getNextPageElements() {
+    if (checkShow()) {
+        return getElements()[0].parentElement.parentElement.parentElement.childNodes;
     }
 }
 
@@ -291,6 +313,8 @@ function select() {
             getElements()[STATE.selection].getElementsByTagName("a")[0].click();
         }
         waitForLoad();
+    } else if (checkEpisodes()) {
+        getElements()[STATE.selection].getElementsByTagName('a')[0].click();
     }
 }
 
@@ -304,6 +328,11 @@ function right() {
         highlight(DIRECTION.forwards);
     } else if (checkShow()) {
         highlight(DIRECTION.forwards);
+        if (!STATE.menu && STATE.selection !== 0 && STATE.selection % getColumns() === 0) {
+            getNextPageElements()[2].getElementsByTagName("a")[0].click();
+        }
+    } else if (checkEpisodes()) {
+        highlight(DIRECTION.forwards);
     }
 }
 
@@ -316,6 +345,11 @@ function left() {
     } else if (checkList()) {
         highlight(DIRECTION.backwards);
     } else if (checkShow()) {
+        highlight(DIRECTION.backwards);
+        if (!STATE.menu && STATE.selection !== 0 && STATE.selection % getColumns() === 3) {
+            getNextPageElements()[1].getElementsByTagName("a")[0].click();
+        }
+    } else if (checkEpisodes()) {
         highlight(DIRECTION.backwards);
     }
 }
@@ -337,6 +371,8 @@ function up() {
             STATE.selection = 0;
             highlight(DIRECTION.none);
         }
+    } else if (checkEpisodes()) {
+        highlight(DIRECTION.up);
     }
 }
 
@@ -357,6 +393,8 @@ function down() {
             STATE.selection = 0;
             highlight(DIRECTION.none);
         }
+    } else if (checkEpisodes()) {
+        highlight(DIRECTION.down);
     }
 }
 
@@ -407,22 +445,27 @@ function scroll() {
 /**
  * Selects the season menu
  */
-function season() {
-
+function seasons() {
+    if (checkShow()) {
+        document.getElementsByClassName(SHOW_SEASONS_CLASS)[0].click();
+        waitForLoad();
+    }
 }
 
 /**
  * Toggles the play state of the video
  */
 function playpause() {
-
+    document.getElementsByClassName(PLAY_PAUSE_CLASS)[0].click();
 }
 
 /**
  * Makes the video fullscreen
  */
 function fullscreen() {
-
+    if (checkWatch()) {
+        document.getElementsByClassName(FULLSCREEN_CLASS)[0].click();
+    }
 }
 
 /**
