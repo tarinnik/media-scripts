@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        9 Now
 // @namespace   tarinnik.github.io/media
-// @version     0.3
+// @version     0.4
 // @include     https://www.9now.com.au/*
 // @icon        https://www.9now.com.au/favicon.ico
 // ==/UserScript==
@@ -17,6 +17,8 @@ const SHOW_VIDEO_CLASS = "_1V5tPK";
 const SHOW_SEASONS_CLASS = "_2nf_Sj";
 const EPISODES_URL = "episodes";
 const EPISODES_VIDEO_CLASS = "w8sfks";
+const WATCH_CLOSE_CLASS = "_1J_y-U _2FfdXJ";
+const WATCH_CONTINUE_CLASS = "_2j6a2o _2RxD6t";
 const FULLSCREEN_CLASS = "vjs-fullscreen-control vjs-custom-fullscreen vjs-control";
 const PLAY_PAUSE_CLASS = "vjs-play-control vjs-control vjs-button";
 const SEARCH_URL = "";
@@ -193,7 +195,7 @@ function checkShow() {
  * @returns {boolean} if the current page is the video
  */
 function checkWatch() {
-    return document.getElementsByTagName("video").length !== 0;
+    return document.getElementsByClassName(WATCH_CLOSE_CLASS).length !== 0;
 }
 
 /**
@@ -221,6 +223,8 @@ function getElements() {
         }
     } else if (checkEpisodes()) {
         return document.getElementsByClassName(EPISODES_VIDEO_CLASS);
+    } else if (checkWatch()) {
+        return document.getElementsByClassName(WATCH_CONTINUE_CLASS)[0].childNodes;
     }
 }
 
@@ -315,6 +319,9 @@ function select() {
         waitForLoad();
     } else if (checkEpisodes()) {
         getElements()[STATE.selection].getElementsByTagName('a')[0].click();
+        waitForLoad();
+    } else if (checkWatch() && document.getElementsByClassName(WATCH_CONTINUE_CLASS).length !== 0) {
+        getElements()[STATE.selection].click();
     }
 }
 
@@ -333,6 +340,8 @@ function right() {
         }
     } else if (checkEpisodes()) {
         highlight(DIRECTION.forwards);
+    } else if (checkWatch() && document.getElementsByClassName(WATCH_CONTINUE_CLASS).length !== 0) {
+        highlight(DIRECTION.forwards);
     }
 }
 
@@ -350,6 +359,8 @@ function left() {
             getNextPageElements()[1].getElementsByTagName("a")[0].click();
         }
     } else if (checkEpisodes()) {
+        highlight(DIRECTION.backwards);
+    } else if (checkWatch() && document.getElementsByClassName(WATCH_CONTINUE_CLASS).length !== 0) {
         highlight(DIRECTION.backwards);
     }
 }
@@ -429,6 +440,8 @@ function scroll() {
             STATE.videoSelection = 1;
         }
         return;
+    } else if (checkWatch()) {
+        return;
     }
 
     if (STATE.selection < columns) {
@@ -473,7 +486,7 @@ function fullscreen() {
  */
 function back() {
     if (checkWatch()) {
-        window.history.back();
+        document.getElementsByClassName(WATCH_CLOSE_CLASS)[0].getElementsByTagName("a")[0].click();
     } else {
         window.location = HOME_URL;
     }
