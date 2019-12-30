@@ -1,17 +1,20 @@
 // ==UserScript==
 // @name        Apple TV+
 // @namespace   tarinnik.github.io/media
-// @version     0.1
+// @version     0.2
 // @include     https://tv.apple.com/*
 // @icon        https://tv.apple.com/favicon.ico
 // ==/UserScript==
 
-const BACKGROUND_COLOUR = "";
+const BACKGROUND_COLOUR = "background:grey";
 const HOME_BUTTON_CLASS = "ember-view nav-header__logo nav-header__tv-plus-logo";
 const HOME_SCROLL_CLASS = "landing__header__next-arrow";
 const HOME_VIDEO_CLASS = "landing__main__section";
 const LIST_URL = "";
-const SHOW_URL = "";
+const SHOW_MENU_CLASS = "product-header__content__buttons";
+const SHOW_VIDEO_CLASS = "shelf-grid__list";
+const SHOW_NEXT_CLASS = "shelf-grid-nav__arrow shelf-grid-nav__arrow--next ember-view";
+const SHOW_PREVIOUS_CLASS = "shelf-grid-nav__arrow shelf-grid-nav__arrow--previous ember-view";
 const SEARCH_URL = "";
 
 let STATE = {
@@ -52,7 +55,7 @@ const searchLetters = [
  * Triggered when the page loads
  */
 window.addEventListener('load', function() {
-
+    newPage();
 });
 
 /**
@@ -61,6 +64,26 @@ window.addEventListener('load', function() {
 document.addEventListener('keydown', function(event) {
     key(event);
 });
+
+function newPage() {
+    setTimeout(function() {
+        STATE.selection = 0;
+        STATE.menu = true;
+        STATE.videoSelection = 0;
+        if (checkShow()) {
+            waitForLoad();
+        }
+    }, 1000);
+}
+
+function waitForLoad() {
+    let t = setInterval(function() {
+        if (getElements().length !== 0) {
+            clearInterval(t);
+            highlight(DIRECTION.none);
+        }
+    }, 200);
+}
 
 /**
  * Determines the key press
@@ -142,7 +165,7 @@ function checkList() {
  * @returns {boolean} if the current page is the show page
  */
 function checkShow() {
-
+    return window.location.href.indexOf("show") !== -1;
 }
 
 /**
@@ -169,7 +192,11 @@ function getElements() {
     } else if (checkList()) {
 
     } else if (checkShow()) {
-
+        if (STATE.menu) {
+            return document.getElementsByClassName(SHOW_MENU_CLASS)[0].getElementsByTagName("button");
+        } else {
+            return document.getElementsByClassName(SHOW_VIDEO_CLASS)[0].getElementsByTagName("li");
+        }
     }
 }
 
@@ -178,11 +205,13 @@ function getElements() {
  * @returns {number} number of columns
  */
 function getColumns() {
-    if (checkHome()) {
-        return 1;
-    } else {
-        return 1;
-    }
+    return 1;
+}
+
+function getShowColumns() {
+    let e = getComputedStyle(document.getElementsByClassName(SHOW_VIDEO_CLASS)[0]).getPropertyValue("grid-auto-columns");
+    let i = e.indexOf('(');
+    return Math.round(100 / parseInt(e.slice(i + 1)));
 }
 
 /**
@@ -246,11 +275,17 @@ function select() {
             STATE.selection++;
         } else {
             getElements()[STATE.selection].getElementsByTagName('a')[1].click();
+            newPage();
         }
     } else if (checkList()) {
 
     } else if (checkShow()) {
-
+        if (STATE.menu) {
+            getElements()[STATE.selection].click();
+        } else {
+            getElements()[STATE.selection].getElementsByTagName('a')[0].click();
+        }
+        newPage();
     }
 }
 
@@ -263,7 +298,13 @@ function right() {
     } else if (checkList()) {
 
     } else if (checkShow()) {
-
+        if (!STATE.menu) {
+            highlight(DIRECTION.forwards);
+            let i = getShowColumns();
+            if (STATE.selection % i === 0) {
+                document.getElementsByClassName(SHOW_NEXT_CLASS)[0].click();
+            }
+        }
     }
 }
 
@@ -276,6 +317,13 @@ function left() {
     } else if (checkList()) {
 
     } else if (checkShow()) {
+        if (!STATE.menu) {
+            highlight(DIRECTION.backwards);
+            let i = getShowColumns();
+            if (STATE.selection % i === i - 1) {
+                document.getElementsByClassName(SHOW_PREVIOUS_CLASS)[0].click();
+            }
+        }
 
     }
 }
@@ -289,7 +337,15 @@ function up() {
     } else if (checkList()) {
 
     } else if (checkShow()) {
-
+        if (STATE.menu) {
+            highlight(DIRECTION.backwards);
+        } else {
+            highlight(DIRECTION.remove);
+            STATE.selection = 1;
+            STATE.menu = true;
+            highlight(DIRECTION.none);
+            window.scrollTo(0, 0);
+        }
     }
 }
 
@@ -302,7 +358,15 @@ function down() {
     } else if (checkList()) {
 
     } else if (checkShow()) {
-
+        if (STATE.menu && STATE.selection + 1 !== getElements().length) {
+            highlight(DIRECTION.forwards);
+        } else if (STATE.menu) {
+            highlight(DIRECTION.remove);
+            STATE.selection = 0;
+            getElements()[0].scrollIntoView();
+            STATE.menu = false;
+            highlight(DIRECTION.none);
+        }
     }
 }
 
@@ -318,7 +382,7 @@ function scroll() {
     } else if (checkList()) {
 
     } else if (checkShow()) {
-
+        return;
     }
 
     if (STATE.selection < columns) {
@@ -364,6 +428,7 @@ function back() {
 
     } else {
         document.getElementsByClassName(HOME_BUTTON_CLASS)[0].click();
+        newPage();
     }
 }
 
