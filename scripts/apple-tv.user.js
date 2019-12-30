@@ -1,13 +1,15 @@
 // ==UserScript==
 // @name        Apple TV+
 // @namespace   tarinnik.github.io/media
-// @version     0
+// @version     0.1
 // @include     https://tv.apple.com/*
 // @icon        https://tv.apple.com/favicon.ico
 // ==/UserScript==
 
 const BACKGROUND_COLOUR = "";
-const HOME_URL = "";
+const HOME_BUTTON_CLASS = "ember-view nav-header__logo nav-header__tv-plus-logo";
+const HOME_SCROLL_CLASS = "landing__header__next-arrow";
+const HOME_VIDEO_CLASS = "landing__main__section";
 const LIST_URL = "";
 const SHOW_URL = "";
 const SEARCH_URL = "";
@@ -124,7 +126,7 @@ function key(event) {
  * @return {boolean} if the current page is the home page
  */
 function checkHome() {
-
+    return document.getElementsByClassName(HOME_SCROLL_CLASS).length !== 0;
 }
 
 /**
@@ -156,7 +158,14 @@ function checkWatch() {
  */
 function getElements() {
     if (checkHome()) {
-
+        let a = [];
+        let e = document.getElementsByClassName(HOME_VIDEO_CLASS);
+        let length = e.length - 1;
+        a.push(document.getElementsByClassName(HOME_SCROLL_CLASS)[0]);
+        for (let i = 0; i < length; i++) {
+            a.push(e[i]);
+        }
+        return a;
     } else if (checkList()) {
 
     } else if (checkShow()) {
@@ -170,7 +179,7 @@ function getElements() {
  */
 function getColumns() {
     if (checkHome()) {
-
+        return 1;
     } else {
         return 1;
     }
@@ -232,7 +241,12 @@ function highlight(d) {
  */
 function select() {
     if (checkHome()) {
-
+        if (STATE.selection === 0) {
+            getElements()[0].click();
+            STATE.selection++;
+        } else {
+            getElements()[STATE.selection].getElementsByTagName('a')[1].click();
+        }
     } else if (checkList()) {
 
     } else if (checkShow()) {
@@ -271,7 +285,7 @@ function left() {
  */
 function up() {
     if (checkHome()) {
-
+        highlight(DIRECTION.backwards);
     } else if (checkList()) {
 
     } else if (checkShow()) {
@@ -284,7 +298,7 @@ function up() {
  */
 function down() {
     if (checkHome()) {
-
+        highlight(DIRECTION.forwards);
     } else if (checkList()) {
 
     } else if (checkShow()) {
@@ -314,6 +328,9 @@ function scroll() {
             window.scrollTo(0, 0);
         }
     } else {
+        if (checkHome()) {
+            columns = 0;
+        }
         elements[STATE.selection - columns].scrollIntoView();
     }
 }
@@ -346,7 +363,7 @@ function back() {
     if (checkWatch()) {
 
     } else {
-        window.location = HOME_URL;
+        document.getElementsByClassName(HOME_BUTTON_CLASS)[0].click();
     }
 }
 
