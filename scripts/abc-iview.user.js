@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name                ABC iview
 // @namespace           tarinnik.github.io/media
-// @version             3.3
+// @version             3.3.1
 // @include             https://iview.abc.net.au/*
 // @icon                https://iview.abc.net.au/favicon.ico
 // ==/UserScript==
@@ -407,7 +407,6 @@ function scroll() {
 		}
 	}
 
-
 	if (STATE.selection < columns) {
 		try {
 			defaultPosition.scrollIntoView();
@@ -415,7 +414,7 @@ function scroll() {
 			window.scrollTo(0, 0);
 		}
 	} else {
-		elements[STATE.selection - 1].scrollIntoView();
+		elements[STATE.selection - columns].scrollIntoView();
 	}
 }
 
