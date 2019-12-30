@@ -1,9 +1,9 @@
 // ==UserScript==
-// @name        Stan
+// @name        Apple TV+
 // @namespace   tarinnik.github.io/media
 // @version     0
-// @include     https://www.stan.com.au/*
-// @icon        https://www.stan.com.au/favicon.ico
+// @include     https://tv.apple.com/*
+// @icon        https://tv.apple.com/favicon.ico
 // ==/UserScript==
 
 const BACKGROUND_COLOUR = "";
