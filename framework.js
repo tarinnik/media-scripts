@@ -1,9 +1,27 @@
-BACKGROUND_COLOUR = "";
+// ==UserScript==
+// @name        Name
+// @namespace   tarinnik.github.io/media
+// @version     0
+// @include     https://
+// @icon        https://
+// ==/UserScript==
+
+const BACKGROUND_COLOUR = "";
+const HOME_URL = "";
+const LIST_URL = "";
+const SHOW_URL = "";
+const SEARCH_URL = "";
 
 let STATE = {
     selection: 0,
     menu: false,
     videoSelection: 0,
+    season: false,
+    search: false,
+    numSameKeyPresses: 0,
+    lastKeyPressed: '',
+    searchQuery: "",
+    changingChar: '',
 };
 
 const DIRECTION = {
@@ -15,16 +33,24 @@ const DIRECTION = {
     down: 2,
 };
 
+const searchLetters = [
+    [' ', '0'],
+    ['q', 'r', 's', '1'],
+    ['t', 'u', 'v', '2'],
+    ['w', 'x', 'y', 'z', '3'],
+    ['g', 'h', 'i', '4'],
+    ['j', 'k', 'l', '5'],
+    ['m', 'n', 'o', 'p', '6'],
+    ['7'],
+    ['a', 'b', 'c', '8'],
+    ['d', 'e', 'f', '9']
+];
+
 /**
  * Triggered when the page loads
  */
 window.addEventListener('load', function() {
-    if (checkList()) {
-        STATE.menu = true;
-    } else if (checkShow()) {
-        document.getElementsByTagName(SHOW_TITLE_TAG)[0].scrollIntoView();
-    }
-    highlight(DIRECTION.none);
+
 });
 
 /**
@@ -52,6 +78,7 @@ function key(event) {
             down();
             break;
         case '3':
+            fullscreen();
             break;
         case '4':
             left();
@@ -69,18 +96,22 @@ function key(event) {
             up();
             break;
         case '9':
-            seasons();
+            back();
             break;
         case '0':
             search();
             break;
+        case 'Enter':
+            playpause();
+            break;
         case '.':
             break;
         case '+':
-            fullscreen();
+            seasons();
             break;
         case '-':
-            back();
+            break;
+        case '*':
             break;
         case '/':
             refresh();
@@ -109,6 +140,14 @@ function checkList() {
  * @returns {boolean} if the current page is the show page
  */
 function checkShow() {
+
+}
+
+/**
+ * Checks if the current page is the video
+ * @returns {boolean} if the current page is the video
+ */
+function checkWatch() {
 
 }
 
@@ -260,20 +299,12 @@ function scroll() {
     let columns = getColumns();
     let defaultPosition;
     let elements = getElements();
-    if (checkList()) {
-        defaultPosition = null;
+    if (checkHome()) {
+
+    } else if (checkList()) {
+
     } else if (checkShow()) {
-        if (STATE.menu) {
-            return;
-        } else {
-            defaultPosition = document.getElementsByTagName(SHOW_TITLE_TAG)[0];
-        }
-    } else if (checkHome()) {
-        if (STATE.menu) {
-            return;
-        } else {
-            defaultPosition = null;
-        }
+
     }
 
     if (STATE.selection < columns) {
@@ -283,22 +314,47 @@ function scroll() {
             window.scrollTo(0, 0);
         }
     } else {
-        elements[STATE.selection - 1].scrollIntoView();
+        elements[STATE.selection - columns].scrollIntoView();
     }
+}
+
+/**
+ * Selects the season menu
+ */
+function season() {
+
+}
+
+/**
+ * Toggles the play state of the video
+ */
+function playpause() {
+
+}
+
+/**
+ * Makes the video fullscreen
+ */
+function fullscreen() {
+
 }
 
 /**
  * Closes the video if one is open, otherwise goes to the home page
  */
 function back() {
+    if (checkWatch()) {
 
+    } else {
+        window.location = HOME_URL;
+    }
 }
 
 /**
  * Navigates to the list page
  */
 function list() {
-
+    window.location = LIST_URL;
 }
 
 /**
