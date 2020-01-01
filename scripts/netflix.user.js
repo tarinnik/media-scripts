@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        Netflix
 // @namespace   tarinnik.github.io/media
-// @version	    0.12
+// @version	    0.12.1
 // @include	    https://www.netflix.com/*
 // @icon        https://www.netflix.com/favicon.ico
 // ==/UserScript==
@@ -120,7 +120,7 @@ function key(event) {
 			down();
 			break;
 		case '3':
-			account_switch();
+			fullscreen();
 			break;
 		case '4':
 			left();
@@ -138,7 +138,7 @@ function key(event) {
 			up();
 			break;
 		case '9':
-			season();
+			close();
 			break;
 		case '0':
 			search();
@@ -147,10 +147,10 @@ function key(event) {
 			playpause();
 			break;
 		case '+':
-			fullscreen();
+			season();
 			break;
 		case '-':
-			close();
+			account_switch();
 			break;
 		case '/':
 			refresh();
@@ -479,7 +479,6 @@ function select() {
 			selection = -1;
 		} else if (STATE.videoOptions === 1) {
 			getElement(VIDEO_OPTIONS_MENU_CLASS)[selection].getElementsByTagName("a")[0].click();
-			selection = -1;
 		} else {
 			getElement(VIDEO_EPISODE_CLASS)[selection].getElementsByTagName("a")[0].click();
 			selection = -1;
