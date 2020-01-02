@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name                ABC iview
 // @namespace           tarinnik.github.io/media
-// @version             3.3.1
+// @version             3.3.2
 // @include             https://iview.abc.net.au/*
 // @icon                https://iview.abc.net.au/favicon.ico
 // ==/UserScript==
@@ -79,6 +79,7 @@ function key(event) {
 			down();
 			break;
 		case '3':
+			fullscreen();
 			break;
 		case '4':
 			left();
@@ -96,7 +97,7 @@ function key(event) {
 			up();
 			break;
 		case '9':
-			seasons();
+			back();
 			break;
 		case '0':
 			search();
@@ -104,10 +105,9 @@ function key(event) {
 		case '.':
 			break;
 		case '+':
-			fullscreen();
+			seasons();
 			break;
 		case '-':
-			back();
 			break;
 		case '/':
 			refresh();
@@ -313,7 +313,11 @@ function select() {
 		if (STATE.menu) {
 			swapState();
 		}
-		getElements()[STATE.selection].parentNode.parentNode.click();
+		if (STATE.videoSelection === 0) {
+			getElements()[0].getElementsByTagName('a')[0].click();
+		} else {
+			getElements()[STATE.selection].parentNode.parentNode.click();
+		}
 	}
 }
 
