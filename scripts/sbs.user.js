@@ -1,13 +1,19 @@
 // ==UserScript==
 // @name     	SBS
 // @namespace   tarinnik.github.io/media
-// @version	    2.0
+// @version	    2.1
 // @include	    https://www.sbs.com.au/ondemand/*
 // @icon        https://www.sbs.com.au/favicon.ico
 // ==/UserScript==
 
-const BACKGROUND_COLOUR = "background:#ffb006";
+const BACKGROUND_COLOUR = "#ffb006";
+const HOME_URL = "https://www.sbs.com.au/ondemand/";
 const HOME_CLASS = "search__logo search__odLogo";
+const HOME_CAROUSEL_ID = "carousel1";
+const HOME_CAROUSEL_ACTIVE_CLASS = "active";
+const HOME_CAROUSEL_CONTROLS = "rn-carousel-controls ng-scope";
+const HOME_VIDEO_ROW_CLASS = "carousel__list";
+const HOME_VIDEO_CLASS = "carousel__item";
 const LIST_URL = "https://www.sbs.com.au/ondemand/favourites";
 const LIST_BUTTON_CLASS = "favourite__extra";
 const LIST_VIDEOS_CLASS = "grid__list grid__list--landscape";
@@ -26,7 +32,8 @@ const PLAY_CLASS = "spcPlayPauseContainer";
 let STATE = {
 	selection: 0,
 	menu: false,
-	section: 0,
+	videoSelection: 0,
+	videoSection: false,
 };
 
 const DIRECTION = {
@@ -119,6 +126,10 @@ function key(event) {
 	}
 }
 
+function checkHome() {
+	return window.location.href === HOME_URL;
+}
+
 /**
  * Checks that the current page is my list
  * @return {boolean}
@@ -163,11 +174,28 @@ function getProgramElements() {
 	return e;
 }
 
+function getHomeElements() {
+	let a = [];
+	a.push(document.getElementById(HOME_CAROUSEL_ID).getElementsByClassName(HOME_CAROUSEL_ACTIVE_CLASS)[0]);
+	let e = document.getElementsByClassName(HOME_VIDEO_ROW_CLASS);
+	for (let i = 0; i < e.length; i++) {
+		a.push(e[i].getElementsByClassName(HOME_VIDEO_CLASS)[0]);
+	}
+	return a;
+}
+
 /**
  * Gets the elements that need to be highlighted
  */
 function getElements() {
-	if (checkList()) {
+	if (checkHome()) {
+		if (STATE.videoSection) {
+			return getHomeElements();
+		} else {
+			return document.getElementsByClassName(HOME_VIDEO_ROW_CLASS)[STATE.videoSelection - 1].
+					getElementsByClassName(HOME_VIDEO_CLASS);
+		}
+	} else if (checkList()) {
 		return document.getElementsByClassName(LIST_VIDEOS_CLASS)[0].getElementsByTagName("li");
 	} else if (checkProgram()) {
 		return getProgramElements();
@@ -203,11 +231,11 @@ function highlight(d) {
 
 	// Highlight the current element
 	if (d === DIRECTION.none) {
-		elements[STATE.selection].setAttribute("style", BACKGROUND_COLOUR);
+		elements[STATE.selection].style.background = BACKGROUND_COLOUR;
 
 		// Remove the highlight from the current element
 	} else if (d === DIRECTION.remove) {
-		elements[STATE.selection].removeAttribute("style");
+		elements[STATE.selection].style.background = "";
 
 		// Highlight forward but at the end of the elements
 	} else if (STATE.selection === elements.length - 1 && d === DIRECTION.forwards) {
@@ -252,7 +280,9 @@ function scroll() {
 	let elements = getElements();
 	let defaultPosition;
 
-	if (checkProgram()) {
+	if (checkHome() && !STATE.videoSection) {
+		return;
+	} else if (checkProgram()) {
 		defaultPosition = document.getElementsByTagName("h1")[0];
 	} else {
 		defaultPosition = null;
@@ -279,11 +309,35 @@ function toggleMenu() {
 	highlight(DIRECTION.none);
 }
 
+function preVideoSection() {
+	STATE.selection = 0;
+	STATE.videoSection = true;
+	swapSelection();
+}
+
+function postVideoSection() {
+	STATE.videoSection = false;
+	swapSelection();
+}
+
+function swapSelection() {
+	let tmp = STATE.selection;
+	STATE.selection = STATE.videoSelection;
+	STATE.videoSelection = tmp;
+}
+
 /**
  * 6 (right arrow) was pressed
  */
 function right() {
-	if (checkList()) {
+	if (checkHome()) {
+		if (STATE.videoSelection === 0) {
+			document.getElementsByClassName(HOME_CAROUSEL_CONTROLS)[0].
+					getElementsByTagName("span")[1].click();
+		} else {
+			highlight(DIRECTION.forwards);
+		}
+	} else if (checkList()) {
 		highlight(DIRECTION.forwards);
 	} else if (checkProgram() && STATE.menu) {
 		highlight(DIRECTION.forwards);
@@ -294,7 +348,14 @@ function right() {
  * 4 (left arrow) was pressed
  */
 function left() {
-	if (checkList()) {
+	if (checkHome()) {
+		if (STATE.videoSelection === 0) {
+			document.getElementsByClassName(HOME_CAROUSEL_CONTROLS)[0].
+			getElementsByTagName("span")[0].click();
+		} else {
+			highlight(DIRECTION.backwards);
+		}
+	} else if (checkList()) {
 		highlight(DIRECTION.backwards);
 	} else if (checkProgram() && STATE.menu) {
 		highlight(DIRECTION.backwards);
@@ -305,7 +366,11 @@ function left() {
  * 8 (up arrow) was pressed
  */
 function up() {
-	if (checkList()) {
+	if (checkHome()) {
+		preVideoSection();
+		highlight(DIRECTION.backwards);
+		postVideoSection();
+	} else if (checkList()) {
 		highlight(DIRECTION.up);
 	} else if (checkProgram()) {
 		if (STATE.selection === 0 && !STATE.menu) {
@@ -320,7 +385,11 @@ function up() {
  * 2 (down arrow) was pressed
  */
 function down() {
-	if (checkList()) {
+	if (checkHome()) {
+		preVideoSection();
+		highlight(DIRECTION.forwards);
+		postVideoSection();
+	} else if (checkList()) {
 		highlight(DIRECTION.down);
 	} else if (checkProgram()) {
 		if (STATE.menu) {
@@ -335,7 +404,16 @@ function down() {
  * 5 (select) was pressed
  */
 function select() {
-	if (checkList()) {
+	if (checkHome()) {
+		if (STATE.videoSelection === 0) {
+			STATE.videoSection = true;
+			getElements()[STATE.selection].getElementsByTagName("div")[0].click();
+			STATE.videoSection = false;
+		} else {
+			getElements()[STATE.selection].getElementsByTagName("a")[0].click();
+		}
+		newPage();
+	} else if (checkList()) {
 		getElements()[STATE.selection].getElementsByTagName("a")[0].click();
 		newPage();
 	} else if (checkProgram()) {
@@ -361,7 +439,7 @@ function fullscreen() {
  * Closes the video, or if there is no video, goes to the home page
  */
 function back() {
-	document.getElementsByClassName(HOME_CLASS)[0].getElementsByTagName("a")[0].click();
+	window.location = HOME_URL;
 }
 
 /**
