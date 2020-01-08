@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name     	SBS
 // @namespace   tarinnik.github.io/media
-// @version	    2.1
+// @version	    2.1.1
 // @include	    https://www.sbs.com.au/ondemand/*
 // @icon        https://www.sbs.com.au/favicon.ico
 // ==/UserScript==
@@ -23,11 +23,13 @@ const PROGRAM_BANNER_CLASS = "tabview__content";
 const PROGRAM_VIDEO_CLASS = "series__episodesList ng-scope";
 const PROGRAM_WATCHLIST_CLASS = "action";
 const PROGRAM_INFORMATION_CLASS = "tabview__tabs";
+const VIDEO_FULLSCREEN_URL = "https://www.sbs.com.au/ondemand/video/odplayer";
 const VIDEO_URL = "https://www.sbs.com.au/ondemand/video";
 const VIDEO_URL_LENGTH = VIDEO_URL.length;
 const VIDEO_ID = "video-player";
 const FULLSCREEN_CLASS = "spcFullscreenButton";
 const PLAY_CLASS = "spcPlayPauseContainer";
+const WATCH_PLAY_OVERLAY_CLASS = "tpPlayOverlay";
 
 let STATE = {
 	selection: 0,
@@ -151,6 +153,10 @@ function checkProgram() {
  */
 function checkWatch() {
 	return window.location.href.slice(0, VIDEO_URL_LENGTH) === VIDEO_URL;
+}
+
+function checkFullscreenWatch() {
+	return window.location.href.slice(0, VIDEO_FULLSCREEN_URL.length) === VIDEO_FULLSCREEN_URL;
 }
 
 /**
@@ -421,18 +427,31 @@ function select() {
 		if (!STATE.menu) {
 			newPage();
 		}
+	} else if (checkWatch()) {
+		let e = document.getElementsByClassName(WATCH_PLAY_OVERLAY_CLASS);
+		if (e.length > 0) {
+			e[0].click();
+		}
 	}
 }
 
 function playpause() {
-	getElements().getElementsByClassName(PLAY_CLASS)[0].click();
+	if (checkFullscreenWatch()) {
+		document.getElementsByClassName(PLAY_CLASS)[0].click();
+	} else if (checkWatch()) {
+		getElements().getElementsByClassName(PLAY_CLASS)[0].click();
+	}
 }
 
 /**
  * Makes the video fullscreen
  */
 function fullscreen() {
-	getElements().getElementsByClassName(FULLSCREEN_CLASS)[0].click();
+	if (checkFullscreenWatch()) {
+		document.getElementsByClassName(FULLSCREEN_CLASS)[0].click();
+	} else if (checkWatch()) {
+		window.location = document.getElementById(VIDEO_ID).src;
+	}
 }
 
 /**
