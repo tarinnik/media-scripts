@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name     	Prime Video
 // @namespace	tarinnik.github.io/media
-// @version  	0.5
+// @version  	0.5.1
 // @include		https://www.primevideo.com/*
 // @icon		https://www.primevideo.com/favicon.ico
 // ==/UserScript==
@@ -190,7 +190,18 @@ function getElements() {
         if (STATE.season) {
             return document.getElementsByClassName(SHOW_SEASON_ITEMS_CLASS)[0].getElementsByTagName("li");
         } else if (STATE.menu) {
-            return document.getElementsByClassName(SHOW_MENU_CLASS)[0].childNodes;
+            let l = document.getElementsByClassName(SHOW_MENU_CLASS)[0].childNodes;
+            if (l[1].childNodes.length > 1) {
+                let a = [];
+                a.push(l[0]);
+                let e =  l[1].childNodes;
+                for (let i = 0; i < e.length; i++) {
+                    a.push(e[i]);
+                }
+                return a;
+            } else {
+                return l;
+            }
         } else {
             return document.getElementsByClassName(SHOW_VIDEO_CLASS);
         }
@@ -376,7 +387,9 @@ function down() {
         if (STATE.season) {
             highlight(DIRECTION.forwards);
         } else if (STATE.menu) {
-            toggleMenu();
+            if (document.getElementsByClassName(SHOW_VIDEO_CLASS).length !== 0) {
+                toggleMenu();
+            }
         } else {
             highlight(DIRECTION.forwards);
         }
@@ -471,12 +484,14 @@ function resetSearch() {
  * Selects the season menu
  */
 function seasons() {
-    highlight(DIRECTION.remove);
-    STATE.selection = 0;
-    STATE.season = !STATE.season;
-    window.scrollTo(0, 0);
-    document.getElementById(SHOW_SEASON_ID).click();
-    highlight(DIRECTION.none);
+    if (document.getElementById(SHOW_SEASON_ID)) {
+        highlight(DIRECTION.remove);
+        STATE.selection = 0;
+        STATE.season = !STATE.season;
+        window.scrollTo(0, 0);
+        document.getElementById(SHOW_SEASON_ID).click();
+        highlight(DIRECTION.none);
+    }
 }
 
 /**
