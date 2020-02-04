@@ -295,7 +295,16 @@ function highlight(d) {
  */
 function select() {
     if (checkHome()) {
-
+        if (STATE.videoSelection === 0) {
+            let banner = document.getElementsByClassName(HOME_BANNER_CLASS)[0].
+                    getElementsByTagName("ul")[0];
+            let style = banner.getAttribute("style");
+            let i = style[style.indexOf('(') + 1];
+            if (i === '-') {
+                i = style[style.indexOf('(') + 2];
+            }
+            banner.getElementsByTagName("li")[i].getElementsByTagName("a")[0].click();
+        }
     } else if (checkList()) {
         if (STATE.menu) {
             getElements()[STATE.selection].click();
