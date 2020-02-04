@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name     	Prime Video
 // @namespace	tarinnik.github.io/media
-// @version  	0.6-4
+// @version  	0.6-5
 // @include		https://www.primevideo.com/*
 // @icon		https://www.primevideo.com/favicon.ico
 // ==/UserScript==
@@ -316,6 +316,8 @@ function select() {
                 i = style[style.indexOf('(') + 2];
             }
             banner.getElementsByTagName("li")[i].getElementsByTagName("a")[0].click();
+        } else {
+            getElements()[STATE.selection].getElementsByTagName("a")[0].click();
         }
     } else if (checkList()) {
         if (STATE.menu) {
@@ -454,7 +456,7 @@ function scroll() {
     if (STATE.menu || STATE.season) {
         window.scrollTo(0, 0);
         return;
-    } else if (!STATE.videoSection) {
+    } else if (!STATE.videoSection && checkHome()) {
         return;
     }
 
