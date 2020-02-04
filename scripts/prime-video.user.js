@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name     	Prime Video
 // @namespace	tarinnik.github.io/media
-// @version  	0.6-3
+// @version  	0.6-4
 // @include		https://www.primevideo.com/*
 // @icon		https://www.primevideo.com/favicon.ico
 // ==/UserScript==
@@ -10,8 +10,6 @@ const BACKGROUND_COLOUR = "background:#1a7ee1;color:white;padding:7px";
 const HOME_URL = "https://www.primevideo.com/";
 const HOME_URL_2 = "https://www.primevideo.com/storefront/home/";
 const HOME_BANNER_CLASS = "_2JV8iu";
-const HOME_BANNER_LEFT_BUTTON = 0;
-const HOME_BANNER_RIGHT_BUTTON = 2;
 const HOME_VIDEO_ROW_CLASS = "_1gQKv6 u-collection tst-collection";
 const LIST_URL = "https://www.primevideo.com/watchlist";
 const LIST_MENU_CLASS = "_3KCmhW dvui-tab";
@@ -348,7 +346,7 @@ function select() {
 function right() {
     if (checkHome()) {
         if (STATE.videoSelection === 0) {
-            getElements()[HOME_BANNER_RIGHT_BUTTON].click();
+            getElements()[getElements().length - 1].click();
         } else {
             highlight(DIRECTION.forwards);
         }
@@ -367,7 +365,7 @@ function right() {
 function left() {
     if (checkHome()) {
         if (STATE.videoSelection === 0) {
-            getElements()[HOME_BANNER_LEFT_BUTTON].click();
+            getElements()[0].click();
         } else {
             highlight(DIRECTION.backwards);
         }
