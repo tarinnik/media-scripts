@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name     	Prime Video
 // @namespace	tarinnik.github.io/media
-// @version  	0.6-1
+// @version  	0.6-3
 // @include		https://www.primevideo.com/*
 // @icon		https://www.primevideo.com/favicon.ico
 // ==/UserScript==
@@ -12,6 +12,7 @@ const HOME_URL_2 = "https://www.primevideo.com/storefront/home/";
 const HOME_BANNER_CLASS = "_2JV8iu";
 const HOME_BANNER_LEFT_BUTTON = 0;
 const HOME_BANNER_RIGHT_BUTTON = 2;
+const HOME_VIDEO_ROW_CLASS = "_1gQKv6 u-collection tst-collection";
 const LIST_URL = "https://www.primevideo.com/watchlist";
 const LIST_MENU_CLASS = "_3KCmhW dvui-tab";
 const LIST_VIDEO_CLASS = "UaW15H";
@@ -31,6 +32,7 @@ let STATE = {
     selection: 0,
     menu: false,
     season: false,
+    videoSection: false,
     videoSelection: 0,
     search: false,
     numSameKeyPresses: 0,
@@ -182,8 +184,20 @@ function checkSearch() {
  */
 function getElements() {
     if (checkHome()) {
-        if (STATE.videoSelection === 0) {
+        if (STATE.videoSelection === 0 && !STATE.videoSection) {
             return document.getElementsByClassName(HOME_BANNER_CLASS)[0].getElementsByTagName("button");
+        } else {
+            if (STATE.videoSection) {
+                let rows = document.getElementsByClassName(HOME_VIDEO_ROW_CLASS);
+                let a = [];
+                for (let i = 0; i < rows.length; i++) {
+                    a.push(rows[i].getElementsByTagName("li")[0]);
+                }
+                return a;
+            } else {
+                return document.getElementsByClassName(HOME_VIDEO_ROW_CLASS)[STATE.videoSelection].
+                        getElementsByTagName("li");
+            }
         }
     } else if (checkList()) {
         if (STATE.menu) {
@@ -221,7 +235,7 @@ function getElements() {
  */
 function getColumns() {
     if (checkHome()) {
-
+        return 1;
     } else if (checkList() && !STATE.menu) {
         let a = document.getElementsByClassName(LIST_VIDEO_CLASS)[0].parentElement;
         let columns = window.getComputedStyle(a, null).getPropertyValue("grid-template-columns");
@@ -335,6 +349,8 @@ function right() {
     if (checkHome()) {
         if (STATE.videoSelection === 0) {
             getElements()[HOME_BANNER_RIGHT_BUTTON].click();
+        } else {
+            highlight(DIRECTION.forwards);
         }
     } else if (checkList()) {
         highlight(DIRECTION.forwards);
@@ -352,6 +368,8 @@ function left() {
     if (checkHome()) {
         if (STATE.videoSelection === 0) {
             getElements()[HOME_BANNER_LEFT_BUTTON].click();
+        } else {
+            highlight(DIRECTION.backwards);
         }
     } else if (checkList()) {
         highlight(DIRECTION.backwards);
@@ -367,7 +385,11 @@ function left() {
  */
 function up() {
     if (checkHome()) {
-
+        highlight(DIRECTION.remove);
+        swapSelection();
+        highlight(DIRECTION.backwards);
+        swapSelection();
+        STATE.selection = 0;
     } else if (checkList()) {
         if (!STATE.menu) {
             if (STATE.selection < getColumns()) {
@@ -394,7 +416,11 @@ function up() {
  */
 function down() {
     if (checkHome()) {
-
+        highlight(DIRECTION.remove);
+        swapSelection();
+        highlight(DIRECTION.forwards);
+        swapSelection();
+        STATE.selection = 0;
     } else if (checkList()) {
         if (STATE.menu) {
             toggleMenu();
@@ -416,12 +442,21 @@ function down() {
     }
 }
 
+function swapSelection() {
+    let temp = STATE.videoSelection;
+    STATE.videoSelection = STATE.selection;
+    STATE.selection = temp;
+    STATE.videoSection = !STATE.videoSection;
+}
+
 /**
  * Scrolls the page so the selected element if visible
  */
 function scroll() {
     if (STATE.menu || STATE.season) {
         window.scrollTo(0, 0);
+        return;
+    } else if (!STATE.videoSection) {
         return;
     }
 
