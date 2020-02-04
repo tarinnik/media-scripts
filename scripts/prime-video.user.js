@@ -1,14 +1,17 @@
 // ==UserScript==
 // @name     	Prime Video
 // @namespace	tarinnik.github.io/media
-// @version  	0.5.1
+// @version  	0.6-1
 // @include		https://www.primevideo.com/*
 // @icon		https://www.primevideo.com/favicon.ico
 // ==/UserScript==
 
 const BACKGROUND_COLOUR = "background:#1a7ee1;color:white;padding:7px";
-const HOME_URL = "https://www.primevideo.com";
+const HOME_URL = "https://www.primevideo.com/";
 const HOME_URL_2 = "https://www.primevideo.com/storefront/home/";
+const HOME_BANNER_CLASS = "_2JV8iu";
+const HOME_BANNER_LEFT_BUTTON = 0;
+const HOME_BANNER_RIGHT_BUTTON = 2;
 const LIST_URL = "https://www.primevideo.com/watchlist";
 const LIST_MENU_CLASS = "_3KCmhW dvui-tab";
 const LIST_VIDEO_CLASS = "UaW15H";
@@ -179,7 +182,9 @@ function checkSearch() {
  */
 function getElements() {
     if (checkHome()) {
-
+        if (STATE.videoSelection === 0) {
+            return document.getElementsByClassName(HOME_BANNER_CLASS)[0].getElementsByTagName("button");
+        }
     } else if (checkList()) {
         if (STATE.menu) {
             return document.getElementsByClassName(LIST_MENU_CLASS);
@@ -319,7 +324,9 @@ function select() {
  */
 function right() {
     if (checkHome()) {
-
+        if (STATE.videoSelection === 0) {
+            getElements()[HOME_BANNER_RIGHT_BUTTON].click();
+        }
     } else if (checkList()) {
         highlight(DIRECTION.forwards);
     } else if (checkShow() && STATE.menu) {
@@ -334,7 +341,9 @@ function right() {
  */
 function left() {
     if (checkHome()) {
-
+        if (STATE.videoSelection === 0) {
+            getElements()[HOME_BANNER_LEFT_BUTTON].click();
+        }
     } else if (checkList()) {
         highlight(DIRECTION.backwards);
     } else if (checkShow() && STATE.menu) {
