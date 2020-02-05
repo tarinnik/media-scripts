@@ -107,7 +107,7 @@ function key(event) {
         case '.':
             break;
         case '+':
-            seasons();
+            season();
             break;
         case '-':
             break;
