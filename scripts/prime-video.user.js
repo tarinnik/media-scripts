@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name     	Prime Video
 // @namespace	tarinnik.github.io/media
-// @version  	0.6-6
+// @version  	0.6-7
 // @include		https://www.primevideo.com/*
 // @icon		https://www.primevideo.com/favicon.ico
 // ==/UserScript==
@@ -352,6 +352,7 @@ function right() {
             getElements()[getElements().length - 1].click();
         } else {
             highlight(DIRECTION.forwards);
+            scrollVideos(DIRECTION.forwards);
         }
     } else if (checkList()) {
         highlight(DIRECTION.forwards);
@@ -371,6 +372,7 @@ function left() {
             getElements()[0].click();
         } else {
             highlight(DIRECTION.backwards);
+            scrollVideos(DIRECTION.backwards);
         }
     } else if (checkList()) {
         highlight(DIRECTION.backwards);
@@ -440,6 +442,28 @@ function down() {
         }
     } else if (checkSearch()) {
         highlight(DIRECTION.down);
+    }
+}
+
+function scrollVideos(d) {
+    let a = getElements()[0];
+    console.log(a);
+    let num = Math.floor(window.innerWidth / parseInt(window.getComputedStyle(a).getPropertyValue("width")));
+    console.log(num);
+    let e = a.parentElement.parentElement.getElementsByTagName("button");
+    console.log(e);
+    if (d === DIRECTION.forwards && STATE.selection % num === 0 && STATE.selection !== 0) {
+        if (e.length === 2) {
+            e[1].click();
+        } else if (e.length === 1 && e[0].getAttribute("aria-label") === "Right") {
+            e[0].click();
+        }
+    } else if (d === DIRECTION.backwards && STATE.selection % num === num - 1) {
+        if (e.length === 2) {
+            e[0].click();
+        } else if (e.length === 1 && e[0].getAttribute("aria-label") === "Left") {
+            e[0].click();
+        }
     }
 }
 
