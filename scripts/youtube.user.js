@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name     	Youtube
 // @namespace	tarinnik.github.io/media
-// @version  	0.9.1
+// @version  	0.9.2
 // @include		https://www.youtube.com/*
 // @icon		https://youtube.com/favicon.ico
 // ==/UserScript==
@@ -21,8 +21,8 @@ const ROOT_URL = "https://www.youtube.com/";
 const WATCH_URL = "https://www.youtube.com/watch?v=";
 const WATCH_URL_LENGTH = 32;
 const SUBS_URL = "https://www.youtube.com/feed/subscriptions";
-const CHANNEL_URL = "https://www.youtube.com/channel";
-const CHANNEL_URL_LENGTH = 31;
+const CHANNEL_URL = "https://www.youtube.com/user";
+const CHANNEL_URL_2 = "https://www.youtube.com/channel";
 const EMBED_URL_LENGTH = 30;
 const SCROLL_COLUMNS_TAG = "ytd-browse";
 const SCROLL_COLUMNS_STYLE = "--ytd-rich-grid-items-per-row";
@@ -182,18 +182,19 @@ function checkSearch() {
 }
 
 function checkChannel() {
-	return window.location.href.slice(0, CHANNEL_URL_LENGTH) === CHANNEL_URL;
+	return window.location.href.slice(0, CHANNEL_URL.length) === CHANNEL_URL ||
+			window.location.href.slice(0, CHANNEL_URL_2.length) === CHANNEL_URL_2;
 }
 
 function checkChannelLocation() {
-	let url = window.location.href;
-	if (url.slice(56) === CHANNEL_LOCATION.home) {
+	let location = window.location.href.split('/')[5];
+	if (location === CHANNEL_LOCATION.home) {
 		return CHANNEL_LOCATION.home;
-	} else if (url.slice(57, 65) === CHANNEL_LOCATION.home2) {
+	} else if (location === CHANNEL_LOCATION.home2) {
 		return CHANNEL_LOCATION.home2;
-	} else if (url.slice(57, 63) === CHANNEL_LOCATION.videos) {
+	} else if (location === CHANNEL_LOCATION.videos) {
 		return CHANNEL_LOCATION.videos;
-	} else if (url.slice(57, 66) === CHANNEL_LOCATION.playlists) {
+	} else if (location === CHANNEL_LOCATION.playlists) {
 		return CHANNEL_LOCATION.playlists;
 	} else {
 		return CHANNEL_LOCATION.none;
