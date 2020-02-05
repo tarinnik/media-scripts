@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name     	Youtube
 // @namespace	tarinnik.github.io/media
-// @version  	0.9
+// @version  	0.9.1
 // @include		https://www.youtube.com/*
 // @icon		https://youtube.com/favicon.ico
 // ==/UserScript==
@@ -497,8 +497,9 @@ function search() {
 
 function searchKey(key) {
 	if (key === "Enter") {
-		document.getElementById(SEARCH_ID).getElementsByTagName("button")[0].click();
+		let query = document.getElementById(SEARCH_ID).getElementsByTagName("input")[0].value;
 		resetSearch();
+		window.location = SEARCH_URL + query;
 	} else if (key === '-') {
 		if (STATE.changingChar !== '') {
 			STATE.changingChar = '';
