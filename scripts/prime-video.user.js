@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name     	Prime Video
 // @namespace	tarinnik.github.io/media
-// @version  	0.6
+// @version  	0.6.1
 // @include		https://www.primevideo.com/*
 // @icon		https://www.primevideo.com/favicon.ico
 // ==/UserScript==
@@ -24,7 +24,7 @@ const WATCH_PLAY_ICON_CLASS = "playIcon";
 const WATCH_CLOSE_CLASS = "imageButton";
 const SEARCH_URL = "https://www.primevideo.com/search/?phrase=";
 const SEARCH_ID = "pv-search-nav";
-const SEARCH_VIDEO_CLASS = "av-hover-wrapper";
+const SEARCH_VIDEO_CLASS = "av-grid-beard";
 
 let STATE = {
     selection: 0,
