@@ -406,8 +406,10 @@ function highlight(direction) {
 	//Scrolling
 	if (checkHome() || checkSubs() || (checkChannel() && !STATE.channelMenu)) {
 		scroll(STATE.selection, null, getElements(), getNumColumns());
-	} else if (checkMenu() || checkSearch()) {
+	} else if (checkSearch() || (checkTrending() && !STATE.channelMenu)) {
 		scroll(STATE.selection, null, getElements(), 1);
+	} else if (checkMenu()) {
+		scroll(STATE.selection, getElements()[0], getElements(), 1);
 	}
 }
 
