@@ -417,7 +417,8 @@ function up() {
 		if (!STATE.channelMenu && STATE.selection < getNumColumns()) {
 			highlight(DIRECTION.remove);
 			STATE.channelMenu = true;
-			STATE.selection = 0;
+			if (checkChannelLocation() === CHANNEL_LOCATION.videos) STATE.selection = 1;
+			else if (checkChannelLocation() === CHANNEL_LOCATION.playlists) STATE.selection = 2;
 			highlight(DIRECTION.none);
 		} else if (!STATE.channelMenu) {
 			highlight(DIRECTION.up);
