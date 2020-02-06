@@ -524,6 +524,10 @@ function select() {
 		} else {
 			getElements()[STATE.selection].getElementsByTagName("a")[0].click();
 		}
+	} else if (checkTrending()) {
+		getElements()[STATE.selection].getElementsByTagName("a")[0].click();
+		highlight(DIRECTION.remove);
+		newPage();
 	}
 }
 
