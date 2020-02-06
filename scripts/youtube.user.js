@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name     	Youtube
 // @namespace	tarinnik.github.io/media
-// @version  	0.10.1
+// @version  	0.11
 // @include		https://www.youtube.com/*
 // @icon		https://youtube.com/favicon.ico
 // ==/UserScript==
@@ -42,6 +42,10 @@ const CHANNEL_VIDEOS_TAG_1 = "ytd-grid-renderer";
 const CHANNEL_VIDEOS_TAG_2 = "ytd-grid-video-renderer";
 const CHANNEL_PLAYLIST_TAG = "ytd-grid-playlist-renderer";
 const MINIPLAYER_CLOSE = "ytp-miniplayer-close-button ytp-button";
+const TRENDING_URL = "https://www.youtube.com/feed/trending";
+const TRENDING_TAG1 = "ytd-expanded-shelf-contents-renderer";
+const TRENDING_TAG2 = "ytd-video-renderer";
+const TRENDING_SECTION_TAG = "ytd-channel-list-sub-menu-avatar-renderer";
 
 // Redirecting embeded youtube links to full youtube
 if (window.location.href.slice(0, EMBED_URL_LENGTH) === "https://www.youtube.com/embed/") {
@@ -167,6 +171,10 @@ function checkHome() {
 	return window.location.href === ROOT_URL && !checkMenu();
 }
 
+function checkTrending() {
+	return window.location.href.slice(0, TRENDING_URL.length) === TRENDING_URL && !checkMenu();
+}
+
 function checkMenu() {
 	return STATE.inMenu;
 }
@@ -270,6 +278,14 @@ function getChannelElements() {
 	}
 }
 
+function getTrendingElements() {
+	if (STATE.channelMenu) {
+		return document.getElementsByTagName(TRENDING_SECTION_TAG);
+	} else {
+		return document.getElementsByTagName(TRENDING_TAG1)[0].getElementsByTagName(TRENDING_TAG2);
+	}
+}
+
 function getElements() {
 	if (checkHome()) {
 		let elements = document.getElementById(PAGE_ID).getElementsByTagName(BROWSE_VIDEOS_TAG);
@@ -291,6 +307,8 @@ function getElements() {
 		return document.getElementById(PAGE_ID).getElementsByTagName(SEARCH_VIDEOS_TAG)[0].getElementsByTagName(VIDEO_TAG);
 	} else if (checkChannel()) {
 		return getChannelElements();
+	} else if (checkTrending()) {
+		return getTrendingElements();
 	}
 }
 
@@ -425,6 +443,14 @@ function up() {
 		} else if (!STATE.channelMenu) {
 			highlight(DIRECTION.up);
 		}
+	} else if (checkTrending()) {
+		if (!STATE.channelMenu && STATE.selection === 0) {
+			highlight(DIRECTION.remove);
+			STATE.channelMenu = true;
+			highlight(DIRECTION.none);
+		} else if (!STATE.channelMenu) {
+			highlight(DIRECTION.backwards);
+		}
 	}
 }
 
@@ -442,6 +468,15 @@ function down() {
 			highlight(DIRECTION.none);
 		} else if (!STATE.channelMenu) {
 			highlight(DIRECTION.down);
+		}
+	} else if (checkTrending()) {
+		if (STATE.channelMenu) {
+			highlight(DIRECTION.remove);
+			STATE.channelMenu = false;
+			STATE.selection = 0;
+			highlight(DIRECTION.none);
+		} else {
+			highlight(DIRECTION.forwards);
 		}
 	}
 }
