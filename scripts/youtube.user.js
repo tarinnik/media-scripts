@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name     	Youtube
 // @namespace	tarinnik.github.io/media
-// @version  	0.10
+// @version  	0.10.1
 // @include		https://www.youtube.com/*
 // @icon		https://youtube.com/favicon.ico
 // ==/UserScript==
@@ -41,6 +41,7 @@ const CHANNEL_TAB_ITEMS_TAG = "paper-tab";
 const CHANNEL_VIDEOS_TAG_1 = "ytd-grid-renderer";
 const CHANNEL_VIDEOS_TAG_2 = "ytd-grid-video-renderer";
 const CHANNEL_PLAYLIST_TAG = "ytd-grid-playlist-renderer";
+const MINIPLAYER_CLOSE = "ytp-miniplayer-close-button ytp-button";
 
 // Redirecting embeded youtube links to full youtube
 if (window.location.href.slice(0, EMBED_URL_LENGTH) === "https://www.youtube.com/embed/") {
@@ -495,6 +496,8 @@ function close() {
 	if (checkWatch()) {
 		window.history.go(-1);
 		newPage();
+	} else if (document.getElementsByClassName(MINIPLAYER_CLOSE)[0].offsetParent !== null) {
+		document.getElementsByClassName(MINIPLAYER_CLOSE)[0].click();
 	} else {
 		try {
 			highlight(DIRECTION.remove);
