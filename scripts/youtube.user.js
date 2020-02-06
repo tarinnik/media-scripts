@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name     	Youtube
 // @namespace	tarinnik.github.io/media
-// @version  	0.9.2
+// @version  	0.10
 // @include		https://www.youtube.com/*
 // @icon		https://youtube.com/favicon.ico
 // ==/UserScript==
@@ -413,6 +413,15 @@ function up() {
 		highlight(DIRECTION.backwards);
 	} else if (checkHome() || checkSubs()) {
 		highlight(DIRECTION.up);
+	} else if (checkChannel()) {
+		if (!STATE.channelMenu && STATE.selection < getNumColumns()) {
+			highlight(DIRECTION.remove);
+			STATE.channelMenu = true;
+			STATE.selection = 0;
+			highlight(DIRECTION.none);
+		} else if (!STATE.channelMenu) {
+			highlight(DIRECTION.up);
+		}
 	}
 }
 
@@ -427,6 +436,8 @@ function down() {
 			STATE.channelMenu = false;
 			STATE.selection = 0;
 			highlight(DIRECTION.none);
+		} else {
+			highlight(DIRECTION.down);
 		}
 	}
 }
