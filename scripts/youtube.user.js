@@ -40,6 +40,7 @@ const CHANNEL_TAB_ID = "tabsContent";
 const CHANNEL_TAB_ITEMS_TAG = "paper-tab";
 const CHANNEL_VIDEOS_TAG_1 = "ytd-grid-renderer";
 const CHANNEL_VIDEOS_TAG_2 = "ytd-grid-video-renderer";
+const CHANNEL_PLAYLIST_TAG = "ytd-grid-playlist-renderer";
 
 // Redirecting embeded youtube links to full youtube
 if (window.location.href.slice(0, EMBED_URL_LENGTH) === "https://www.youtube.com/embed/") {
@@ -264,7 +265,7 @@ function getChannelElements() {
 			}
 			break;
 		case CHANNEL_LOCATION.playlists:
-
+			return document.getElementsByTagName(SUB_COLUMN_TAG)[0].getElementsByTagName(CHANNEL_PLAYLIST_TAG);
 	}
 }
 
