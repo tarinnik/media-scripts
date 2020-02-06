@@ -255,8 +255,6 @@ function getChannelElements() {
 	}
 	let l = checkChannelLocation();
 	switch (l) {
-		case CHANNEL_LOCATION.home:
-			break;
 		case CHANNEL_LOCATION.videos:
 			let e = document.getElementsByTagName(SUB_COLUMN_TAG);
 			for (let i = 0; i < e.length; i++) {
@@ -264,6 +262,8 @@ function getChannelElements() {
 					return e[i].getElementsByTagName(CHANNEL_VIDEOS_TAG_1)[0].getElementsByTagName(CHANNEL_VIDEOS_TAG_2);
 				}
 			}
+			break;
+		case CHANNEL_LOCATION.playlists:
 
 	}
 }
@@ -431,12 +431,13 @@ function down() {
 	} else if (checkHome() || checkSubs()) {
 		highlight(DIRECTION.down);
 	} else if (checkChannel()) {
-		if (STATE.channelMenu) {
+		if (STATE.channelMenu && (checkChannelLocation() === CHANNEL_LOCATION.videos ||
+				checkChannelLocation() === CHANNEL_LOCATION.playlists)) {
 			highlight(DIRECTION.remove);
 			STATE.channelMenu = false;
 			STATE.selection = 0;
 			highlight(DIRECTION.none);
-		} else {
+		} else if (!STATE.channelMenu) {
 			highlight(DIRECTION.down);
 		}
 	}
