@@ -419,12 +419,22 @@ function right() {
 		highlight(DIRECTION.none);
 	} else if (checkHome() || checkSubs() || checkChannel()) {
 		highlight(DIRECTION.forwards);
+	} else if (checkTrending() && STATE.channelMenu) {
+		highlight(DIRECTION.forwards);
 	}
 }
 
 function left() {
 	if (checkHome() || checkSubs() || checkChannel()) {
 		highlight(DIRECTION.backwards);
+	} else if (checkTrending()) {
+		if (STATE.selection === 0 && STATE.channelMenu) {
+			highlight(DIRECTION.remove);
+			STATE.inMenu = true;
+			highlight(DIRECTION.none);
+		} else if (checkTrending() && STATE.channelMenu){
+			highlight(DIRECTION.backwards);
+		}
 	}
 }
 
