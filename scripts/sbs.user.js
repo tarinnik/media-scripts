@@ -32,6 +32,7 @@ const PLAY_CLASS = "spcPlayPauseContainer";
 const WATCH_PLAY_OVERLAY_CLASS = "tpPlayOverlay";
 const SEARCH_URL = HOME_URL + "search/";
 const SEARCH_BAR_ID = "siteSearchBox";
+const SEARCH_LIST_CLASS = "grid__list grid__list--landscape"
 
 let STATE = {
 	selection: 0,
@@ -179,6 +180,10 @@ function checkFullscreenWatch() {
 	return window.location.href.slice(0, VIDEO_FULLSCREEN_URL.length) === VIDEO_FULLSCREEN_URL;
 }
 
+function checkSearch() {
+	return window.location.href.slice(0, SEARCH_URL.length) === SEARCH_URL;
+}
+
 /**
  * Gets the elements on the program page
  * @return {[]}
@@ -227,6 +232,8 @@ function getElements() {
 		return getProgramElements();
 	} else if (checkWatch()) {
 		return document.getElementById(VIDEO_ID).contentDocument.childNodes[1];
+	} else if (checkSearch()) {
+		return document.getElementsByClassName(SEARCH_LIST_CLASS)[1].getElementsByTagName("li");
 	}
 }
 
@@ -235,7 +242,7 @@ function getElements() {
  * @returns {number} of columns
  */
 function getColumns() {
-	if (checkList()) {
+	if (checkList() || checkSearch()) {
 		let c = document.getElementsByTagName("html")[0].className;
 		let i = c.indexOf("grid");
 		let columns = c.slice(i + 5);
@@ -367,6 +374,8 @@ function right() {
 		highlight(DIRECTION.forwards);
 	} else if (checkProgram() && STATE.menu) {
 		highlight(DIRECTION.forwards);
+	} else if (checkSearch()) {
+		highlight(DIRECTION.forwards);
 	}
 }
 
@@ -384,6 +393,8 @@ function left() {
 	} else if (checkList()) {
 		highlight(DIRECTION.backwards);
 	} else if (checkProgram() && STATE.menu) {
+		highlight(DIRECTION.backwards);
+	} else if (checkSearch()) {
 		highlight(DIRECTION.backwards);
 	}
 }
@@ -404,6 +415,8 @@ function up() {
 		} else {
 			highlight(DIRECTION.backwards);
 		}
+	} else if (checkSearch()) {
+		highlight(DIRECTION.up);
 	}
 }
 
@@ -423,6 +436,8 @@ function down() {
 		} else {
 			highlight(DIRECTION.forwards);
 		}
+	} else if (checkSearch()) {
+		highlight(DIRECTION.down);
 	}
 }
 
@@ -452,6 +467,8 @@ function select() {
 		if (e.length > 0) {
 			e[0].click();
 		}
+	} else if (checkSearch()) {
+		getElements()[STATE.selection].getElementsByTagName('a')[0].click()
 	}
 }
 
