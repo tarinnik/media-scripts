@@ -301,7 +301,7 @@ function scroll() {
 			defaultPosition.scrollIntoView();
 		}
 	} else {
-		elements[STATE.selection - 1].scrollIntoView();
+		elements[STATE.selection - columns].scrollIntoView();
 	}
 }
 
