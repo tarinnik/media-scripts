@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name     	SBS
 // @namespace   tarinnik.github.io/media
-// @version	    2.1.1
+// @version	    2.2
 // @include	    https://www.sbs.com.au/ondemand/*
 // @icon        https://www.sbs.com.au/favicon.ico
 // ==/UserScript==
@@ -30,12 +30,19 @@ const VIDEO_ID = "video-player";
 const FULLSCREEN_CLASS = "spcFullscreenButton";
 const PLAY_CLASS = "spcPlayPauseContainer";
 const WATCH_PLAY_OVERLAY_CLASS = "tpPlayOverlay";
+const SEARCH_URL = HOME_URL + "search/";
+const SEARCH_BAR_ID = "siteSearchBox";
 
 let STATE = {
 	selection: 0,
 	menu: false,
 	videoSelection: 0,
 	videoSection: false,
+	search: false,
+	numSameKeyPresses: 0,
+	lastKeyPressed: '',
+	searchQuery: "",
+	changingChar: '',
 };
 
 const DIRECTION = {
@@ -46,6 +53,19 @@ const DIRECTION = {
 	up: -2,
 	down: 2,
 };
+
+const searchLetters = [
+	[' ', '0'],
+	['q', 'r', 's', '1'],
+	['t', 'u', 'v', '2'],
+	['w', 'x', 'y', 'z', '3'],
+	['g', 'h', 'i', '4'],
+	['j', 'k', 'l', '5'],
+	['m', 'n', 'o', 'p', '6'],
+	['7'],
+	['a', 'b', 'c', '8'],
+	['d', 'e', 'f', '9']
+];
 
 /**
  * Triggered when the page loads
@@ -434,6 +454,54 @@ function select() {
 		}
 	}
 }
+
+function search() {
+	STATE.search = true;
+	document.getElementById(SEARCH_BAR_ID).style.background = BACKGROUND_COLOUR
+	document.getElementById(SEARCH_BAR_ID).style.color = "black"
+}
+
+function searchKey(key) {
+	if (key === "Enter") {
+		let q = STATE.searchQuery + STATE.changingChar;
+		resetSearch();
+		window.location = SEARCH_URL + q;
+	} else if (key === '-') {
+		if (STATE.changingChar !== '') {
+			STATE.changingChar = '';
+			STATE.lastKeyPressed = '';
+			STATE.numSameKeyPresses = 0;
+		} else if (STATE.searchQuery.length !== 0) {
+			STATE.searchQuery = STATE.searchQuery.slice(0, STATE.searchQuery.length - 1);
+		}
+	} else if (key === '+') {
+		resetSearch();
+	} else if (key !== STATE.lastKeyPressed || key === '.') {
+		STATE.searchQuery += STATE.changingChar;
+		STATE.changingChar = '';
+		STATE.lastKeyPressed = key;
+		STATE.numSameKeyPresses = 0;
+	}
+
+	let num = parseInt(key);
+	if (!isNaN(num)) {
+		let len = searchLetters[num].length;
+		STATE.changingChar = searchLetters[num][STATE.numSameKeyPresses % len];
+		STATE.numSameKeyPresses++;
+	}
+
+	document.getElementById(SEARCH_BAR_ID).value = STATE.searchQuery + STATE.changingChar;
+}
+
+function resetSearch() {
+	STATE.searchQuery = "";
+	STATE.changingChar = '';
+	STATE.lastKeyPressed = '';
+	STATE.numSameKeyPresses = 0;
+	STATE.search = false;
+	document.getElementById(SEARCH_BAR_ID).style.background = ""
+}
+
 
 function playpause() {
 	if (checkFullscreenWatch()) {
