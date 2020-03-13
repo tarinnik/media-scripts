@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name                ABC iview
 // @namespace           tarinnik.github.io/media
-// @version             3.3.3
+// @version             3.4
 // @include             https://iview.abc.net.au/*
 // @icon                https://iview.abc.net.au/favicon.ico
 // ==/UserScript==
@@ -12,6 +12,7 @@ const VIDEO_TAG = "article";
 const ROOT_URL = "https://iview.abc.net.au/";
 const HOME_SECTION_CLASS = "flickity-enabled is-draggable";
 const HOME_VIDEO_SELECT_CLASS = "iv-2xRQL";
+const HOME_AD_BANNER = "iv-hsfpe";
 const MY_LIST_BUTTON_CLASS = "iv-2YNoA iv-25IKG iv-1JC6x iv-csH9g iv-3ho3D";
 const MY_LIST_URL = "https://iview.abc.net.au/your/watchlist";
 const RECENT_URL = "https://iview.abc.net.au/your/recent";
@@ -50,6 +51,10 @@ window.addEventListener('load', function() {
 		STATE.menu = true;
 	} else if (checkShow()) {
 		document.getElementsByTagName(SHOW_TITLE_TAG)[0].scrollIntoView();
+	} else if (checkHome()) {
+		if (document.getElementsByClassName(HOME_AD_BANNER).length !== 0) {
+			document.getElementsByClassName(HOME_AD_BANNER)[0].remove();
+		}
 	}
 	highlight(DIRECTION.none);
 });
