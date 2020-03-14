@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name                ABC iview
 // @namespace           tarinnik.github.io/media
-// @version             3.4
+// @version             3.5
 // @include             https://iview.abc.net.au/*
 // @icon                https://iview.abc.net.au/favicon.ico
 // ==/UserScript==
@@ -13,6 +13,7 @@ const ROOT_URL = "https://iview.abc.net.au/";
 const HOME_SECTION_CLASS = "flickity-enabled is-draggable";
 const HOME_VIDEO_SELECT_CLASS = "iv-2xRQL";
 const HOME_AD_BANNER = "iv-hsfpe";
+const HOME_SLIDESHOW_SELECTED = "is-selected";
 const MY_LIST_BUTTON_CLASS = "iv-2YNoA iv-25IKG iv-1JC6x iv-csH9g iv-3ho3D";
 const MY_LIST_URL = "https://iview.abc.net.au/your/watchlist";
 const RECENT_URL = "https://iview.abc.net.au/your/recent";
@@ -315,13 +316,18 @@ function select() {
 			getElements()[STATE.selection].getElementsByTagName("button")[2].click();
 		}
 	} else if (checkHome()) {
-		if (STATE.menu) {
-			swapState();
-		}
-		if (STATE.videoSelection === 0) {
-			getElements()[0].getElementsByTagName('a')[0].click();
+		if (STATE.selection === 0) {
+			getElements()[0].getElementsByClassName(HOME_SLIDESHOW_SELECTED)[0].
+					getElementsByTagName('a')[0].click()
 		} else {
-			getElements()[STATE.selection].parentNode.parentNode.click();
+			if (STATE.menu) {
+				swapState();
+			}
+			if (STATE.videoSelection === 0) {
+				getElements()[0].getElementsByTagName('a')[0].click();
+			} else {
+				getElements()[STATE.selection].parentNode.parentNode.click();
+			}
 		}
 	}
 }
@@ -333,11 +339,15 @@ function right() {
 	if (checkList()) {
 		highlight(DIRECTION.forwards);
 	} else if (checkHome()) {
-		swapState();
-		STATE.menu = true;
-		highlight(DIRECTION.forwards);
-		scrollVideos(DIRECTION.forwards);
-		swapState();
+		if (STATE.selection === 0) {
+			getElements()[0].children[2].click();
+		} else {
+			swapState();
+			STATE.menu = true;
+			highlight(DIRECTION.forwards);
+			scrollVideos(DIRECTION.forwards);
+			swapState();
+		}
 	}
 }
 
@@ -348,11 +358,15 @@ function left() {
 	if (checkList()) {
 		highlight(DIRECTION.backwards);
 	} else if (checkHome()) {
-		swapState();
-		STATE.menu = true;
-		highlight(DIRECTION.backwards);
-		scrollVideos(DIRECTION.backwards);
-		swapState();
+		if (STATE.selection === 0) {
+			getElements()[0].children[1].click()
+		} else {
+			swapState();
+			STATE.menu = true;
+			highlight(DIRECTION.backwards);
+			scrollVideos(DIRECTION.backwards);
+			swapState();
+		}
 	}
 }
 
