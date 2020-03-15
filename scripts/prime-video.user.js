@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name     	Prime Video
 // @namespace	tarinnik.github.io/media
-// @version  	0.6.1
+// @version  	0.7
 // @include		https://www.primevideo.com/*
 // @icon		https://www.primevideo.com/favicon.ico
 // ==/UserScript==
@@ -25,6 +25,8 @@ const WATCH_CLOSE_CLASS = "imageButton";
 const SEARCH_URL = "https://www.primevideo.com/search/?phrase=";
 const SEARCH_ID = "pv-search-nav";
 const SEARCH_VIDEO_CLASS = "av-grid-beard";
+const AD_SKIP_BUTTON_CLASS = "adSkipButton skippable";
+const NEXT_UP_CARD_CLASS = "nextUpCard";
 
 let STATE = {
     selection: 0,
@@ -158,7 +160,8 @@ function checkList() {
  * @returns {boolean} if the current page is the show page
  */
 function checkShow() {
-    return window.location.href.slice(0, SHOW_URL.length) === SHOW_URL;
+    return window.location.href.slice(0, SHOW_URL.length) === SHOW_URL &&
+            !checkWatch();
 }
 
 /**
@@ -166,8 +169,7 @@ function checkShow() {
  * @returns {boolean} if the current page is the video
  */
 function checkWatch() {
-    return document.getElementsByTagName("video").length !== 0 &&
-            document.getElementsByTagName("video")[0].style.visibility !== "hidden";
+    return document.getElementsByTagName("body")[0].style.overflow === "hidden";
 }
 
 /**
@@ -340,6 +342,12 @@ function select() {
         }
     } else if (checkSearch()) {
         getElements()[STATE.selection].getElementsByTagName("a")[0].click();
+    } else if (checkWatch()) {
+        if (document.getElementsByClassName(AD_SKIP_BUTTON_CLASS).length !== 0) {
+            document.getElementsByClassName(AD_SKIP_BUTTON_CLASS)[0].click();
+        } else if (document.getElementsByClassName(NEXT_UP_CARD_CLASS).length !== 0) {
+            document.getElementsByClassName(NEXT_UP_CARD_CLASS)[0].click();
+        }
     }
 }
 
