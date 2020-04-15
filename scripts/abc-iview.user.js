@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name                ABC iview
 // @namespace           tarinnik.github.io/media
-// @version             3.6.1
+// @version             3.6.2
 // @include             https://iview.abc.net.au/*
 // @icon                https://iview.abc.net.au/favicon.ico
 // ==/UserScript==
@@ -340,8 +340,7 @@ function select() {
 		}
 	} else if (checkHome()) {
 		if (STATE.selection === 0) {
-			getElements()[0].getElementsByClassName(HOME_SLIDESHOW_SELECTED)[0].
-					getElementsByTagName('a')[0].click()
+			getElements()[0].getElementsByClassName(HOME_SLIDESHOW_SELECTED)[0].click();
 		} else {
 			if (STATE.menu) {
 				swapState();
