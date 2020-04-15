@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name                ABC iview
 // @namespace           tarinnik.github.io/media
-// @version             3.5
+// @version             3.6
 // @include             https://iview.abc.net.au/*
 // @icon                https://iview.abc.net.au/favicon.ico
 // ==/UserScript==
@@ -28,12 +28,33 @@ const SHOW_SEASON_SELECTOR = "seriesSelectorButton";
 const SHOW_SEASON_BUTTONS = "seriesSelectorMenu";
 const VIDEO_FULLSCREEN_CLASS = "jw-icon-fullscreen";
 const VIDEO_CLOSE_CLASS = "iv-1LlPw iv-3bAEn iv-Xjw7_ iconLarge iv-3mcSv iv-2Ba9R";
+const SEARCH_TEXT = "Search: ";
+const SEARCH_BAR_ID = "searchField";
 
 let STATE = {
 	selection: 0,
 	menu: false,
 	videoSelection: 0,
+	search: false,
+	numSameKeyPresses: 0,
+	lastKeyPressed: '',
+	searchQuery: "",
+	changingChar: '',
+	searching: false,
 };
+
+const searchLetters = [
+	[' ', '0'],
+	['q', 'r', 's', '1'],
+	['t', 'u', 'v', '2'],
+	['w', 'x', 'y', 'z', '3'],
+	['g', 'h', 'i', '4'],
+	['j', 'k', 'l', '5'],
+	['m', 'n', 'o', 'p', '6'],
+	['7'],
+	['a', 'b', 'c', '8'],
+	['d', 'e', 'f', '9']
+];
 
 const DIRECTION = {
 	remove: 'r',
@@ -72,6 +93,8 @@ document.addEventListener('keydown', function(event) {
  * @param event that was triggered
  */
 function key(event) {
+	if (STATE.searching) return;
+
 	if (STATE.search) {
 		searchKey(event.key);
 		return;
@@ -461,6 +484,71 @@ function back() {
 	} else {
 		document.getElementsByClassName(HOME_PAGE_CLASS)[0].click();
 	}
+}
+
+function search() {
+	STATE.search = true;
+	let d = document.createElement("div");
+	d.id = "search";
+	document.getElementsByTagName("body")[0].insertBefore(d,
+		document.getElementById("main-app"));
+	let t = document.createElement("h1");
+	t.innerHTML = SEARCH_TEXT;
+	t.id = "query";
+	t.style.paddingLeft = "10px";
+	t.style.color = "white";
+	d.appendChild(t);
+	window.scrollTo(0, 0);
+}
+
+function searchKey(key) {
+	if (key === "Enter") {
+		let q = STATE.searchQuery + STATE.changingChar;
+		resetSearch();
+		document.getElementById(SEARCH_BAR_ID).focus();
+		setTimeout(function () {
+			STATE.searching = true;
+			for (let i = 0; i < q.length; i++) {
+				let keyEvent = new KeyboardEvent("keydown", {"key":q[i]});
+				document.dispatchEvent(keyEvent);
+			}
+			STATE.searching = false;
+		}, 2000);
+
+	} else if (key === '-') {
+		if (STATE.changingChar !== '') {
+			STATE.changingChar = '';
+			STATE.lastKeyPressed = '';
+			STATE.numSameKeyPresses = 0;
+		} else if (STATE.searchQuery.length !== 0) {
+			STATE.searchQuery = STATE.searchQuery.slice(0, length - 1);
+		}
+	} else if (key === '+') {
+		resetSearch();
+		document.getElementById("search").remove();
+	} else if (key !== STATE.lastKeyPressed || key === '.') {
+		STATE.searchQuery += STATE.changingChar;
+		STATE.changingChar = '';
+		STATE.lastKeyPressed = key;
+		STATE.numSameKeyPresses = 0;
+	}
+
+	let num = parseInt(key);
+	if (!isNaN(num)) {
+		let len = searchLetters[num].length;
+		STATE.changingChar = searchLetters[num][STATE.numSameKeyPresses % len];
+		STATE.numSameKeyPresses++;
+	}
+
+	document.getElementById("query").innerHTML = SEARCH_TEXT + STATE.searchQuery + STATE.changingChar;
+}
+
+function resetSearch() {
+	STATE.searchQuery = "";
+	STATE.changingChar = '';
+	STATE.lastKeyPressed = '';
+	STATE.numSameKeyPresses = 0;
+	STATE.search = false;
 }
 
 /**
