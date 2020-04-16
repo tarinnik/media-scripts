@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name                ABC iview
 // @namespace           tarinnik.github.io/media
-// @version             3.6.8
+// @version             3.6.9
 // @include             https://iview.abc.net.au/*
 // @icon                https://iview.abc.net.au/favicon.ico
 // ==/UserScript==
@@ -25,7 +25,7 @@ const SHOW_SEASON_SELECTOR = "seriesSelectorButton";
 const SHOW_SEASON_BUTTONS = "seriesSelectorMenu";
 const SHOW_MORE_EPISODES_CLASS = "iv-2Ytq4 iv-3HZGv iv-1rAsK iv-3Xfsg";
 const VIDEO_FULLSCREEN_CLASS = "jw-icon-fullscreen";
-const VIDEO_CLOSE_CLASS = "iv-1LlPw iv-3bAEn iv-Xjw7_ iconLarge iv-3mcSv iv-2Ba9R";
+const VIDEO_CLOSE_CLASS = "iv-2Ytq4 iv-2cROb iv-1Grls iconLarge iv-1TNOF iv-3Xfsg";
 const SEARCH_TEXT = "Search: ";
 const SEARCH_BAR_ID = "searchField";
 
