@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name                ABC iview
 // @namespace           tarinnik.github.io/media
-// @version             3.6.4
+// @version             3.6.5
 // @include             https://iview.abc.net.au/*
 // @icon                https://iview.abc.net.au/favicon.ico
 // ==/UserScript==
@@ -10,7 +10,6 @@ const BACKGROUND_COLOUR = "background:#326060";
 const VIDEO_TAG = "article";
 const ROOT_URL = "https://iview.abc.net.au/";
 const HOME_SECTION_CLASS = "flickity-enabled is-draggable";
-const HOME_VIDEO_SELECT_CLASS = "iv-2xRQL";
 const HOME_AD_BANNER = "iv-1pJQi";
 const HOME_SLIDESHOW_SELECTED = "is-selected";
 const MY_LIST_URL = "https://iview.abc.net.au/your/watchlist";
@@ -199,8 +198,9 @@ function getElements() {
 			let e = [];
 			let elements = document.getElementsByClassName(HOME_SECTION_CLASS)[STATE.videoSelection].getElementsByTagName("a");
 			for (let i = 0; i < elements.length; i++) {
-				e.push(elements[i].getElementsByClassName(HOME_VIDEO_SELECT_CLASS)[0]);
+				e.push(elements[i].getElementsByTagName("header")[0]);
 			}
+			console.log("Home videos: ", e);
 			return e;
 		} else {
 			let e = [];
@@ -366,7 +366,7 @@ function right() {
 			swapState();
 			STATE.menu = true;
 			highlight(DIRECTION.forwards);
-			scrollVideos(DIRECTION.forwards);
+			//scrollVideos(DIRECTION.forwards);
 			swapState();
 		}
 	}
@@ -385,7 +385,7 @@ function left() {
 			swapState();
 			STATE.menu = true;
 			highlight(DIRECTION.backwards);
-			scrollVideos(DIRECTION.backwards);
+			//scrollVideos(DIRECTION.backwards);
 			swapState();
 		}
 	}
