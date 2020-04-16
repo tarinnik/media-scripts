@@ -1,20 +1,18 @@
 // ==UserScript==
 // @name                ABC iview
 // @namespace           tarinnik.github.io/media
-// @version             3.6.3
+// @version             3.6.4
 // @include             https://iview.abc.net.au/*
 // @icon                https://iview.abc.net.au/favicon.ico
 // ==/UserScript==
 
 const BACKGROUND_COLOUR = "background:#326060";
-const HOME_PAGE_CLASS = "iv-1JC6x iv-6HDyC iv-csH9g iv-3f8vH";
 const VIDEO_TAG = "article";
 const ROOT_URL = "https://iview.abc.net.au/";
 const HOME_SECTION_CLASS = "flickity-enabled is-draggable";
 const HOME_VIDEO_SELECT_CLASS = "iv-2xRQL";
 const HOME_AD_BANNER = "iv-1pJQi";
 const HOME_SLIDESHOW_SELECTED = "is-selected";
-const MY_LIST_BUTTON_CLASS = "iv-2YNoA iv-25IKG iv-1JC6x iv-csH9g iv-3ho3D";
 const MY_LIST_URL = "https://iview.abc.net.au/your/watchlist";
 const RECENT_URL = "https://iview.abc.net.au/your/recent";
 const MY_LIST_MENU_CLASS = "iv-1fREI";
@@ -209,8 +207,9 @@ function getElements() {
 			let sections = document.getElementsByClassName(HOME_SECTION_CLASS);
 			e.push(sections[0]);
 			for (let i = 1; i < sections.length; i++) {
-				e.push(sections[i].getElementsByTagName("a")[0].getElementsByClassName(HOME_VIDEO_SELECT_CLASS)[0]);
+				e.push(sections[i].getElementsByTagName("a")[0].getElementsByTagName("header")[0]);
 			}
+			console.log("Home section: ", e);
 			return e;
 		}
 	}
