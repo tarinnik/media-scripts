@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name                ABC iview
 // @namespace           tarinnik.github.io/media
-// @version             3.6.5
+// @version             3.6.6
 // @include             https://iview.abc.net.au/*
 // @icon                https://iview.abc.net.au/favicon.ico
 // ==/UserScript==
@@ -262,9 +262,13 @@ function removeHomeVideoHighlight() {
 function scrollVideos(d) {
 	if (checkHome()) {
 		if (d === DIRECTION.forwards && STATE.selection % MY_LIST_COLUMNS === 0 && STATE.selection > 0) {
-			getElements()[STATE.selection].parentNode.parentNode.parentNode.parentNode.parentNode.parentNode.parentNode.childNodes[2].click();
+			let next = document.getElementsByClassName(HOME_SECTION_CLASS)[STATE.videoSelection].getElementsByTagName("button")[1];
+			console.log("Next Button: ", next);
+			next.click();
 		} else if (d === DIRECTION.backwards && STATE.selection % MY_LIST_COLUMNS === 3) {
-			getElements()[STATE.selection].parentNode.parentNode.parentNode.parentNode.parentNode.parentNode.parentNode.childNodes[1].click();
+			let previous = document.getElementsByClassName(HOME_SECTION_CLASS)[STATE.videoSelection].getElementsByTagName("button")[0];
+			console.log("Previous Button: ", previous);
+			previous.click();
 		}
 	}
 }
@@ -366,7 +370,7 @@ function right() {
 			swapState();
 			STATE.menu = true;
 			highlight(DIRECTION.forwards);
-			//scrollVideos(DIRECTION.forwards);
+			scrollVideos(DIRECTION.forwards);
 			swapState();
 		}
 	}
@@ -385,7 +389,7 @@ function left() {
 			swapState();
 			STATE.menu = true;
 			highlight(DIRECTION.backwards);
-			//scrollVideos(DIRECTION.backwards);
+			scrollVideos(DIRECTION.backwards);
 			swapState();
 		}
 	}
