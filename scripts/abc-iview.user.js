@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name                ABC iview
 // @namespace           tarinnik.github.io/media
-// @version             3.6.7
+// @version             3.6.8
 // @include             https://iview.abc.net.au/*
 // @icon                https://iview.abc.net.au/favicon.ico
 // ==/UserScript==
@@ -19,10 +19,11 @@ const MY_LIST_COLUMNS = 4;
 const SHOW_URL = "https://iview.abc.net.au/show/";
 const SHOW_URL_LENGTH = 30;
 const SHOW_TITLE_TAG = "h1";
-const SHOW_MAIN_VIDEO_CLASS = "iv-x90Qp";
-const SHOW_EPISODE_VIDEO_CLASS = "iv-3E9o6";
+const SHOW_MAIN_VIDEO_CLASS = "iv-3w3h-";
+const SHOW_EPISODE_VIDEO_CLASS = "iv-3eQmh";
 const SHOW_SEASON_SELECTOR = "seriesSelectorButton";
 const SHOW_SEASON_BUTTONS = "seriesSelectorMenu";
+const SHOW_MORE_EPISODES_CLASS = "iv-2Ytq4 iv-3HZGv iv-1rAsK iv-3Xfsg";
 const VIDEO_FULLSCREEN_CLASS = "jw-icon-fullscreen";
 const VIDEO_CLOSE_CLASS = "iv-1LlPw iv-3bAEn iv-Xjw7_ iconLarge iv-3mcSv iv-2Ba9R";
 const SEARCH_TEXT = "Search: ";
@@ -421,6 +422,10 @@ function down() {
 			highlight(DIRECTION.down);
 		}
 	} else if (checkShow()) {
+		let more = document.getElementsByClassName(SHOW_MORE_EPISODES_CLASS);
+		if (more.length !== 0) {
+			more[0].click();
+		}
 		highlight(DIRECTION.down);
 	} else if (checkHome()) {
 		removeHomeVideoHighlight();
@@ -467,9 +472,9 @@ function scroll() {
  */
 function seasons() {
 	if (checkShow()) {
-		getElements()[0].scrollIntoView();
 		document.getElementById(SHOW_SEASON_SELECTOR).click();
 		toggleMenu();
+		document.getElementsByTagName(SHOW_TITLE_TAG)[0].scrollIntoView();
 	}
 }
 
