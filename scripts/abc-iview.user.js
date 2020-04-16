@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name                ABC iview
 // @namespace           tarinnik.github.io/media
-// @version             3.6.2
+// @version             3.6.3
 // @include             https://iview.abc.net.au/*
 // @icon                https://iview.abc.net.au/favicon.ico
 // ==/UserScript==
@@ -481,7 +481,7 @@ function back() {
 	if (document.getElementsByTagName("video").length !== 0) {
 		document.getElementsByClassName(VIDEO_CLOSE_CLASS)[0].click();
 	} else {
-		document.getElementsByClassName(HOME_PAGE_CLASS)[0].click();
+		window.location = "/";
 	}
 }
 
@@ -561,7 +561,7 @@ function fullscreen() {
  * Navigates to the list page
  */
 function list() {
-	document.getElementsByClassName(MY_LIST_BUTTON_CLASS)[0].click();
+	window.location = "/your/watchlist";
 }
 
 /**
