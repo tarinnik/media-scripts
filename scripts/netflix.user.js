@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        Netflix
 // @namespace   tarinnik.github.io/media
-// @version	    1.1
+// @version	    1.1.1
 // @include	    https://www.netflix.com/*
 // @icon        https://www.netflix.com/favicon.ico
 // ==/UserScript==
@@ -430,7 +430,7 @@ function select() {
 	} else if (checkHome()) {
 		highlight(DIRECTION.remove);
 		let e = getElements();
-		if (e.length === 3) {
+		if (e.length <= 3) {
 			e[STATE.selection].click();
 		} else {
 			e[STATE.selection].getElementsByTagName('a')[0].click();
