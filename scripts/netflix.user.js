@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        Netflix
 // @namespace   tarinnik.github.io/media
-// @version	    1
+// @version	    1.0.1
 // @include	    https://www.netflix.com/*
 // @icon        https://www.netflix.com/favicon.ico
 // ==/UserScript==
@@ -105,6 +105,10 @@ document.addEventListener('keydown', function(event) {
  * @param event that was triggered
  */
 function key(event) {
+	if (!checkAll()) {
+		return;
+	}
+
 	if (STATE.search) {
 		searchKey(event.key);
 		return;
@@ -268,6 +272,10 @@ function checkWatch() {
 function checkSearch() {
 	return window.location.href.slice(0, SEARCH_URL.length) === SEARCH_URL &&
 		!checkVideoPlayOptions() && !checkVideoEpisodesOptions();
+}
+
+function checkAll() {
+	return checkHome() || checkList() || checkShow() || checkWatch() || checkSearch()
 }
 
 /**
