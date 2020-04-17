@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        Netflix
 // @namespace   tarinnik.github.io/media
-// @version	    1.0.1
+// @version	    1.1
 // @include	    https://www.netflix.com/*
 // @icon        https://www.netflix.com/favicon.ico
 // ==/UserScript==
@@ -45,6 +45,8 @@ let STATE = {
 	menu: false,
 	videoSection: false,
 	videoSelection: 0,
+	oldSelection: 0,
+	oldVideoSelection: 0,
 	season: false,
 	search: false,
 	numSameKeyPresses: 0,
@@ -275,7 +277,8 @@ function checkSearch() {
 }
 
 function checkAll() {
-	return checkHome() || checkList() || checkShow() || checkWatch() || checkSearch()
+	return checkHome() || checkVideoOptions() || checkVideoEpisodesOptions() || checkVideoPlayOptions() ||
+			checkList() || checkShow() || checkWatch() || checkSearch() || checkProfile();
 }
 
 /**
@@ -432,6 +435,8 @@ function select() {
 		} else {
 			e[STATE.selection].getElementsByTagName('a')[0].click();
 		}
+		STATE.oldSelection = STATE.selection;
+		STATE.oldVideoSelection = STATE.videoSelection;
 		newPage();
 	} else if (checkVideoPlayOptions()) {
 		if (STATE.menu) {
@@ -454,6 +459,8 @@ function select() {
 	} else if (checkList() || checkSearch()) {
 		highlight(DIRECTION.remove);
 		getElements()[STATE.selection].getElementsByTagName('a')[0].click();
+		STATE.oldSelection = STATE.selection;
+		STATE.oldVideoSelection = STATE.videoSelection;
 		newPage();
 	} else if (checkShow()) {
 
@@ -638,6 +645,7 @@ function fullscreen() {
  * Closes the video if one is open, otherwise goes to the home page
  */
 function back() {
+	console.log(checkVideoOptions());
 	if (checkWatch()) {
 		try {
 			document.getElementsByClassName(WATCH_CLOSE_CLASS)[0].click();
@@ -648,8 +656,12 @@ function back() {
 	} else if (checkShow()) {
 		window.location = HOME_URL;
 	} else if (checkVideoOptions()) {
+		console.log('Close video details');
 		document.getElementsByClassName(HOME_VIDEO_CLOSE_CLASS)[0].click();
-		newPage();
+		STATE.selection = STATE.oldSelection;
+		STATE.videoSelection = STATE.oldVideoSelection;
+		STATE.menu = false;
+		highlight(DIRECTION.none);
 	} else {
 		window.location = HOME_URL;
 	}
