@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name     	SBS
 // @namespace   tarinnik.github.io/media
-// @version	    2.2
+// @version	    2.2.1
 // @include	    https://www.sbs.com.au/ondemand/*
 // @icon        https://www.sbs.com.au/favicon.ico
 // ==/UserScript==
@@ -14,6 +14,7 @@ const HOME_CAROUSEL_ACTIVE_CLASS = "active";
 const HOME_CAROUSEL_CONTROLS = "rn-carousel-controls ng-scope";
 const HOME_VIDEO_ROW_CLASS = "carousel__list";
 const HOME_VIDEO_CLASS = "carousel__item";
+const HOME_BANNER_ID = "nl-close-btn";
 const LIST_URL = "https://www.sbs.com.au/ondemand/favourites";
 const LIST_BUTTON_CLASS = "favourite__extra";
 const LIST_VIDEOS_CLASS = "grid__list grid__list--landscape";
@@ -83,7 +84,11 @@ function newPage() {
 		highlight(DIRECTION.none);
 		scroll();
 		STATE.selection = 0;
+		STATE.videoSelection = 0;
 		STATE.menu = false;
+		if (document.getElementById(HOME_BANNER_ID) !== null) {
+			document.getElementById(HOME_BANNER_ID).click();
+		}
 	}, 500);
 }
 
@@ -565,5 +570,5 @@ function home() {
  * Refreshes the page
  */
 function refresh() {
-	window.location = window.location.href;
+	window.location = ".";
 }
