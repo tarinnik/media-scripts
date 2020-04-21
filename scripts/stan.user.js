@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name        Stan
 // @namespace   tarinnik.github.io/media
-// @version     0
-// @include     https://www.stan.com.au/*
+// @version     0.0.1
+// @include     https://play.stan.com.au/*
 // @icon        https://www.stan.com.au/favicon.ico
 // ==/UserScript==
 
