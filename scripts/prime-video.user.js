@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name     	Prime Video
 // @namespace	tarinnik.github.io/media
-// @version  	0.7.1
+// @version  	0.7.2
 // @include		https://www.primevideo.com/*
 // @icon		https://www.primevideo.com/favicon.ico
 // ==/UserScript==
@@ -15,10 +15,10 @@ const LIST_URL = "https://www.primevideo.com/mystuff/watchlist";
 const LIST_MENU_CLASS = "mA3s3y g1TQVQ";
 const LIST_VIDEO_CLASS = "D0Lu_p";
 const SHOW_URL = "https://www.primevideo.com/detail";
-const SHOW_MENU_CLASS = "_2eqhmo _2Zapp7 _38qi5F";
+const SHOW_MENU_CLASS = "abwJ5F tFxybk _2LF_6p";
 const SHOW_VIDEO_CLASS = "js-node-episode-container";
 const SHOW_SEASON_ID = "av-droplist-av-atf-season-selector";
-const SHOW_SEASON_ITEMS_CLASS = "_17a9Oy";
+const SHOW_SEASON_ITEMS_CLASS = "_3R4jka";
 const WATCH_FULLSCREEN_CLASS = "fullscreenButton";
 const WATCH_PLAY_ICON_CLASS = "playIcon";
 const WATCH_CLOSE_CLASS = "imageButton";
@@ -208,9 +208,9 @@ function getElements() {
         }
     } else if (checkShow()) {
         if (STATE.season) {
-            return document.getElementsByClassName(SHOW_SEASON_ITEMS_CLASS)[0].getElementsByTagName("li");
+            return document.getElementsByClassName(SHOW_SEASON_ITEMS_CLASS)[0].getElementsByTagName("ul")[0].getElementsByTagName("li");
         } else if (STATE.menu) {
-            let l = document.getElementsByClassName(SHOW_MENU_CLASS)[0].childNodes;
+            let l = document.getElementsByClassName(SHOW_MENU_CLASS)[0].children;
             if (l[1].childNodes.length > 1) {
                 let a = [];
                 a.push(l[0]);
