@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name     	Prime Video
 // @namespace	tarinnik.github.io/media
-// @version  	0.7.2
+// @version  	0.7.3
 // @include		https://www.primevideo.com/*
 // @icon		https://www.primevideo.com/favicon.ico
 // ==/UserScript==
@@ -591,7 +591,12 @@ function toggleMenu() {
 }
 
 function playpause() {
-    let video = document.getElementsByTagName("video")[0];
+    let video = document.getElementsByTagName("video");
+    for (let i = 0; i < video.length; i++) {
+        if (video[i].style.visibility === "visible") {
+            video = video[i];
+        }
+    }
     if (document.getElementsByClassName(WATCH_PLAY_ICON_CLASS).length !== 0) {
         video.play();
     } else {
