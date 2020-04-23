@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name     	Prime Video
 // @namespace	tarinnik.github.io/media
-// @version  	0.7
+// @version  	0.7.1
 // @include		https://www.primevideo.com/*
 // @icon		https://www.primevideo.com/favicon.ico
 // ==/UserScript==
@@ -11,9 +11,9 @@ const HOME_URL = "https://www.primevideo.com/";
 const HOME_URL_2 = "https://www.primevideo.com/storefront/home/";
 const HOME_BANNER_CLASS = "_2JV8iu";
 const HOME_VIDEO_ROW_CLASS = "_1gQKv6 u-collection tst-collection";
-const LIST_URL = "https://www.primevideo.com/watchlist";
-const LIST_MENU_CLASS = "_3KCmhW dvui-tab";
-const LIST_VIDEO_CLASS = "UaW15H";
+const LIST_URL = "https://www.primevideo.com/mystuff/watchlist";
+const LIST_MENU_CLASS = "mA3s3y g1TQVQ";
+const LIST_VIDEO_CLASS = "D0Lu_p";
 const SHOW_URL = "https://www.primevideo.com/detail";
 const SHOW_MENU_CLASS = "_2eqhmo _2Zapp7 _38qi5F";
 const SHOW_VIDEO_CLASS = "js-node-episode-container";
@@ -202,7 +202,7 @@ function getElements() {
         }
     } else if (checkList()) {
         if (STATE.menu) {
-            return document.getElementsByClassName(LIST_MENU_CLASS);
+            return document.getElementsByClassName(LIST_MENU_CLASS)[1].getElementsByTagName('a');
         } else {
             return document.getElementsByClassName(LIST_VIDEO_CLASS);
         }
