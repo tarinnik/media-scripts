@@ -38,6 +38,7 @@ let STATE = {
 	lastKeyPressed: '',
 	searchQuery: "",
 	changingChar: '',
+	// Experimental search feature
 	searching: false,
 };
 
@@ -579,5 +580,5 @@ function home() {
  * Refreshes the page
  */
 function refresh() {
-	window.location = window.location.href;
+	window.location = ".";
 }
