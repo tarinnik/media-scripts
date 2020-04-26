@@ -1,14 +1,15 @@
 // ==UserScript==
 // @name        Twitch
 // @namespace   tarinnik.github.io/media
-// @version     0.0.1
+// @version     0.1
 // @include     https://www.twitch.tv/*
 // @icon        https://static.twitchcdn.net/assets/favicon-32-d6025c14e900565d6177.png
 // ==/UserScript==
 
 const CHAT_CLASS = "tw-block tw-border-radius-medium tw-font-size-6 tw-full-width tw-textarea tw-textarea--no-resize";
-const BACKGROUND_COLOUR = "";
-const HOME_URL = "";
+const BACKGROUND_COLOUR = "background:#9147ff";
+const HOME_URL = "https://www.twitch.tv/";
+const HOME_FOLLOWED_CHANNELS_CLASS = "tw-transition tw-transition--duration-medium tw-transition--enter-done tw-transition__scale-over tw-transition__scale-over--enter-done";
 const LIST_URL = "";
 const SHOW_URL = "";
 const SEARCH_URL = "";
@@ -51,7 +52,10 @@ const searchLetters = [
  * Triggered when the page loads
  */
 window.addEventListener('load', function() {
-
+	if (checkHome()) {
+		STATE.menu = true;
+	}
+	highlight(DIRECTION.none);
 });
 
 /**
@@ -127,7 +131,7 @@ function key(event) {
  * @return {boolean} if the current page is the home page
  */
 function checkHome() {
-
+	return window.location.href === HOME_URL;
 }
 
 /**
@@ -159,7 +163,9 @@ function checkWatch() {
  */
 function getElements() {
 	if (checkHome()) {
-
+		if (STATE.menu) {
+			return document.getElementsByClassName(HOME_FOLLOWED_CHANNELS_CLASS);
+		}
 	} else if (checkList()) {
 
 	} else if (checkShow()) {
@@ -173,7 +179,7 @@ function getElements() {
  */
 function getColumns() {
 	if (checkHome()) {
-
+		return 1;
 	} else {
 		return 1;
 	}
@@ -235,7 +241,9 @@ function highlight(d) {
  */
 function select() {
 	if (checkHome()) {
-
+		if (STATE.menu) {
+			getElements()[STATE.selection].getElementsByTagName('a')[0].click();
+		}
 	} else if (checkList()) {
 
 	} else if (checkShow()) {
@@ -274,7 +282,9 @@ function left() {
  */
 function up() {
 	if (checkHome()) {
-
+		if (STATE.menu) {
+			highlight(DIRECTION.up);
+		}
 	} else if (checkList()) {
 
 	} else if (checkShow()) {
@@ -287,7 +297,9 @@ function up() {
  */
 function down() {
 	if (checkHome()) {
-
+		if (STATE.menu) {
+			highlight(DIRECTION.down);
+		}
 	} else if (checkList()) {
 
 	} else if (checkShow()) {
