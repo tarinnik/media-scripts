@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        Twitch
 // @namespace   tarinnik.github.io/media
-// @version     0.1
+// @version     0.2
 // @include     https://www.twitch.tv/*
 // @icon        https://static.twitchcdn.net/assets/favicon-32-d6025c14e900565d6177.png
 // ==/UserScript==
@@ -12,6 +12,10 @@ const HOME_URL = "https://www.twitch.tv/";
 const HOME_FOLLOWED_CHANNELS_CLASS = "tw-transition tw-transition--duration-medium tw-transition--enter-done tw-transition__scale-over tw-transition__scale-over--enter-done";
 const LIST_URL = "";
 const SHOW_URL = "";
+const STREAM_INDICATOR_CLASS = "channel-header-user-tab__user-content tw-align-items-center tw-flex tw-full-height";
+const STREAM_BOTTOM_RIGHT_CONTROLS = "player-controls__right-control-group tw-align-items-center tw-flex tw-flex-grow-1 tw-justify-content-end";
+const STREAM_BOTTOM_RIGHT_CONTROLS_ATTRIBUTE = "data-a-target";
+const STREAM_THEATRE_MODE = "player-theatre-mode-button";
 const SEARCH_URL = "";
 
 let STATE = {
@@ -112,9 +116,9 @@ function key(event) {
 			playpause();
 			break;
 		case '.':
+			theatre();
 			break;
 		case '+':
-			season();
 			break;
 		case '-':
 			break;
@@ -155,7 +159,7 @@ function checkShow() {
  * @returns {boolean} if the current page is the video
  */
 function checkWatch() {
-
+	return document.getElementsByClassName(STREAM_INDICATOR_CLASS).length > 0;
 }
 
 /**
@@ -334,13 +338,6 @@ function scroll() {
 }
 
 /**
- * Selects the season menu
- */
-function season() {
-
-}
-
-/**
  * Toggles the play state of the video
  */
 function playpause() {
@@ -355,21 +352,32 @@ function fullscreen() {
 }
 
 /**
+ * Toggles theatre mode
+ */
+function theatre() {
+	if (checkWatch()) {
+		let buttons = document.getElementsByClassName(STREAM_BOTTOM_RIGHT_CONTROLS)[0].getElementsByTagName("button");
+		for (let i = 0; i < buttons.length; i++) {
+			if (buttons[i].getAttribute(STREAM_BOTTOM_RIGHT_CONTROLS_ATTRIBUTE) === STREAM_THEATRE_MODE) {
+				buttons[i].click();
+				return;
+			}
+		}
+	}
+}
+
+/**
  * Closes the video if one is open, otherwise goes to the home page
  */
 function back() {
-	if (checkWatch()) {
-
-	} else {
-		window.location = HOME_URL;
-	}
+	window.location = HOME_URL;
 }
 
 /**
  * Navigates to the list page
  */
 function list() {
-	window.location = LIST_URL;
+
 }
 
 /**
@@ -383,5 +391,5 @@ function home() {
  * Refreshes the page
  */
 function refresh() {
-	window.location = window.location.href;
+	window.location = '.';
 }
