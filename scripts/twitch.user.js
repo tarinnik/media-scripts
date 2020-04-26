@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        Twitch
 // @namespace   tarinnik.github.io/media
-// @version     0.2
+// @version     0.3
 // @include     https://www.twitch.tv/*
 // @icon        https://static.twitchcdn.net/assets/favicon-32-d6025c14e900565d6177.png
 // ==/UserScript==
@@ -16,6 +16,7 @@ const STREAM_INDICATOR_CLASS = "channel-header-user-tab__user-content tw-align-i
 const STREAM_BOTTOM_RIGHT_CONTROLS = "player-controls__right-control-group tw-align-items-center tw-flex tw-flex-grow-1 tw-justify-content-end";
 const STREAM_BOTTOM_RIGHT_CONTROLS_ATTRIBUTE = "data-a-target";
 const STREAM_THEATRE_MODE = "player-theatre-mode-button";
+const STREAM_FULLSCREEN = "player-fullscreen-button";
 const SEARCH_URL = "";
 
 let STATE = {
@@ -348,7 +349,15 @@ function playpause() {
  * Makes the video fullscreen
  */
 function fullscreen() {
-
+	if (checkWatch()) {
+		let buttons = document.getElementsByClassName(STREAM_BOTTOM_RIGHT_CONTROLS)[0].getElementsByTagName("button");
+		for (let i = 0; i < buttons.length; i++) {
+			if (buttons[i].getAttribute(STREAM_BOTTOM_RIGHT_CONTROLS_ATTRIBUTE) === STREAM_FULLSCREEN) {
+				buttons[i].click();
+				return;
+			}
+		}
+	}
 }
 
 /**
