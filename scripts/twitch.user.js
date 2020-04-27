@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        Twitch
 // @namespace   tarinnik.github.io/media
-// @version     0.4
+// @version     0.5
 // @include     https://www.twitch.tv/*
 // @icon        https://static.twitchcdn.net/assets/favicon-32-d6025c14e900565d6177.png
 // ==/UserScript==
@@ -9,16 +9,18 @@
 const CHAT_CLASS = "tw-block tw-border-radius-medium tw-font-size-6 tw-full-width tw-textarea tw-textarea--no-resize";
 const BACKGROUND_COLOUR = "background:#9147ff";
 const HOME_URL = "https://www.twitch.tv/";
-const HOME_FOLLOWED_CHANNELS_CLASS = "tw-transition tw-transition--duration-medium tw-transition--enter-done tw-transition__scale-over tw-transition__scale-over--enter-done";
-const LIST_URL = "";
-const SHOW_URL = "";
+const HOME_FOLLOWED_CHANNELS_CLASS = "tw-transition tw-transition--duration-medium tw-transition--enter-done " +
+									 "tw-transition__scale-over tw-transition__scale-over--enter-done";
 const STREAM_INDICATOR_CLASS = "channel-header-user-tab__user-content tw-align-items-center tw-flex tw-full-height";
-const STREAM_BOTTOM_RIGHT_CONTROLS = "player-controls__right-control-group tw-align-items-center tw-flex tw-flex-grow-1 tw-justify-content-end";
+const STREAM_BOTTOM_RIGHT_CONTROLS = "player-controls__right-control-group tw-align-items-center tw-flex " +
+									 "tw-flex-grow-1 tw-justify-content-end";
 const STREAM_BOTTOM_RIGHT_CONTROLS_ATTRIBUTE = "data-a-target";
 const STREAM_THEATRE_MODE = "player-theatre-mode-button";
 const STREAM_FULLSCREEN = "player-fullscreen-button";
 const STREAM_SETTINGS = "player-settings-button";
 const STREAM_SETTINGS_MENU = "tw-overflow-auto tw-pd-1";
+const STREAM_CHANNEL_POINTS_CLAIM = "tw-transition tw-transition--duration-long tw-transition--enter-done " +
+									"tw-transition__fade tw-transition__fade--enter-done";
 const SEARCH_URL = "";
 
 let STATE = {
@@ -144,22 +146,6 @@ function checkHome() {
 }
 
 /**
- * Checks if the current page is the watchlist
- * @returns {boolean} if the current page is my list
- */
-function checkList() {
-
-}
-
-/**
- * Checks if the current page is the show page
- * @returns {boolean} if the current page is the show page
- */
-function checkShow() {
-
-}
-
-/**
  * Checks if the current page is the video
  * @returns {boolean} if the current page is the video
  */
@@ -282,6 +268,8 @@ function select() {
 					highlight(DIRECTION.none);
 				}
 			}
+		} else if (document.getElementsByClassName(STREAM_CHANNEL_POINTS_CLAIM).length !== 0) {
+			document.getElementsByClassName(STREAM_CHANNEL_POINTS_CLAIM)[0].getElementsByTagName("button")[0].click();
 		}
 	}
 }
