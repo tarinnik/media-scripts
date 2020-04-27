@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        Twitch
 // @namespace   tarinnik.github.io/media
-// @version     0.3
+// @version     0.4
 // @include     https://www.twitch.tv/*
 // @icon        https://static.twitchcdn.net/assets/favicon-32-d6025c14e900565d6177.png
 // ==/UserScript==
@@ -17,13 +17,16 @@ const STREAM_BOTTOM_RIGHT_CONTROLS = "player-controls__right-control-group tw-al
 const STREAM_BOTTOM_RIGHT_CONTROLS_ATTRIBUTE = "data-a-target";
 const STREAM_THEATRE_MODE = "player-theatre-mode-button";
 const STREAM_FULLSCREEN = "player-fullscreen-button";
+const STREAM_SETTINGS = "player-settings-button";
+const STREAM_SETTINGS_MENU = "tw-overflow-auto tw-pd-1";
 const SEARCH_URL = "";
 
 let STATE = {
 	selection: 0,
 	menu: false,
+	menuDepth: 0,
 	videoSelection: 0,
-	season: false,
+	followed: false,
 	search: false,
 	numSameKeyPresses: 0,
 	lastKeyPressed: '',
@@ -58,7 +61,7 @@ const searchLetters = [
  */
 window.addEventListener('load', function() {
 	if (checkHome()) {
-		STATE.menu = true;
+		STATE.followed = true;
 	}
 	highlight(DIRECTION.none);
 });
@@ -120,6 +123,7 @@ function key(event) {
 			theatre();
 			break;
 		case '+':
+			settings();
 			break;
 		case '-':
 			break;
@@ -168,13 +172,15 @@ function checkWatch() {
  */
 function getElements() {
 	if (checkHome()) {
-		if (STATE.menu) {
+		if (STATE.followed) {
 			return document.getElementsByClassName(HOME_FOLLOWED_CHANNELS_CLASS);
 		}
 	} else if (checkList()) {
 
-	} else if (checkShow()) {
-
+	} else if (checkWatch()) {
+		if (STATE.menu) {
+			return document.getElementsByClassName(STREAM_SETTINGS_MENU)[1].children[0].children;
+		}
 	}
 }
 
@@ -246,13 +252,37 @@ function highlight(d) {
  */
 function select() {
 	if (checkHome()) {
-		if (STATE.menu) {
+		if (STATE.followed) {
 			getElements()[STATE.selection].getElementsByTagName('a')[0].click();
 		}
 	} else if (checkList()) {
 
-	} else if (checkShow()) {
-
+	} else if (checkWatch()) {
+		if (STATE.menu) {
+			highlight(DIRECTION.remove);
+			if (STATE.menuDepth === 0) {
+				getElements()[STATE.selection].getElementsByTagName("button")[0].click();
+				if (STATE.selection === 3) settings();
+				else if (STATE.selection !== 4) {
+					STATE.menuDepth += STATE.selection + 1;
+					STATE.selection = 0;
+					highlight(DIRECTION.none);
+				}
+			} else {
+				if (STATE.selection === 0) {
+					getElements()[STATE.selection].getElementsByTagName("button")[0].click();
+					STATE.selection = 0;
+					STATE.menuDepth = 0;
+					highlight(DIRECTION.none);
+				} else if (STATE.menuDepth === 1) {
+					getElements()[STATE.selection].getElementsByTagName("input")[0].click();
+					settings();
+				} else if (STATE.menuDepth === 2) {
+					getElements()[STATE.selection].getElementsByTagName("input")[0].click();
+					highlight(DIRECTION.none);
+				}
+			}
+		}
 	}
 }
 
@@ -264,7 +294,7 @@ function right() {
 
 	} else if (checkList()) {
 
-	} else if (checkShow()) {
+	} else if (checkWatch()) {
 
 	}
 }
@@ -277,7 +307,7 @@ function left() {
 
 	} else if (checkList()) {
 
-	} else if (checkShow()) {
+	} else if (checkWatch()) {
 
 	}
 }
@@ -287,13 +317,15 @@ function left() {
  */
 function up() {
 	if (checkHome()) {
-		if (STATE.menu) {
+		if (STATE.followed) {
 			highlight(DIRECTION.up);
 		}
 	} else if (checkList()) {
 
-	} else if (checkShow()) {
-
+	} else if (checkWatch()) {
+		if (STATE.menu) {
+			highlight(DIRECTION.up);
+		}
 	}
 }
 
@@ -302,13 +334,15 @@ function up() {
  */
 function down() {
 	if (checkHome()) {
-		if (STATE.menu) {
+		if (STATE.followed) {
 			highlight(DIRECTION.down);
 		}
 	} else if (checkList()) {
 
-	} else if (checkShow()) {
-
+	} else if (checkWatch()) {
+		if (STATE.menu) {
+			highlight(DIRECTION.down);
+		}
 	}
 }
 
@@ -371,6 +405,34 @@ function theatre() {
 				buttons[i].click();
 				return;
 			}
+		}
+	}
+}
+
+/**
+ * Opens or closes the settings menu
+ */
+function settings() {
+	if (checkWatch()) {
+		if (STATE.menu) {
+			highlight(DIRECTION.remove);
+			STATE.selection = 0;
+			STATE.menuDepth = 0;
+		}
+
+		let buttons = document.getElementsByClassName(STREAM_BOTTOM_RIGHT_CONTROLS)[0].getElementsByTagName("button");
+		for (let i = 0; i < buttons.length; i++) {
+			if (buttons[i].getAttribute(STREAM_BOTTOM_RIGHT_CONTROLS_ATTRIBUTE) === STREAM_SETTINGS) {
+				buttons[i].click();
+				break;
+			}
+		}
+
+		if (!STATE.menu) {
+			STATE.menu = true;
+			highlight(DIRECTION.none);
+		} else {
+			STATE.menu = false;
 		}
 	}
 }
