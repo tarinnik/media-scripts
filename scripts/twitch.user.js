@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        Twitch
 // @namespace   tarinnik.github.io/media
-// @version     0.5.1
+// @version     0.6
 // @include     https://www.twitch.tv/*
 // @icon        https://static.twitchcdn.net/assets/favicon-32-d6025c14e900565d6177.png
 // ==/UserScript==
@@ -12,15 +12,18 @@ const HOME_URL = "https://www.twitch.tv/";
 const HOME_FOLLOWED_CHANNELS_CLASS = "tw-transition tw-transition--duration-medium tw-transition--enter-done " +
 									 "tw-transition__scale-over tw-transition__scale-over--enter-done";
 const STREAM_INDICATOR_CLASS = "channel-header-user-tab__user-content tw-align-items-center tw-flex tw-full-height";
+const STREAM_BOTTOM_LEFT_CONTROLS = "player-controls__left-control-group tw-align-items-center tw-flex tw-flex-grow-1 " +
+									"tw-justify-content-start";
 const STREAM_BOTTOM_RIGHT_CONTROLS = "player-controls__right-control-group tw-align-items-center tw-flex " +
 									 "tw-flex-grow-1 tw-justify-content-end";
-const STREAM_BOTTOM_RIGHT_CONTROLS_ATTRIBUTE = "data-a-target";
+const STREAM_BOTTOM_CONTROLS_ATTRIBUTE = "data-a-target";
 const STREAM_THEATRE_MODE = "player-theatre-mode-button";
 const STREAM_FULLSCREEN = "player-fullscreen-button";
 const STREAM_SETTINGS = "player-settings-button";
 const STREAM_SETTINGS_MENU = "tw-overflow-auto tw-pd-1";
 const STREAM_CHANNEL_POINTS_CLAIM = "tw-transition tw-transition--duration-long tw-transition--enter-done " +
 									"tw-transition__fade tw-transition__fade--enter-done";
+const STREAM_PLAY_PAUSE = "player-play-pause-button";
 const SEARCH_URL = "";
 
 let STATE = {
@@ -348,7 +351,15 @@ function scroll() {
  * Toggles the play state of the video
  */
 function playpause() {
-
+	if (checkWatch()) {
+		let buttons = document.getElementsByClassName(STREAM_BOTTOM_LEFT_CONTROLS)[0].getElementsByTagName("button");
+		for (let i = 0; i < buttons.length; i++) {
+			if (buttons[i].getAttribute(STREAM_BOTTOM_CONTROLS_ATTRIBUTE) === STREAM_PLAY_PAUSE) {
+				buttons[i].click();
+				return;
+			}
+		}
+	}
 }
 
 /**
@@ -358,7 +369,7 @@ function fullscreen() {
 	if (checkWatch()) {
 		let buttons = document.getElementsByClassName(STREAM_BOTTOM_RIGHT_CONTROLS)[0].getElementsByTagName("button");
 		for (let i = 0; i < buttons.length; i++) {
-			if (buttons[i].getAttribute(STREAM_BOTTOM_RIGHT_CONTROLS_ATTRIBUTE) === STREAM_FULLSCREEN) {
+			if (buttons[i].getAttribute(STREAM_BOTTOM_CONTROLS_ATTRIBUTE) === STREAM_FULLSCREEN) {
 				buttons[i].click();
 				return;
 			}
@@ -373,7 +384,7 @@ function theatre() {
 	if (checkWatch()) {
 		let buttons = document.getElementsByClassName(STREAM_BOTTOM_RIGHT_CONTROLS)[0].getElementsByTagName("button");
 		for (let i = 0; i < buttons.length; i++) {
-			if (buttons[i].getAttribute(STREAM_BOTTOM_RIGHT_CONTROLS_ATTRIBUTE) === STREAM_THEATRE_MODE) {
+			if (buttons[i].getAttribute(STREAM_BOTTOM_CONTROLS_ATTRIBUTE) === STREAM_THEATRE_MODE) {
 				buttons[i].click();
 				return;
 			}
@@ -394,7 +405,7 @@ function settings() {
 
 		let buttons = document.getElementsByClassName(STREAM_BOTTOM_RIGHT_CONTROLS)[0].getElementsByTagName("button");
 		for (let i = 0; i < buttons.length; i++) {
-			if (buttons[i].getAttribute(STREAM_BOTTOM_RIGHT_CONTROLS_ATTRIBUTE) === STREAM_SETTINGS) {
+			if (buttons[i].getAttribute(STREAM_BOTTOM_CONTROLS_ATTRIBUTE) === STREAM_SETTINGS) {
 				buttons[i].click();
 				break;
 			}
