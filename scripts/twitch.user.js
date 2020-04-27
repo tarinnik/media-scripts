@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        Twitch
 // @namespace   tarinnik.github.io/media
-// @version     0.5
+// @version     0.5.1
 // @include     https://www.twitch.tv/*
 // @icon        https://static.twitchcdn.net/assets/favicon-32-d6025c14e900565d6177.png
 // ==/UserScript==
@@ -161,8 +161,6 @@ function getElements() {
 		if (STATE.followed) {
 			return document.getElementsByClassName(HOME_FOLLOWED_CHANNELS_CLASS);
 		}
-	} else if (checkList()) {
-
 	} else if (checkWatch()) {
 		if (STATE.menu) {
 			return document.getElementsByClassName(STREAM_SETTINGS_MENU)[1].children[0].children;
@@ -241,8 +239,6 @@ function select() {
 		if (STATE.followed) {
 			getElements()[STATE.selection].getElementsByTagName('a')[0].click();
 		}
-	} else if (checkList()) {
-
 	} else if (checkWatch()) {
 		if (STATE.menu) {
 			highlight(DIRECTION.remove);
@@ -280,8 +276,6 @@ function select() {
 function right() {
 	if (checkHome()) {
 
-	} else if (checkList()) {
-
 	} else if (checkWatch()) {
 
 	}
@@ -292,8 +286,6 @@ function right() {
  */
 function left() {
 	if (checkHome()) {
-
-	} else if (checkList()) {
 
 	} else if (checkWatch()) {
 
@@ -308,8 +300,6 @@ function up() {
 		if (STATE.followed) {
 			highlight(DIRECTION.up);
 		}
-	} else if (checkList()) {
-
 	} else if (checkWatch()) {
 		if (STATE.menu) {
 			highlight(DIRECTION.up);
@@ -325,8 +315,6 @@ function down() {
 		if (STATE.followed) {
 			highlight(DIRECTION.down);
 		}
-	} else if (checkList()) {
-
 	} else if (checkWatch()) {
 		if (STATE.menu) {
 			highlight(DIRECTION.down);
@@ -342,10 +330,6 @@ function scroll() {
 	let defaultPosition;
 	let elements = getElements();
 	if (checkHome()) {
-
-	} else if (checkList()) {
-
-	} else if (checkShow()) {
 
 	}
 
