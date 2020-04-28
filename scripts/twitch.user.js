@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        Twitch
 // @namespace   tarinnik.github.io/media
-// @version     0.6
+// @version     0.7
 // @include     https://www.twitch.tv/*
 // @icon        https://static.twitchcdn.net/assets/favicon-32-d6025c14e900565d6177.png
 // ==/UserScript==
@@ -16,6 +16,10 @@ const STREAM_BOTTOM_LEFT_CONTROLS = "player-controls__left-control-group tw-alig
 									"tw-justify-content-start";
 const STREAM_BOTTOM_RIGHT_CONTROLS = "player-controls__right-control-group tw-align-items-center tw-flex " +
 									 "tw-flex-grow-1 tw-justify-content-end";
+const STREAM_CONTROLS_VISIBILITY_CLASS = "tw-transition tw-transition--duration-medium tw-transition--exit-done " +
+										 "tw-transition__fade";
+const STREAM_CONTROLS_HIDDEN_CLASS = "tw-transition__fade--exit-done";
+const STREAM_CONTROLS_VISIBLE_CLASS = "tw-transition__fade--enter-done";
 const STREAM_BOTTOM_CONTROLS_ATTRIBUTE = "data-a-target";
 const STREAM_THEATRE_MODE = "player-theatre-mode-button";
 const STREAM_FULLSCREEN = "player-fullscreen-button";
@@ -247,8 +251,11 @@ function select() {
 			highlight(DIRECTION.remove);
 			if (STATE.menuDepth === 0) {
 				getElements()[STATE.selection].getElementsByTagName("button")[0].click();
-				if (STATE.selection === 3) settings();
-				else if (STATE.selection !== 4) {
+				if (STATE.selection === 3)  {
+					STATE.menu = false;
+					STATE.menuDepth = 0;
+					STATE.selection = 0;
+				} else if (STATE.selection !== 4) {
 					STATE.menuDepth += STATE.selection + 1;
 					STATE.selection = 0;
 					highlight(DIRECTION.none);
@@ -261,7 +268,9 @@ function select() {
 					highlight(DIRECTION.none);
 				} else if (STATE.menuDepth === 1) {
 					getElements()[STATE.selection].getElementsByTagName("input")[0].click();
-					settings();
+					STATE.menu = false;
+					STATE.menuDepth = 0;
+					STATE.selection = 0;
 				} else if (STATE.menuDepth === 2) {
 					getElements()[STATE.selection].getElementsByTagName("input")[0].click();
 					highlight(DIRECTION.none);
@@ -396,11 +405,18 @@ function theatre() {
  * Opens or closes the settings menu
  */
 function settings() {
+	if (STATE.menu && document.getElementsByClassName(STREAM_SETTINGS_MENU)[1].children[0].children.length === 0) {
+		STATE.menu = false;
+		return;
+	}
+
 	if (checkWatch()) {
 		if (STATE.menu) {
 			highlight(DIRECTION.remove);
 			STATE.selection = 0;
 			STATE.menuDepth = 0;
+			document.getElementsByClassName(STREAM_CONTROLS_VISIBILITY_CLASS)[1].classList.add(STREAM_CONTROLS_HIDDEN_CLASS);
+			document.getElementsByClassName(STREAM_CONTROLS_VISIBILITY_CLASS)[1].classList.remove(STREAM_CONTROLS_VISIBLE_CLASS);
 		}
 
 		let buttons = document.getElementsByClassName(STREAM_BOTTOM_RIGHT_CONTROLS)[0].getElementsByTagName("button");
@@ -414,6 +430,8 @@ function settings() {
 		if (!STATE.menu) {
 			STATE.menu = true;
 			highlight(DIRECTION.none);
+			document.getElementsByClassName(STREAM_CONTROLS_VISIBILITY_CLASS)[1].classList.add(STREAM_CONTROLS_VISIBLE_CLASS);
+			document.getElementsByClassName(STREAM_CONTROLS_VISIBILITY_CLASS)[1].classList.remove(STREAM_CONTROLS_HIDDEN_CLASS);
 		} else {
 			STATE.menu = false;
 		}
