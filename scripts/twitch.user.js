@@ -467,5 +467,5 @@ function home() {
  * Refreshes the page
  */
 function refresh() {
-	window.location = '.';
+	window.location = window.location.href;
 }
