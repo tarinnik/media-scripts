@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        Netflix
 // @namespace   tarinnik.github.io/media
-// @version	    1.1.1
+// @version	    1.2
 // @include	    https://www.netflix.com/*
 // @icon        https://www.netflix.com/favicon.ico
 // ==/UserScript==
@@ -34,6 +34,7 @@ const WATCH_PAUSE_CLASS = "button-nfplayerPause";
 const WATCH_FULLSCREEN_CLASS = "button-nfplayerFullscreen";
 const WATCH_WINDOWED_CLASS = "button-nfplayerWindowed";
 const WATCH_SKIP_CREDITS_CLASS = "skip-credits";
+const WATCH_NEXT_EPISODE_BUTTON = "button-nfplayerNextEpisode";
 const LIST_URL = "https://www.netflix.com/browse/my-list";
 const LIST_VIDEO_ROW_CLASS = "rowContainer rowContainer_title_card";
 const SHOW_URL = "https://www.netflix.com/title";
@@ -151,6 +152,7 @@ function key(event) {
 			playpause();
 			break;
 		case '.':
+			nextEpisode();
 			break;
 		case '+':
 			season();
@@ -600,6 +602,12 @@ function scroll() {
  */
 function changeProfile() {
 	window.location = PROFILE_URL;
+}
+
+function nextEpisode() {
+	if (checkWatch()) {
+		document.getElementsByClassName(WATCH_NEXT_EPISODE_BUTTON)[0].click();
+	}
 }
 
 /**
