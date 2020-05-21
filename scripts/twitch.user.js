@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        Twitch
 // @namespace   tarinnik.github.io/media
-// @version     0.7.3
+// @version     0.7.4
 // @include     https://www.twitch.tv/*
 // @icon        https://static.twitchcdn.net/assets/favicon-32-d6025c14e900565d6177.png
 // ==/UserScript==
@@ -9,8 +9,7 @@
 const CHAT_CLASS = "tw-block tw-border-radius-medium tw-font-size-6 tw-full-width tw-textarea tw-textarea--no-resize";
 const BACKGROUND_COLOUR = "background:#9147ff";
 const HOME_URL = "https://www.twitch.tv/";
-const HOME_FOLLOWED_CHANNELS_CLASS = "tw-transition tw-transition--duration-medium tw-transition--enter-done " +
-									 "tw-transition__scale-over tw-transition__scale-over--enter-done";
+const HOME_FOLLOWED_CHANNELS_CLASS = "tw-transition tw-transition--enter-done tw-transition__scale-over tw-transition__scale-over--enter-done";
 const STREAM_INDICATOR_CLASS = "tw-animated-number tw-animated-number--monospaced";
 const STREAM_BOTTOM_LEFT_CONTROLS = "player-controls__left-control-group tw-align-items-center tw-flex tw-flex-grow-1 " +
 									"tw-justify-content-start";
