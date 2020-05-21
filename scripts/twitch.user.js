@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        Twitch
 // @namespace   tarinnik.github.io/media
-// @version     0.7.2
+// @version     0.7.3
 // @include     https://www.twitch.tv/*
 // @icon        https://static.twitchcdn.net/assets/favicon-32-d6025c14e900565d6177.png
 // ==/UserScript==
@@ -11,7 +11,7 @@ const BACKGROUND_COLOUR = "background:#9147ff";
 const HOME_URL = "https://www.twitch.tv/";
 const HOME_FOLLOWED_CHANNELS_CLASS = "tw-transition tw-transition--duration-medium tw-transition--enter-done " +
 									 "tw-transition__scale-over tw-transition__scale-over--enter-done";
-const STREAM_INDICATOR_CLASS = "channel-header-user-tab__user-content tw-align-items-center tw-flex tw-full-height";
+const STREAM_INDICATOR_CLASS = "tw-animated-number tw-animated-number--monospaced";
 const STREAM_BOTTOM_LEFT_CONTROLS = "player-controls__left-control-group tw-align-items-center tw-flex tw-flex-grow-1 " +
 									"tw-justify-content-start";
 const STREAM_BOTTOM_RIGHT_CONTROLS = "player-controls__right-control-group tw-align-items-center tw-flex " +
@@ -379,6 +379,7 @@ function playpause() {
  * Makes the video fullscreen
  */
 function fullscreen() {
+	console.log("Toggling fullscreen");
 	if (checkWatch()) {
 		let buttons = document.getElementsByClassName(STREAM_BOTTOM_RIGHT_CONTROLS)[0].getElementsByTagName("button");
 		for (let i = 0; i < buttons.length; i++) {
@@ -394,6 +395,7 @@ function fullscreen() {
  * Toggles theatre mode
  */
 function theatre() {
+	console.log("Toggling theatre mode");
 	if (checkWatch()) {
 		let buttons = document.getElementsByClassName(STREAM_BOTTOM_RIGHT_CONTROLS)[0].getElementsByTagName("button");
 		for (let i = 0; i < buttons.length; i++) {
