@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        Twitch
 // @namespace   tarinnik.github.io/media
-// @version     0.7.4
+// @version     0.7.5
 // @include     https://www.twitch.tv/*
 // @icon        https://static.twitchcdn.net/assets/favicon-32-d6025c14e900565d6177.png
 // ==/UserScript==
@@ -24,8 +24,7 @@ const STREAM_THEATRE_MODE = "player-theatre-mode-button";
 const STREAM_FULLSCREEN = "player-fullscreen-button";
 const STREAM_SETTINGS = "player-settings-button";
 const STREAM_SETTINGS_MENU = "tw-overflow-auto tw-pd-1";
-const STREAM_CHANNEL_POINTS_CLAIM = "tw-transition tw-transition--duration-long tw-transition--enter-done " +
-									"tw-transition__fade tw-transition__fade--enter-done";
+const STREAM_CHANNEL_POINTS_CLAIM = "tw-button tw-button--success tw-interactive";
 const STREAM_PLAY_PAUSE = "player-play-pause-button";
 const SEARCH_URL = "";
 
@@ -276,7 +275,7 @@ function select() {
 				}
 			}
 		} else if (document.getElementsByClassName(STREAM_CHANNEL_POINTS_CLAIM).length !== 0) {
-			document.getElementsByClassName(STREAM_CHANNEL_POINTS_CLAIM)[0].getElementsByTagName("button")[0].click();
+			document.getElementsByClassName(STREAM_CHANNEL_POINTS_CLAIM)[0].click();
 		}
 	}
 }
