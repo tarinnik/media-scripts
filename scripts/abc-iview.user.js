@@ -1,9 +1,9 @@
 // ==UserScript==
-// @name                ABC iview
-// @namespace           tarinnik.github.io/media
-// @version             3.6.9
-// @include             https://iview.abc.net.au/*
-// @icon                https://iview.abc.net.au/favicon.ico
+// @name        ABC iview
+// @namespace   tarinnik.github.io/media
+// @version     3.6.10
+// @include     https://iview.abc.net.au/*
+// @icon        https://iview.abc.net.au/favicon.ico
 // ==/UserScript==
 
 const BACKGROUND_COLOUR = "background:#326060";
@@ -14,7 +14,7 @@ const HOME_AD_BANNER = "iv-1pJQi";
 const HOME_SLIDESHOW_SELECTED = "is-selected";
 const MY_LIST_URL = "https://iview.abc.net.au/your/watchlist";
 const RECENT_URL = "https://iview.abc.net.au/your/recent";
-const MY_LIST_MENU_CLASS = "iv-1fREI";
+const MY_LIST_MENU_CLASS = "iv-3irN5";
 const MY_LIST_COLUMNS = 4;
 const SHOW_URL = "https://iview.abc.net.au/show/";
 const SHOW_URL_LENGTH = 30;
@@ -174,7 +174,7 @@ function getElements() {
 	// My list or watch history
 	if (checkList()) {
 		if (STATE.menu) {
-			return document.getElementsByClassName(MY_LIST_MENU_CLASS)[0].getElementsByTagName("a");
+			return document.getElementsByClassName(MY_LIST_MENU_CLASS);
 		} else {
 			return document.getElementsByTagName(VIDEO_TAG);
 		}
@@ -332,7 +332,7 @@ function highlight(d) {
 function select() {
 	if (checkList()) {
 		if (STATE.menu) {
-			getElements()[STATE.selection].click();
+			getElements()[STATE.selection].getElementsByTagName('a')[0].click();
 		} else {
 			getElements()[STATE.selection].getElementsByTagName("a")[0].click();
 		}
@@ -580,5 +580,5 @@ function home() {
  * Refreshes the page
  */
 function refresh() {
-	window.location = ".";
+	window.location = window.location.href;
 }
