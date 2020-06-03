@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        Apple TV+
 // @namespace   tarinnik.github.io/media
-// @version     0.2
+// @version     0.3
 // @include     https://tv.apple.com/*
 // @icon        https://tv.apple.com/favicon.ico
 // ==/UserScript==
@@ -15,6 +15,8 @@ const SHOW_MENU_CLASS = "product-header__content__buttons";
 const SHOW_VIDEO_CLASS = "shelf-grid__list";
 const SHOW_NEXT_CLASS = "shelf-grid-nav__arrow shelf-grid-nav__arrow--next ember-view";
 const SHOW_PREVIOUS_CLASS = "shelf-grid-nav__arrow shelf-grid-nav__arrow--previous ember-view";
+const SHOW_PAUSE_CLASS = "product-header__video-control--pause header-button header-button--play";
+const SHOW_MUTE_BUTTON = "product-header__video-control--mute header-button header-button--mute";
 const SEARCH_URL = "";
 
 let STATE = {
@@ -130,6 +132,7 @@ function key(event) {
             playpause();
             break;
         case '.':
+            mute();
             break;
         case '+':
             seasons();
@@ -165,7 +168,8 @@ function checkList() {
  * @returns {boolean} if the current page is the show page
  */
 function checkShow() {
-    return window.location.href.indexOf("show") !== -1;
+    return window.location.href.indexOf("show") !== -1 ||
+           window.location.href.indexOf("movie") !== -1;
 }
 
 /**
@@ -410,14 +414,30 @@ function season() {
  * Toggles the play state of the video
  */
 function playpause() {
+    if (checkWatch()) {
 
+    }
+    else if (checkShow()) {
+        document.getElementsByClassName(SHOW_PAUSE_CLASS)[0].click();
+    }
+}
+
+function mute() {
+    if (checkWatch()) {
+
+    }
+    else if (checkShow()) {
+        document.getElementsByClassName(SHOW_MUTE_BUTTON)[0].click();
+    }
 }
 
 /**
  * Makes the video fullscreen
  */
 function fullscreen() {
+    if (checkWatch()) {
 
+    }
 }
 
 /**
