@@ -1,12 +1,11 @@
 // ==UserScript==
 // @name        Twitch
 // @namespace   tarinnik.github.io/media
-// @version     0.7.5
+// @version     0.7.6
 // @include     https://www.twitch.tv/*
 // @icon        https://static.twitchcdn.net/assets/favicon-32-d6025c14e900565d6177.png
 // ==/UserScript==
 
-const CHAT_CLASS = "tw-block tw-border-radius-medium tw-font-size-6 tw-full-width tw-textarea tw-textarea--no-resize";
 const BACKGROUND_COLOUR = "background:#9147ff";
 const HOME_URL = "https://www.twitch.tv/";
 const HOME_FOLLOWED_CHANNELS_CLASS = "tw-transition tw-transition--enter-done tw-transition__scale-over tw-transition__scale-over--enter-done";
@@ -85,8 +84,11 @@ document.addEventListener('keydown', function(event) {
  * @param event that was triggered
  */
 function key(event) {
-	if (document.activeElement.className === CHAT_CLASS) return;
-
+	if (document.activeElement.tagName === "TEXTAREA")  {
+		console.log('?')
+		return;
+	}
+	
 	if (STATE.search) {
 		searchKey(event.key);
 		return;
