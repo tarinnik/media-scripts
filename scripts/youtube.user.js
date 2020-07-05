@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name     	Youtube
 // @namespace	tarinnik.github.io/media
-// @version  	0.11
-// @include		https://www.youtube.com/*
-// @icon		https://youtube.com/favicon.ico
+// @version  	0.11.1
+// @include     https://www.youtube.com/*
+// @icon        https://youtube.com/favicon.ico
 // ==/UserScript==
 
 const BACKGROUND_COLOUR = "background:red";
@@ -108,6 +108,8 @@ document.addEventListener('keydown', function(event) {
 });
 
 function key(event) {
+	if (document.activeElement.tagName === "INPUT") return;
+
 	if (STATE.search) {
 		searchKey(event.key);
 		return;
