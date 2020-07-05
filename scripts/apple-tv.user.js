@@ -1,15 +1,15 @@
 // ==UserScript==
 // @name        Apple TV+
 // @namespace   tarinnik.github.io/media
-// @version     0.3
+// @version     0.3.1
 // @include     https://tv.apple.com/*
 // @icon        https://tv.apple.com/favicon.ico
 // ==/UserScript==
 
 const BACKGROUND_COLOUR = "background:grey";
 const HOME_BUTTON_CLASS = "ember-view nav-header__logo nav-header__tv-plus-logo";
-const HOME_SCROLL_CLASS = "landing__header__next-arrow";
-const HOME_VIDEO_CLASS = "landing__main__section";
+const HOME_CLASS = "landing-page";
+const HOME_VIDEO_TAG = "section";
 const LIST_URL = "";
 const SHOW_MENU_CLASS = "product-header__content__buttons";
 const SHOW_VIDEO_CLASS = "shelf-grid__list";
@@ -152,7 +152,7 @@ function key(event) {
  * @return {boolean} if the current page is the home page
  */
 function checkHome() {
-    return document.getElementsByClassName(HOME_SCROLL_CLASS).length !== 0;
+    return document.getElementsByClassName(HOME_CLASS).length !== 0;
 }
 
 /**
@@ -185,14 +185,7 @@ function checkWatch() {
  */
 function getElements() {
     if (checkHome()) {
-        let a = [];
-        let e = document.getElementsByClassName(HOME_VIDEO_CLASS);
-        let length = e.length - 1;
-        a.push(document.getElementsByClassName(HOME_SCROLL_CLASS)[0]);
-        for (let i = 0; i < length; i++) {
-            a.push(e[i]);
-        }
-        return a;
+        return document.getElementsByTagName(HOME_VIDEO_TAG);
     } else if (checkList()) {
 
     } else if (checkShow()) {
@@ -274,13 +267,8 @@ function highlight(d) {
  */
 function select() {
     if (checkHome()) {
-        if (STATE.selection === 0) {
-            getElements()[0].click();
-            STATE.selection++;
-        } else {
-            getElements()[STATE.selection].getElementsByTagName('a')[1].click();
-            newPage();
-        }
+        getElements()[STATE.selection].getElementsByTagName('a')[1].click();
+        newPage();
     } else if (checkList()) {
 
     } else if (checkShow()) {
