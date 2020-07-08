@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name     	Prime Video
 // @namespace	tarinnik.github.io/media
-// @version  	0.7.3
+// @version  	0.7.4
 // @include		https://www.primevideo.com/*
 // @icon		https://www.primevideo.com/favicon.ico
 // ==/UserScript==
@@ -9,8 +9,8 @@
 const BACKGROUND_COLOUR = "background:#1a7ee1;color:white;padding:7px";
 const HOME_URL = "https://www.primevideo.com/";
 const HOME_URL_2 = "https://www.primevideo.com/storefront/home/";
-const HOME_BANNER_CLASS = "_2JV8iu";
-const HOME_VIDEO_ROW_CLASS = "_1gQKv6 u-collection tst-collection";
+const HOME_BANNER_CLASS = "_1Qi_W1";
+const HOME_VIDEO_ROW_CLASS = "_192RvH u-collection tst-collection";
 const LIST_URL = "https://www.primevideo.com/mystuff/watchlist";
 const LIST_MENU_CLASS = "mA3s3y g1TQVQ";
 const LIST_VIDEO_CLASS = "D0Lu_p";
