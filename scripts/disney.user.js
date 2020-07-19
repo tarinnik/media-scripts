@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        Disney+
 // @namespace   tarinnik.github.io/media
-// @version     0.1
+// @version     0.1.1
 // @include     https://www.disneyplus.com/*
 // @icon        https://www.disneyplus.com/favicon.ico
 // ==/UserScript==
@@ -184,6 +184,10 @@ function getElements() {
 function getColumns() {
     if (checkHome()) {
 
+    } else if (checkList()) {
+        let e = getElements()[0]
+        return Math.floor(window.innerWidth / parseInt(window.getComputedStyle(e, null).
+                                                            getPropertyValue("width")));
     } else {
         return 1;
     }
@@ -216,6 +220,8 @@ function highlight(d) {
         // Highlights the element in the row above or below
     } else if (d === DIRECTION.up || d === DIRECTION.down) {
         if (d === DIRECTION.up && STATE.selection < columns) {
+            return;
+        } else if (d === DIRECTION.down && elements.length - STATE.selection < columns) {
             return;
         }
         highlight(DIRECTION.remove);
@@ -287,7 +293,7 @@ function up() {
     if (checkHome()) {
 
     } else if (checkList()) {
-
+        highlight(DIRECTION.up);
     } else if (checkShow()) {
 
     }
@@ -300,7 +306,7 @@ function down() {
     if (checkHome()) {
 
     } else if (checkList()) {
-
+        highlight(DIRECTION.down);
     } else if (checkShow()) {
 
     }
