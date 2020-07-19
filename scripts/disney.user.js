@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        Disney+
 // @namespace   tarinnik.github.io/media
-// @version     0.1.1
+// @version     0.2
 // @include     https://www.disneyplus.com/*
 // @icon        https://www.disneyplus.com/favicon.ico
 // ==/UserScript==
@@ -13,7 +13,9 @@ const HOME_URL = "https://www.disneyplus.com/home";
 const LIST_URL = "https://www.disneyplus.com/watchlist";
 const LIST_NAV_ATTRIBUTE = "WATCHLIST";
 const LIST_VIDEO_CLASS = "gv2-asset";
-const SHOW_URL = "";
+const SHOW_URL_1 = "https://www.disneyplus.com/movies";
+const SHOW_URL_2 = "https://www.disneyplus.com/series";
+const SHOW_BUTTON_CLASS = "sc-hwcHae dQMCkH";
 const WATCH_URL = "";
 const SEARCH_URL = "";
 
@@ -153,7 +155,8 @@ function checkList() {
  * @returns {boolean} if the current page is the show page
  */
 function checkShow() {
-
+    return window.location.href.slice(0, SHOW_URL_1.length) === SHOW_URL_1 ||
+            window.location.href.slice(0, SHOW_URL_2.length) === SHOW_URL_2;
 }
 
 /**
@@ -173,7 +176,7 @@ function getElements() {
     } else if (checkList()) {
         return document.getElementsByClassName(LIST_VIDEO_CLASS);
     } else if (checkShow()) {
-
+        return document.getElementsByClassName(SHOW_BUTTON_CLASS)[0].children;
     }
 }
 
@@ -256,7 +259,8 @@ function select() {
         getElements()[STATE.selection].getElementsByTagName('a')[0].click();
         newPage();
     } else if (checkShow()) {
-
+        getElements()[STATE.selection].click();
+        newPage();
     }
 }
 
@@ -269,7 +273,7 @@ function right() {
     } else if (checkList()) {
         highlight(DIRECTION.forwards);
     } else if (checkShow()) {
-
+        highlight(DIRECTION.forwards);
     }
 }
 
@@ -282,7 +286,7 @@ function left() {
     } else if (checkList()) {
         highlight(DIRECTION.backwards);
     } else if (checkShow()) {
-
+        highlight(DIRECTION.backwards);
     }
 }
 
@@ -324,7 +328,7 @@ function scroll() {
     } else if (checkList()) {
 
     } else if (checkShow()) {
-
+        return;
     }
 
     if (STATE.selection < columns) {
