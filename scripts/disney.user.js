@@ -1,15 +1,20 @@
 // ==UserScript==
 // @name        Disney+
 // @namespace   tarinnik.github.io/media
-// @version     0
-// @include     https://disneyplus.com/*
-// @icon        https://disneyplus.com/favicon.ico
+// @version     0.1
+// @include     https://www.disneyplus.com/*
+// @icon        https://www.disneyplus.com/favicon.ico
 // ==/UserScript==
 
-const BACKGROUND_COLOUR = "";
-const HOME_URL = "";
-const LIST_URL = "";
+const BACKGROUND_COLOUR = "background:#00bfdd;padding:5px";
+const NAV_ID = "nav-list";
+const NAV_IDENTIFICATION_ATTRIBUTE = "data-route";
+const HOME_URL = "https://www.disneyplus.com/home";
+const LIST_URL = "https://www.disneyplus.com/watchlist";
+const LIST_NAV_ATTRIBUTE = "WATCHLIST";
+const LIST_VIDEO_CLASS = "gv2-asset";
 const SHOW_URL = "";
+const WATCH_URL = "";
 const SEARCH_URL = "";
 
 let STATE = {
@@ -59,6 +64,14 @@ window.addEventListener('load', function() {
 document.addEventListener('keydown', function(event) {
     key(event);
 });
+
+function newPage() {
+	STATE.selection = 0;
+	STATE.videoSelection = 0;
+	STATE.menu = false;
+
+	highlight(DIRECTION.none);
+}
 
 /**
  * Determines the key press
@@ -132,7 +145,7 @@ function checkHome() {
  * @returns {boolean} if the current page is my list
  */
 function checkList() {
-
+    return window.location.href === LIST_URL;
 }
 
 /**
@@ -158,7 +171,7 @@ function getElements() {
     if (checkHome()) {
 
     } else if (checkList()) {
-
+        return document.getElementsByClassName(LIST_VIDEO_CLASS);
     } else if (checkShow()) {
 
     }
@@ -234,7 +247,8 @@ function select() {
     if (checkHome()) {
 
     } else if (checkList()) {
-
+        getElements()[STATE.selection].getElementsByTagName('a')[0].click();
+        newPage();
     } else if (checkShow()) {
 
     }
@@ -247,7 +261,7 @@ function right() {
     if (checkHome()) {
 
     } else if (checkList()) {
-
+        highlight(DIRECTION.forwards);
     } else if (checkShow()) {
 
     }
@@ -260,7 +274,7 @@ function left() {
     if (checkHome()) {
 
     } else if (checkList()) {
-
+        highlight(DIRECTION.backwards);
     } else if (checkShow()) {
 
     }
@@ -354,7 +368,12 @@ function back() {
  * Navigates to the list page
  */
 function list() {
-    window.location = LIST_URL;
+    let elements = document.getElementById(NAV_ID).getElementsByTagName('a');
+    for (let i = 0; i < elements.length; i++) {
+        if (elements[i].getAttribute(NAV_IDENTIFICATION_ATTRIBUTE) === LIST_NAV_ATTRIBUTE) {
+            elements[i].click();
+        }
+    }
 }
 
 /**
