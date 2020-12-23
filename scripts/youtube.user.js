@@ -117,46 +117,61 @@ function key(event) {
 
 	switch (event.key) {
 		case '1':
+			console.log("1 pressed");
 			list();
 			break;
 		case '2':
+			console.log("2 pressed");
 			down();
 			break;
 		case '3':
+			console.log("3 pressed");
 			break;
 		case '4':
+			console.log("4 pressed");
 			left();
 			break;
 		case '5':
+			console.log("5 pressed");
 			select();
 			break;
 		case '6':
+			console.log("6 pressed");
 			right();
 			break;
 		case '7':
+			console.log("7 pressed");
 			home();
 			break;
 		case '8':
+			console.log("8 pressed");
 			up();
 			break;
 		case '9':
+			console.log("9 pressed");
 			break;
 		case '0':
+			console.log("0 pressed");
 			search();
 			break;
 		case '.':
+			console.log(". pressed");
 			theatre();
 			break;
 		case '+':
+			console.log("+ pressed");
 			fullscreen();
 			break;
 		case '-':
+			console.log("- pressed");
 			close();
 			break;
 		case 'Enter':
+			console.log("enter pressed");
 			playpause();
 			break;
 		case '/':
+			console.log("/ pressed");
 			refresh();
 			break;
 	}
@@ -535,14 +550,17 @@ function select() {
 
 function fullscreen() {
 	document.getElementsByClassName(RIGHT_PLAYER_CONTROLS_CLASS)[0].childNodes[FULLSCREEN_INDEX].click();
+	console.log("fullscreen");
 }
 
 function theatre() {
 	document.getElementsByClassName(RIGHT_PLAYER_CONTROLS_CLASS)[0].childNodes[THEATRE_INDEX].click();
+	console.log("theatre");
 }
 
 function playpause() {
 	document.getElementsByClassName(LEFT_PLAYER_CONTROLS_CLASS)[0].childNodes[PLAY_INDEX].click();
+	console.log("play/pause");
 }
 
 function close() {
@@ -559,11 +577,13 @@ function close() {
 		STATE.inMenu = false;
 		newPage();
 	}
+	console.log("closed");
 }
 
 function search() {
 	document.getElementById(SEARCH_ID).setAttribute("style", BACKGROUND_COLOUR);
 	STATE.search = true;
+	console.log("search");
 }
 
 function searchKey(key) {
