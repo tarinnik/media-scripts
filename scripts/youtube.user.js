@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name     	Youtube
 // @namespace	tarinnik.github.io/media
-// @version  	0.11.1
+// @version  	0.11.2
 // @include     https://www.youtube.com/*
 // @icon        https://youtube.com/favicon.ico
 // ==/UserScript==
@@ -29,8 +29,8 @@ const SCROLL_COLUMNS_STYLE = "--ytd-rich-grid-items-per-row";
 const LEFT_PLAYER_CONTROLS_CLASS = "ytp-left-controls";
 const PLAY_INDEX = 1;
 const RIGHT_PLAYER_CONTROLS_CLASS = "ytp-right-controls";
-const THEATRE_INDEX = 6;
-const FULLSCREEN_INDEX = 8;
+const THEATRE_BUTTON_CLASS = "ytp-size-button";
+const FULLSCREEN_BUTTON_CLASS = "ytp-fullscreen-button";
 const SEARCH_ID = "search-form";
 const SEARCH_URL = "https://www.youtube.com/results?search_query=";
 const SEARCH_URL_LENGTH = 45;
@@ -549,12 +549,12 @@ function select() {
 }
 
 function fullscreen() {
-	document.getElementsByClassName(RIGHT_PLAYER_CONTROLS_CLASS)[0].childNodes[FULLSCREEN_INDEX].click();
+	document.getElementsByClassName(RIGHT_PLAYER_CONTROLS_CLASS)[0].getElementsByClassName(FULLSCREEN_BUTTON_CLASS)[0].click();
 	console.log("fullscreen");
 }
 
 function theatre() {
-	document.getElementsByClassName(RIGHT_PLAYER_CONTROLS_CLASS)[0].childNodes[THEATRE_INDEX].click();
+	document.getElementsByClassName(RIGHT_PLAYER_CONTROLS_CLASS)[0].getElementsByClassName(THEATRE_BUTTON_CLASS)[0].click();
 	console.log("theatre");
 }
 
