@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        Stan
 // @namespace   tarinnik.github.io/media
-// @version     0.0.1
+// @version     0.1.0
 // @include     https://play.stan.com.au/*
 // @icon        https://www.stan.com.au/favicon.ico
 // ==/UserScript==
@@ -11,6 +11,9 @@ const HOME_URL = "";
 const LIST_URL = "";
 const SHOW_URL = "";
 const SEARCH_URL = "";
+const WATCH_FULLSCREEN_CLASS = "vjs-fs-control vjs-control vjs-control-secondary vjs-button";
+const WATCH_BACK_BUTTON = "vjs-back-player-control vjs-control vjs-control-secondary vjs-button";
+const WATCH_PLAY_PAUSE = "vjs-play-control vjs-control vjs-button vjs-paused";
 
 let STATE = {
     selection: 0,
@@ -148,7 +151,7 @@ function checkShow() {
  * @returns {boolean} if the current page is the video
  */
 function checkWatch() {
-
+    return document.getElementsByClassName(WATCH_FULLSCREEN_CLASS).length > 0;
 }
 
 /**
@@ -329,14 +332,14 @@ function season() {
  * Toggles the play state of the video
  */
 function playpause() {
-
+    document.getElementsByClassName(WATCH_PLAY_PAUSE)[0].click();
 }
 
 /**
  * Makes the video fullscreen
  */
 function fullscreen() {
-
+    document.getElementsByClassName(WATCH_FULLSCREEN_CLASS)[0].click();
 }
 
 /**
@@ -344,7 +347,7 @@ function fullscreen() {
  */
 function back() {
     if (checkWatch()) {
-
+        document.getElementsByClassName(WATCH_BACK_BUTTON)[0].click();
     } else {
         window.location = HOME_URL;
     }
