@@ -16,7 +16,7 @@ const LIST_VIDEO_CLASS = "gv2-asset";
 const SHOW_URL_1 = "https://www.disneyplus.com/movies";
 const SHOW_URL_2 = "https://www.disneyplus.com/series";
 const SHOW_BUTTON_CLASS = "sc-hwcHae dQMCkH";
-const WATCH_URL = "";
+const WATCH_URL = "https://www.disneyplus.com/video";
 const SEARCH_URL = "";
 
 let STATE = {
@@ -164,7 +164,7 @@ function checkShow() {
  * @returns {boolean} if the current page is the video
  */
 function checkWatch() {
-
+    return window.location.href.slice(0, WATCH_URL.length) === WATCH_URL;
 }
 
 /**
@@ -353,7 +353,12 @@ function season() {
  * Toggles the play state of the video
  */
 function playpause() {
-
+    let video = document.getElementsByTagName("video")[0];
+    if (video.paused) {
+        video.play();
+    } else {
+        video.pause();
+    }
 }
 
 /**
@@ -368,7 +373,7 @@ function fullscreen() {
  */
 function back() {
     if (checkWatch()) {
-
+        window.history.back();
     } else {
         window.location = HOME_URL;
     }
