@@ -192,7 +192,7 @@ class Stream {
                     this.STATE.horizontalSelection = elements[nextRow].length - 1;
                 }
                 this.STATE.verticalSelection = nextRow;
-                this.highlightElement(elements);
+                this.highlightElement(elements);2
             } else {
                 // 1D
             }
@@ -227,16 +227,12 @@ class Stream {
     }
 
     select() {
-        if (this.isProfile()) {
-
-        } else if (this.isHome()) {
-
-        } else if (this.isList()) {
-
-        } else if (this.isShow()) {
-
-        } else if (this.isWatch()) {
-            
+        let elements = this.getElements();
+        if (elements[this.STATE.verticalSelection].length !== undefined) {
+            let link = elements[this.STATE.verticalSelection][this.STATE.horizontalSelection].getElementsByTagName("a");
+            if (link.length !== 0) {
+                link[0].click();
+            }
         }
     }
 
@@ -266,6 +262,8 @@ class Stream {
     back() {
         if (this.isWatch()) {
             document.getElementsByClassName(this.elementNames.watchClose)[0].click();
+        } else {
+            history.back();
         }
     }
 
