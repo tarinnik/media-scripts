@@ -1,8 +1,10 @@
 class Stream {
     STATE = {
-        selection: 0,
+        verticalSelection: 0,
+        horizontalSelection: 0,
+        seasonSelection: 0,
+        menuSelection: 0,
         menu: false,
-        videoSelection: 0,
         season: false,
         search: false,
         numSameKeyPresses: 0,
@@ -14,8 +16,8 @@ class Stream {
     DIRECTION = {
         remove: 'r',
         none: 0,
-        forwards: 1,
-        backwards: -1,
+        right: 1,
+        left: -1,
         up: -2,
         down: 2,
     };
@@ -125,7 +127,7 @@ class Stream {
         } else if (this.isHome()) {
             return this.getHomeElements();
         } else if (this.isList()) {
-            return this.getListElements;
+            return this.getListElements();
         } else if (this.isShow()) {
             return this.getShowElements();
         } else if (this.isWatch()) {
@@ -159,49 +161,69 @@ class Stream {
     getWatchElements() {}
 
     /**
+     * Gets the number of columns
+     */
+    getColumns() {
+        return 1;
+    }
+
+    /**
      * Highlights an element
      * @param d direction to highlight in
      */
     highlight(d) {
-        let elements = getElements();
-        let columns = 1;
+        let elements = this.getElements();
+        let columns = this.getColumns();
 
         if (d === this.DIRECTION.none) { // Highlight the current element
-            this.highlightElement(elements[this.STATE.selection]);
-        } else if (d === DIRECTION.remove) { // Removes the highlight from the current element
-            this.unHighlightElement(elements[this.STATE.selection]);
-        } else if (this.STATE.selection === elements.length - 1 && d === this.DIRECTION.forwards) { // Forward but at the end of the elements
-            return;
-        } else if (this.STATE.selection === 0 && d === this.DIRECTION.backwards) { // Backwards but at the start
-            return;
+            this.highlightElement(elements);
+        } else if (d === this.DIRECTION.remove) { // Removes the highlight from the current element
+            this.unHighlightElement(elements);
         } else if (d === this.DIRECTION.up || d === this.DIRECTION.down) { // Highlight the element in the row above or below
-            if (d === this.DIRECTION.up && this.STATE.selection < columns) { // Top row
-                return;
+            let rowLength = elements[this.STATE.verticalSelection].length;
+            if (rowLength !== undefined) {
+                if ((d === this.DIRECTION.up && this.STATE.verticalSelection === 0) ||
+                        (d === this.DIRECTION.down && this.STATE.verticalSelection === elements.length - 1)) {
+                    return;
+                }
+                this.unHighlightElement(elements)
+                let nextRow = this.STATE.verticalSelection + d/2;
+                if (elements[nextRow].length - 1 < this.STATE.horizontalSelection) {
+                    this.STATE.horizontalSelection = elements[nextRow].length - 1;
+                }
+                this.STATE.verticalSelection = nextRow;
+                this.highlightElement(elements);
+            } else {
+                // 1D
             }
-            this.highlight(this.DIRECTION.remove);
-            let multiplier = d/2;
-            if (d === this.DIRECTION.down && this.STATE.selection >= elements.length - columns) { // Bottom row
-                this.STATE.selection = elements.length - 1;
-                this.highlight(this.DIRECTION.none);
-                return;
+        } else { // Left or right an element
+            let rowLength = elements[this.STATE.verticalSelection].length;
+            if (rowLength !== undefined) {
+                if ((d === this.DIRECTION.right && this.STATE.horizontalSelection === rowLength - 1) ||
+                        (d === this.DIRECTION.left && this.STATE.horizontalSelection === 0)) {
+                    return;
+                }
+                this.unHighlightElement(elements);
+                this.STATE.horizontalSelection += d;
+                this.highlightElement(elements);
+            } else {
+                // 1D
             }
-            this.STATE.selection += (columns * multiplier);
-            this.highlight(this.DIRECTION.none);
-        } else { // Forwards or backwards an element
-            this.highlight(this.DIRECTION.remove);
-            this.STATE.selection += d;
-            this.highlight(this.DIRECTION.none);
         }
 
         scroll();
     }
 
-    highlightElement(element) {
-        element.setAttribute("style", this.elementNames.highlightColour);
+    highlightElement(elements) {
+        try {
+            Object.assign(elements[this.STATE.verticalSelection][this.STATE.horizontalSelection].style, this.elementNames.highlightColour);
+        } catch (err) {
+            Object.assign(elements[this.STATE.verticalSelection].style, this.elementNames.highlightColour);
+        }
     }
 
-    unHighlightElement(element) {
-        element.removeAttribute("style");
+    unHighlightElement(elements) {
+        //element.removeAttribute("style");
     }
 
     select() {
@@ -219,19 +241,19 @@ class Stream {
     }
 
     up() {
-
+        this.highlight(this.DIRECTION.up);
     }
 
     down() {
-
+        this.highlight(this.DIRECTION.down);
     }
 
     left() {
-
+        this.highlight(this.DIRECTION.left);
     }
 
     right() {
-
+        this.highlight(this.DIRECTION.right);
     }
 
     /**
