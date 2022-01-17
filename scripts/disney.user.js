@@ -329,6 +329,7 @@ const names = {
         background: "#00bfdd",
         padding: '5px'
     },
+    navigationBar: "nav-list",
     watchUrlContains: "video",
     watchFullscreen: "fullscreen-icon",
     watchWindowed: "exit-fullscreen-icon",
@@ -336,6 +337,7 @@ const names = {
     watchPause: "play-pause-icon",
     watchClose: "back-arrow",
     listURL: "https://www.disneyplus.com/watchlist",
+    listNavIndex: 3,
     homeURL: "https://www.disneyplus.com/",
     homeUrlContains: "home",
     homeVerticalElements: "home-collection",
@@ -408,6 +410,7 @@ class Disney extends Stream {
             console.log(this.getHomeElements()[0][this.STATE.horizontalSelection].children[0]);
             this.getHomeElements()[0][this.STATE.horizontalSelection].children[0].click();
         }
+        this.newPage();
     }
 
     scroll() {
@@ -421,8 +424,13 @@ class Disney extends Stream {
         }
     }
 
-    newPage() {
+    list() {
+        document.getElementById(this.elementNames.navigationBar).children[this.elementNames.listNavIndex].getElementsByTagName("a")[0].click();
+    }
 
+    newPage() {
+        this.STATE.verticalSelection = 0;
+        this.STATE.horizontalSelection = 0;
     }
 }
 
