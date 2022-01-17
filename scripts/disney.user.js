@@ -189,24 +189,26 @@ class Stream {
             this.unHighlightElement(elements);
         } else if (d === this.DIRECTION.up || d === this.DIRECTION.down) { // Highlight the element in the row above or below
             let rowLength = elements[this.STATE.verticalSelection].length;
-            if (rowLength !== undefined) {
-                if ((d === this.DIRECTION.up && this.STATE.verticalSelection === 0) ||
+            if ((d === this.DIRECTION.up && this.STATE.verticalSelection === 0) ||
                         (d === this.DIRECTION.down && this.STATE.verticalSelection === elements.length - 1)) {
                     return;
-                }
+            }
+            if (rowLength !== undefined) { // 2D
                 this.unHighlightElement(elements)
                 let nextRow = this.STATE.verticalSelection + d/2;
                 if (elements[nextRow].length - 1 < this.STATE.horizontalSelection) {
                     this.STATE.horizontalSelection = elements[nextRow].length - 1;
                 }
                 this.STATE.verticalSelection = nextRow;
-                this.highlightElement(elements);2
-            } else {
-                // 1D
+                this.highlightElement(elements);
+            } else { // 1D
+                this.unHighlightElement(elements);
+                this.STATE.verticalSelection += d/2;
+                this.highlightElement(elements);
             }
         } else { // Left or right an element
             let rowLength = elements[this.STATE.verticalSelection].length;
-            if (rowLength !== undefined) {
+            if (rowLength !== undefined) { // 2D
                 if ((d === this.DIRECTION.right && this.STATE.horizontalSelection === rowLength - 1) ||
                         (d === this.DIRECTION.left && this.STATE.horizontalSelection === 0)) {
                     return;
@@ -214,8 +216,14 @@ class Stream {
                 this.unHighlightElement(elements);
                 this.STATE.horizontalSelection += d;
                 this.highlightElement(elements);
-            } else {
-                // 1D
+            } else { // 1D
+                if ((d === this.DIRECTION.left && this.STATE.verticalSelection === 0) ||
+                        (d === this.DIRECTION.right && this.STATE.verticalSelection === elements.length - 1)) {
+                    return;
+                }
+                this.unHighlightElement(elements);
+                this.STATE.verticalSelection += d;
+                this.highlightElement(elements);
             }
         }
 
@@ -346,6 +354,8 @@ const names = {
     brandUrlContains: "brand",
     brandVerticalElements: "brand-collection",
     brandHorizontalElements: "slick-active",
+    movieUrlContains: "movies",
+    movieControlElements: "sc-fAJaQT xqbsA",
 }
 
 class Disney extends Stream {
@@ -357,15 +367,21 @@ class Disney extends Stream {
         return window.location.href.includes(this.elementNames.watchUrlContains);
     }
 
-    isBranch() {
+    isBrand() {
         return window.location.href.includes(this.elementNames.brandUrlContains);
+    }
+
+    isMovie() {
+        return window.location.href.includes(this.elementNames.movieUrlContains);
     }
 
     getElements() {
         let ans = super.getElements();
         if (ans === undefined) {
-            if (this.isBranch()) {
-                return this.getBranchElements();
+            if (this.isBrand()) {
+                return this.getBrandElements();
+            } else if (this.isMovie()) {
+                return this.getMovieElements();
             }
         } else {
             return ans;
@@ -385,11 +401,20 @@ class Disney extends Stream {
         return elements;
     }
 
-    getBranchElements() {
+    getBrandElements() {
         let elements = [];
         let rows = document.getElementById(this.elementNames.brandVerticalElements).children;
         for (let i = 0; i < rows.length; i++) {
             elements.push(rows[i].getElementsByClassName(this.elementNames.brandHorizontalElements));
+        }
+        return elements;
+    }
+
+    getMovieElements() {
+        let elements = [];
+        let buttons = document.getElementsByClassName(this.elementNames.movieControlElements)[0].children;
+        for (let i = 0; i < 2; i++) {
+            elements.push(buttons[i]);
         }
         return elements;
     }
@@ -409,7 +434,7 @@ class Disney extends Stream {
         if (this.isHome() && this.STATE.verticalSelection === 0) {
             console.log(this.getHomeElements()[0][this.STATE.horizontalSelection].children[0]);
             this.getHomeElements()[0][this.STATE.horizontalSelection].children[0].click();
-        }
+        } else if (this.isM)
         this.newPage();
     }
 
