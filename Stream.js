@@ -270,8 +270,6 @@ class Stream {
     back() {
         if (this.isWatch()) {
             document.getElementsByClassName(this.elementNames.watchClose)[0].click();
-        } else {
-            history.back();
         }
     }
 
