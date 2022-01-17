@@ -347,6 +347,7 @@ const names = {
     listURL: "https://www.disneyplus.com/watchlist",
     listNavIndex: 3,
     homeURL: "https://www.disneyplus.com/",
+    homeNavIndex: 1,
     homeUrlContains: "home",
     homeVerticalElements: "home-collection",
     homeHorizontalElements: "slick-active",
@@ -458,6 +459,12 @@ class Disney extends Stream {
     newPage() {
         this.STATE.verticalSelection = 0;
         this.STATE.horizontalSelection = 0;
+    }
+
+    back() {
+        if (!this.isWatch()) {
+            document.getElementById(this.elementNames.navigationBar).children[this.elementNames.homeNavIndex].getElementsByTagName("a")[0].click();
+        }
     }
 }
 
