@@ -342,6 +342,8 @@ const names = {
     homeHorizontalElements: "slick-active",
     homeBrandElements: "gv2-asset",
     brandUrlContains: "brand",
+    brandVerticalElements: "brand-collection",
+    brandHorizontalElements: "slick-active",
 }
 
 class Disney extends Stream {
@@ -382,7 +384,12 @@ class Disney extends Stream {
     }
 
     getBranchElements() {
-        
+        let elements = [];
+        let rows = document.getElementById(this.elementNames.brandVerticalElements).children;
+        for (let i = 0; i < rows.length; i++) {
+            elements.push(rows[i].getElementsByClassName(this.elementNames.brandHorizontalElements));
+        }
+        return elements;
     }
 
     unHighlightElement(elements) {
