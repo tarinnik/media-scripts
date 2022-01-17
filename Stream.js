@@ -211,7 +211,7 @@ class Stream {
             }
         }
 
-        scroll();
+        this.scroll();
     }
 
     highlightElement(elements) {
