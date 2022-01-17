@@ -219,7 +219,7 @@ class Stream {
             }
         }
 
-        scroll();
+        this.scroll();
     }
 
     highlightElement(elements) {
@@ -341,6 +341,7 @@ const names = {
     homeVerticalElements: "home-collection",
     homeHorizontalElements: "slick-active",
     homeBrandElements: "gv2-asset",
+    brandUrlContains: "brand",
 }
 
 class Disney extends Stream {
@@ -350,6 +351,21 @@ class Disney extends Stream {
 
     isWatch() {
         return window.location.href.includes(this.elementNames.watchUrlContains);
+    }
+
+    isBranch() {
+        return window.location.href.includes(this.elementNames.brandUrlContains);
+    }
+
+    getElements() {
+        let ans = super.getElements();
+        if (ans === undefined) {
+            if (this.isBranch()) {
+                return this.getBranchElements();
+            }
+        } else {
+            return ans;
+        }
     }
 
     getHomeElements() {
@@ -363,6 +379,10 @@ class Disney extends Stream {
             }
         }
         return elements;
+    }
+
+    getBranchElements() {
+        
     }
 
     unHighlightElement(elements) {
@@ -381,6 +401,21 @@ class Disney extends Stream {
             console.log(this.getHomeElements()[0][this.STATE.horizontalSelection].children[0]);
             this.getHomeElements()[0][this.STATE.horizontalSelection].children[0].click();
         }
+    }
+
+    scroll() {
+        let elements = this.getElements();
+        if (elements[0].length !== undefined) {
+            if (this.STATE.verticalSelection === 0) {
+                window.scroll(0, 0);
+            } else {
+                elements[this.STATE.verticalSelection - 1][0].scrollIntoView();
+            }
+        }
+    }
+
+    newPage() {
+
     }
 }
 
