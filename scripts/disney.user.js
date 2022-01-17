@@ -434,7 +434,9 @@ class Disney extends Stream {
         if (this.isHome() && this.STATE.verticalSelection === 0) {
             console.log(this.getHomeElements()[0][this.STATE.horizontalSelection].children[0]);
             this.getHomeElements()[0][this.STATE.horizontalSelection].children[0].click();
-        } else if (this.isM)
+        } else if (this.isMovie()) {
+            this.getMovieElements()[this.STATE.verticalSelection].click();
+        }
         this.newPage();
     }
 
