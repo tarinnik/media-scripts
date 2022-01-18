@@ -262,10 +262,12 @@ class Stream {
 
     left() {
         this.highlight(this.DIRECTION.left);
+        this.horizontalScroll(this.DIRECTION.left);
     }
 
     right() {
         this.highlight(this.DIRECTION.right);
+        this.horizontalScroll(this.DIRECTION.right);
     }
 
     /**
@@ -273,13 +275,13 @@ class Stream {
      */
     scroll() {}
 
+    horizontalScroll(d) {}
+
     search() {}
 
     back() {
         if (this.isWatch()) {
             document.getElementsByClassName(this.elementNames.watchClose)[0].click();
-        } else {
-            history.back();
         }
     }
 
@@ -350,13 +352,20 @@ const names = {
     homeNavIndex: 1,
     homeUrlContains: "home",
     homeVerticalElements: "home-collection",
-    homeHorizontalElements: "slick-active",
+    homeHorizontalElements: "slick-slide",
+    homeHorizontalVisibleElements: "slick-active",
     homeBrandElements: "gv2-asset",
+    rowNextButton: "sc-iiUIRa iXgoSW slick-arrow slick-next",
+    rowPreviousButton: "sc-iiUIRa eHvBfV slick-arrow slick-prev",
     brandUrlContains: "brand",
     brandVerticalElements: "brand-collection",
-    brandHorizontalElements: "slick-active",
+    brandHorizontalElements: "slick-slide",
+    brandHorizontalVisibleElements: "slick-active",
     movieUrlContains: "movies",
     movieControlElements: "sc-fAJaQT xqbsA",
+    showUrlContains: "series",
+    showControlElements: "button button-play button-play--default ",
+    showEpisodes: "slick-active",
 }
 
 class Disney extends Stream {
@@ -374,6 +383,10 @@ class Disney extends Stream {
 
     isMovie() {
         return window.location.href.includes(this.elementNames.movieUrlContains);
+    }
+
+    isShow() {
+        return window.location.href.includes(this.elementNames.showUrlContains);
     }
 
     getElements() {
@@ -420,6 +433,18 @@ class Disney extends Stream {
         return elements;
     }
 
+    getShowElements() {
+        let elements = [];
+        elements.push(document.getElementsByClassName(this.elementNames.showControlElements));
+        let episodes = document.getElementsByClassName(this.elementNames.showEpisodes);
+        let epArray = [];
+        for (let i = 1; i < episodes.length; i++) {
+            epArray.push(episodes[i]);
+        }
+        elements.push(epArray);
+        return elements;
+    }
+
     unHighlightElement(elements) {
         try {
             elements[this.STATE.verticalSelection][this.STATE.horizontalSelection].style.removeProperty("background");
@@ -452,6 +477,33 @@ class Disney extends Stream {
         }
     }
 
+    horizontalScroll(d) {
+        let elements = this.getElements();
+        if (this.isHome() && elements[this.STATE.verticalSelection].length !== undefined && this.STATE.verticalSelection !== 0) {
+            let vis = document.getElementById(this.elementNames.homeVerticalElements).children[this.STATE.verticalSelection + 1].getElementsByClassName(this.elementNames.homeHorizontalVisibleElements);
+            if (d === this.DIRECTION.left) {
+                if (vis[0] === elements[this.STATE.verticalSelection][this.STATE.horizontalSelection + 1]) {
+                    document.getElementById(this.elementNames.homeVerticalElements).children[this.STATE.verticalSelection + 1].getElementsByClassName(this.elementNames.rowPreviousButton)[0].click();
+                }
+            } else {
+                if (vis[vis.length - 1] === elements[this.STATE.verticalSelection][this.STATE.horizontalSelection - 1]) {
+                    document.getElementById(this.elementNames.homeVerticalElements).children[this.STATE.verticalSelection + 1].getElementsByClassName(this.elementNames.rowNextButton)[0].click();
+                }
+            }
+        } else if (this.isBrand() && elements[this.STATE.verticalSelection].length !== undefined) {
+            let vis = document.getElementById(this.elementNames.brandVerticalElements).children[this.STATE.verticalSelection].getElementsByClassName(this.elementNames.brandHorizontalVisibleElements);
+            if (d === this.DIRECTION.left) {
+                if (vis[0] === elements[this.STATE.verticalSelection][this.STATE.horizontalSelection + 1]) {
+                    document.getElementById(this.elementNames.brandVerticalElements).children[this.STATE.verticalSelection].getElementsByClassName(this.elementNames.rowPreviousButton)[0].click();
+                }
+            } else {
+                if (vis[vis.length - 1] === elements[this.STATE.verticalSelection][this.STATE.horizontalSelection - 1]) {
+                    document.getElementById(this.elementNames.brandVerticalElements).children[this.STATE.verticalSelection].getElementsByClassName(this.elementNames.rowNextButton)[0].click();
+                }
+            }
+        }
+    }
+
     list() {
         document.getElementById(this.elementNames.navigationBar).children[this.elementNames.listNavIndex].getElementsByTagName("a")[0].click();
     }
@@ -462,6 +514,7 @@ class Disney extends Stream {
     }
 
     back() {
+        super.back();
         if (!this.isWatch()) {
             document.getElementById(this.elementNames.navigationBar).children[this.elementNames.homeNavIndex].getElementsByTagName("a")[0].click();
         }
