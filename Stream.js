@@ -254,16 +254,20 @@ class Stream {
 
     left() {
         this.highlight(this.DIRECTION.left);
+        this.horizontalScroll(this.DIRECTION.left);
     }
 
     right() {
         this.highlight(this.DIRECTION.right);
+        this.horizontalScroll(this.DIRECTION.right);
     }
 
     /**
      * Scrolls the page so the highlighted element is in view
      */
     scroll() {}
+
+    horizontalScroll(d) {}
 
     search() {}
 
