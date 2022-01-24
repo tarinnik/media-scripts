@@ -185,6 +185,11 @@ class Stream {
                         (d === this.DIRECTION.down && this.STATE.verticalSelection === elements.length - 1)) {
                     return;
             }
+            if (this.STATE.season) {
+                this.unHighlightElement(elements);
+                this.STATE.seasonSelection += d/2;
+                this.highlightElement(elements);
+            }
             if (rowLength !== undefined) { // 2D
                 this.unHighlightElement(elements)
                 let nextRow = this.STATE.verticalSelection + d/2;
@@ -241,6 +246,8 @@ class Stream {
             if (link.length !== 0) {
                 link[0].click();
             }
+        } else {
+
         }
     }
 
