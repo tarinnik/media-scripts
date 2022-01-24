@@ -1,644 +1,483 @@
 // ==UserScript==
 // @name     	Prime Video
 // @namespace	tarinnik.github.io/media
-// @version  	0.7.4
+// @version  	1.0
 // @include		https://www.primevideo.com/*
 // @icon		https://www.primevideo.com/favicon.ico
 // ==/UserScript==
 
-const BACKGROUND_COLOUR = "background:#1a7ee1;color:white;padding:7px";
-const HOME_URL = "https://www.primevideo.com/";
-const HOME_URL_2 = "https://www.primevideo.com/storefront/home/";
-const HOME_BANNER_CLASS = "_1Qi_W1";
-const HOME_VIDEO_ROW_CLASS = "_192RvH u-collection tst-collection";
-const LIST_URL = "https://www.primevideo.com/mystuff/watchlist";
-const LIST_MENU_CLASS = "mA3s3y g1TQVQ";
-const LIST_VIDEO_CLASS = "D0Lu_p";
-const SHOW_URL = "https://www.primevideo.com/detail";
-const SHOW_MENU_CLASS = "abwJ5F tFxybk _2LF_6p";
-const SHOW_VIDEO_CLASS = "js-node-episode-container";
-const SHOW_SEASON_ID = "av-droplist-av-atf-season-selector";
-const SHOW_SEASON_ITEMS_CLASS = "_3R4jka";
-const WATCH_FULLSCREEN_CLASS = "fullscreenButton";
-const WATCH_PLAY_ICON_CLASS = "playIcon";
-const WATCH_CLOSE_CLASS = "imageButton";
-const SEARCH_URL = "https://www.primevideo.com/search/?phrase=";
-const SEARCH_ID = "pv-search-nav";
-const SEARCH_VIDEO_CLASS = "av-grid-beard";
-const AD_SKIP_BUTTON_CLASS = "adSkipButton skippable";
-const NEXT_UP_CARD_CLASS = "nextUpCard";
+class Stream {
+    STATE = {
+        verticalSelection: 0,
+        horizontalSelection: 0,
+        seasonSelection: 0,
+        menuSelection: 0,
+        menu: false,
+        season: false,
+        search: false,
+        numSameKeyPresses: 0,
+        lastKeyPressed: '',
+        searchQuery: "",
+        changingChar: '',
+    };
 
-let STATE = {
-    selection: 0,
-    menu: false,
-    season: false,
-    videoSection: false,
-    videoSelection: 0,
-    search: false,
-    numSameKeyPresses: 0,
-    lastKeyPressed: '',
-    searchQuery: "",
-    changingChar: '',
-};
+    DIRECTION = {
+        remove: 'r',
+        none: 0,
+        right: 1,
+        left: -1,
+        up: -2,
+        down: 2,
+    };
 
-const DIRECTION = {
-    remove: 'r',
-    none: 0,
-    forwards: 1,
-    backwards: -1,
-    up: -2,
-    down: 2,
-};
+    searchLetters = [
+        [' ', '0'],
+        ['q', 'r', 's', '1'],
+        ['t', 'u', 'v', '2'],
+        ['w', 'x', 'y', 'z', '3'],
+        ['g', 'h', 'i', '4'],
+        ['j', 'k', 'l', '5'],
+        ['m', 'n', 'o', 'p', '6'],
+        ['7'],
+        ['a', 'b', 'c', '8'],
+        ['d', 'e', 'f', '9']
+    ];
 
-const searchLetters = [
-    [' ', '0'],
-    ['q', 'r', 's', '1'],
-    ['t', 'u', 'v', '2'],
-    ['w', 'x', 'y', 'z', '3'],
-    ['g', 'h', 'i', '4'],
-    ['j', 'k', 'l', '5'],
-    ['m', 'n', 'o', 'p', '6'],
-    ['7'],
-    ['a', 'b', 'c', '8'],
-    ['d', 'e', 'f', '9']
-];
-
-/**
- * Triggered when the page loads
- */
-window.addEventListener('load', function() {
-    if (checkHome()) {
-
-    } else if (checkList() || checkShow()) {
-        STATE.menu = true;
-    }
-    highlight(DIRECTION.none);
-});
-
-/**
- * Triggered when a key is pressed
- */
-document.addEventListener('keydown', function(event) {
-    key(event);
-});
-
-/**
- * Determines the key press
- * @param event that was triggered
- */
-function key(event) {
-    if (STATE.search) {
-        searchKey(event.key);
-        return;
+    constructor(names) {
+        this.elementNames = names;
     }
 
-    switch (event.key) {
-        case '1':
-            list();
-            break;
-        case '2':
-            down();
-            break;
-        case '3':
-            fullscreen();
-            break;
-        case '4':
-            left();
-            break;
-        case '5':
-            select();
-            break;
-        case '6':
-            right();
-            break;
-        case '7':
-            home();
-            break;
-        case '8':
-            up();
-            break;
-        case '9':
-            back();
-            break;
-        case '0':
-            search();
-            break;
-        case 'Enter':
-            playpause();
-            break;
-        case '.':
-            break;
-        case '+':
-            seasons();
-            break;
-        case '-':
-            break;
-        case '/':
-            refresh();
-            break;
-    }
-}
-
-/**
- * Checks if the current page is the home page
- * @return {boolean} if the current page is the home page
- */
-function checkHome() {
-    return window.location.href.slice(0, HOME_URL_2.length) === HOME_URL_2 || window.location.href === HOME_URL;
-}
-
-/**
- * Checks if the current page is the watchlist
- * @returns {boolean} if the current page is my list
- */
-function checkList() {
-    return window.location.href.slice(0, LIST_URL.length) === LIST_URL;
-}
-
-/**
- * Checks if the current page is the show page
- * @returns {boolean} if the current page is the show page
- */
-function checkShow() {
-    return window.location.href.slice(0, SHOW_URL.length) === SHOW_URL &&
-            !checkWatch();
-}
-
-/**
- * Checks if the current page is the video
- * @returns {boolean} if the current page is the video
- */
-function checkWatch() {
-    return document.getElementsByTagName("body")[0].style.overflow === "hidden";
-}
-
-/**
- * Checks if the current page is the search page
- * @returns {boolean} if the current page is the search page
- */
-function checkSearch() {
-    return window.location.href.slice(0, SEARCH_URL.length) === SEARCH_URL;
-}
-
-/**
- * Gets the elements that are to be selected
- */
-function getElements() {
-    if (checkHome()) {
-        if (STATE.videoSelection === 0 && !STATE.videoSection) {
-            return document.getElementsByClassName(HOME_BANNER_CLASS)[0].getElementsByTagName("button");
-        } else {
-            if (STATE.videoSection) {
-                let rows = document.getElementsByClassName(HOME_VIDEO_ROW_CLASS);
-                let a = [];
-                for (let i = 0; i < rows.length; i++) {
-                    a.push(rows[i].getElementsByTagName("li")[0]);
-                }
-                return a;
-            } else {
-                return document.getElementsByClassName(HOME_VIDEO_ROW_CLASS)[STATE.videoSelection].
-                        getElementsByTagName("li");
-            }
+    key(event) {
+        switch (event.key) {
+            case '1':
+                this.list();
+                break;
+            case '2':
+                this.down();
+                break;
+            case '3':
+                this.fullscreen();
+                break;
+            case '4':
+                this.left();
+                break;
+            case '5':
+                this.select();
+                break;
+            case '6':
+                this.right();
+                break;
+            case '7':
+                this.home();
+                break;
+            case '8':
+                this.up();
+                break;
+            case '9':
+                this.back();
+                break;
+            case '0':
+                this.search();
+                break;
+            case 'Enter':
+                this.playpause();
+                break;
+            case '.':
+                break;
+            case '+':
+                this.season();
+                break;
+            case '-':
+                break;
+            case '*':
+                break;
+            case '/':
+                this.refresh();
+                break;
         }
-    } else if (checkList()) {
-        if (STATE.menu) {
-            return document.getElementsByClassName(LIST_MENU_CLASS)[1].getElementsByTagName('a');
-        } else {
-            return document.getElementsByClassName(LIST_VIDEO_CLASS);
-        }
-    } else if (checkShow()) {
-        if (STATE.season) {
-            return document.getElementsByClassName(SHOW_SEASON_ITEMS_CLASS)[0].getElementsByTagName("ul")[0].getElementsByTagName("li");
-        } else if (STATE.menu) {
-            let l = document.getElementsByClassName(SHOW_MENU_CLASS)[0].children;
-            if (l[1].childNodes.length > 1) {
-                let a = [];
-                a.push(l[0]);
-                let e =  l[1].childNodes;
-                for (let i = 0; i < e.length; i++) {
-                    a.push(e[i]);
-                }
-                return a;
-            } else {
-                return l;
-            }
-        } else {
-            return document.getElementsByClassName(SHOW_VIDEO_CLASS);
-        }
-    } else if (checkSearch()) {
-        return document.getElementsByClassName(SEARCH_VIDEO_CLASS);
     }
-}
 
-/**
- * Gets the number of columns the elements have
- * @returns {number} number of columns
- */
-function getColumns() {
-    if (checkHome()) {
-        return 1;
-    } else if (checkList() && !STATE.menu) {
-        let a = document.getElementsByClassName(LIST_VIDEO_CLASS)[0].parentElement;
-        let columns = window.getComputedStyle(a, null).getPropertyValue("grid-template-columns");
-        return columns.split(" ").length;
-    } else if (checkSearch()) {
-        let a = document.getElementsByClassName(SEARCH_VIDEO_CLASS)[0].parentElement;
-        let columns = window.getComputedStyle(a, null).getPropertyValue("grid-template-columns");
-        return columns.split(" ").length;
-    } else {
+    /**
+     * Checks if the current page is the profile selection page
+     */
+    isProfile() {}
+
+    /**
+     * Checks if the current page is the home page
+     * @return {boolean} if the current page is the home page
+     */
+    isHome() {}
+
+    /**
+     * Checks if the current page is the watchlist
+     * @returns {boolean} if the current page is my list
+     */
+    isList() {}
+
+    /**
+     * Checks if the current page is the show page
+     * @returns {boolean} if the current page is the show page
+     */
+    isShow() {}
+
+    /**
+     * Checks if the current page is the video
+     * @returns {boolean} if the current page is the video
+     */
+    isWatch() {}
+
+    /**
+     * Gets the elements that are to be selected
+     */
+    getElements() {
+        if (this.isProfile()) {
+            return this.getProfileElements();
+        } else if (this.isHome()) {
+            return this.getHomeElements();
+        } else if (this.isList()) {
+            return this.getListElements();
+        } else if (this.isShow()) {
+            return this.getShowElements();
+        } else if (this.isWatch()) {
+            return this.getWatchElements();
+        }
+    }
+
+    /**
+     * Gets the elements from the profile page
+     */
+    getProfileElements() {}
+
+    /**
+     * Gets the elements from the home page
+     */
+    getHomeElements() {}
+
+    /**
+     * Gets the elements from the list page
+     */
+    getListElements() {}
+
+    /**
+     * Gets the elements from the show page
+     */
+    getShowElements() {}
+
+    /**
+     * Gets the elements from the watch page
+     */
+    getWatchElements() {}
+
+    /**
+     * Gets the number of columns
+     */
+    getColumns() {
         return 1;
     }
-}
 
-/**
- * Highlights an element
- * @param d direction to highlight in
- */
-function highlight(d) {
-    let elements = getElements();
-    let columns = getColumns();
+    /**
+     * Highlights an element
+     * @param d direction to highlight in
+     */
+    highlight(d) {
+        let elements = this.getElements();
+        let columns = this.getColumns();
 
-    // Highlight the current element
-    if (d === DIRECTION.none) {
-        elements[STATE.selection].setAttribute("style", BACKGROUND_COLOUR);
-
-        // Remove the highlight from the current element
-    } else if (d === DIRECTION.remove) {
-        elements[STATE.selection].removeAttribute("style");
-
-        // Highlight forward but at the end of the elements
-    } else if (STATE.selection === elements.length - 1 && d === DIRECTION.forwards) {
-        return;
-
-        // Highlight backwards but at the start of the elements
-    } else if (STATE.selection === 0 && d === DIRECTION.backwards) {
-        return;
-
-        // Highlights the element in the row above or below
-    } else if (d === DIRECTION.up || d === DIRECTION.down) {
-        if (d === DIRECTION.up && STATE.selection < columns) {
-            return;
-        }
-        highlight(DIRECTION.remove);
-        let multiplier = d / 2;
-        if (d === DIRECTION.down) {
-            if (STATE.selection >= elements.length - columns) {
-                STATE.selection = elements.length - 1;
-                highlight(DIRECTION.none);
-                return;
+        if (d === this.DIRECTION.none) { // Highlight the current element
+            this.highlightElement(elements);
+        } else if (d === this.DIRECTION.remove) { // Removes the highlight from the current element
+            this.unHighlightElement(elements);
+        } else if (d === this.DIRECTION.up || d === this.DIRECTION.down) { // Highlight the element in the row above or below
+            let rowLength = elements[this.STATE.verticalSelection].length;
+            if ((d === this.DIRECTION.up && this.STATE.verticalSelection === 0) ||
+                        (d === this.DIRECTION.down && this.STATE.verticalSelection === elements.length - 1)) {
+                    return;
+            }
+            if (this.STATE.season) {
+                this.unHighlightElement(elements);
+                this.STATE.seasonSelection += d/2;
+                this.highlightElement(elements);
+            }
+            if (rowLength !== undefined) { // 2D
+                this.unHighlightElement(elements)
+                let nextRow = this.STATE.verticalSelection + d/2;
+                if (elements[nextRow].length - 1 < this.STATE.horizontalSelection) {
+                    this.STATE.horizontalSelection = elements[nextRow].length - 1;
+                }
+                this.STATE.verticalSelection = nextRow;
+                this.highlightElement(elements);
+            } else { // 1D
+                this.unHighlightElement(elements);
+                this.STATE.verticalSelection += d/2;
+                this.highlightElement(elements);
+            }
+        } else { // Left or right an element
+            let rowLength = elements[this.STATE.verticalSelection].length;
+            if (rowLength !== undefined) { // 2D
+                if ((d === this.DIRECTION.right && this.STATE.horizontalSelection === rowLength - 1) ||
+                        (d === this.DIRECTION.left && this.STATE.horizontalSelection === 0)) {
+                    return;
+                }
+                this.unHighlightElement(elements);
+                this.STATE.horizontalSelection += d;
+                this.highlightElement(elements);
+            } else { // 1D
+                if ((d === this.DIRECTION.left && this.STATE.verticalSelection === 0) ||
+                        (d === this.DIRECTION.right && this.STATE.verticalSelection === elements.length - 1)) {
+                    return;
+                }
+                this.unHighlightElement(elements);
+                this.STATE.verticalSelection += d;
+                this.highlightElement(elements);
             }
         }
-        STATE.selection += (columns * multiplier);
-        highlight(DIRECTION.none);
 
-        // Highlighting forwards or backwards with an element on the relevant side
-    } else {
-        highlight(DIRECTION.remove);
-        STATE.selection += d;
-        highlight(DIRECTION.none);
+        this.scroll();
     }
 
-    scroll();
-
-    if (checkShow() && !STATE.menu) {
-        elements[STATE.selection].style.padding = "";
-    }
-}
-
-/**
- * 5 (select) was pressed
- */
-function select() {
-    if (checkHome()) {
-        if (STATE.videoSelection === 0) {
-            let banner = document.getElementsByClassName(HOME_BANNER_CLASS)[0].
-                    getElementsByTagName("ul")[0];
-            let style = banner.getAttribute("style");
-            let i = style[style.indexOf('(') + 1];
-            if (i === '-') {
-                i = style[style.indexOf('(') + 2];
-            }
-            banner.getElementsByTagName("li")[i].getElementsByTagName("a")[0].click();
-        } else {
-            getElements()[STATE.selection].getElementsByTagName("a")[0].click();
-        }
-    } else if (checkList()) {
-        if (STATE.menu) {
-            getElements()[STATE.selection].click();
-        } else {
-            getElements()[STATE.selection].getElementsByTagName("a")[0].click();
-        }
-    } else if (checkShow()) {
-        if (STATE.season) {
-            getElements()[STATE.selection].getElementsByTagName("a")[0].click();
-        } else if (STATE.menu) {
-            if (STATE.selection) {
-                getElements()[STATE.selection].getElementsByTagName("button")[0].click();
-            } else {
-                getElements()[STATE.selection].getElementsByTagName("a")[0].click();
-            }
-        } else {
-            getElements()[STATE.selection].getElementsByTagName("a")[0].click();
-        }
-    } else if (checkSearch()) {
-        getElements()[STATE.selection].getElementsByTagName("a")[0].click();
-    } else if (checkWatch()) {
-        if (document.getElementsByClassName(AD_SKIP_BUTTON_CLASS).length !== 0) {
-            document.getElementsByClassName(AD_SKIP_BUTTON_CLASS)[0].click();
-        } else if (document.getElementsByClassName(NEXT_UP_CARD_CLASS).length !== 0) {
-            document.getElementsByClassName(NEXT_UP_CARD_CLASS)[0].click();
-        }
-    }
-}
-
-/**
- * 6 (right arrow) was pressed
- */
-function right() {
-    if (checkHome()) {
-        if (STATE.videoSelection === 0) {
-            getElements()[getElements().length - 1].click();
-        } else {
-            highlight(DIRECTION.forwards);
-            scrollVideos(DIRECTION.forwards);
-        }
-    } else if (checkList()) {
-        highlight(DIRECTION.forwards);
-    } else if (checkShow() && STATE.menu) {
-        highlight(DIRECTION.forwards);
-    } else if (checkSearch()) {
-        highlight(DIRECTION.forwards);
-    }
-}
-
-/**
- * 4 (left arrow) was pressed
- */
-function left() {
-    if (checkHome()) {
-        if (STATE.videoSelection === 0) {
-            getElements()[0].click();
-        } else {
-            highlight(DIRECTION.backwards);
-            scrollVideos(DIRECTION.backwards);
-        }
-    } else if (checkList()) {
-        highlight(DIRECTION.backwards);
-    } else if (checkShow() && STATE.menu) {
-        highlight(DIRECTION.backwards);
-    } else if (checkSearch()) {
-        highlight(DIRECTION.backwards);
-    }
-}
-
-/**
- * 8 (up arrow) was pressed
- */
-function up() {
-    if (checkHome()) {
-        highlight(DIRECTION.remove);
-        swapSelection();
-        highlight(DIRECTION.backwards);
-        swapSelection();
-        STATE.selection = 0;
-    } else if (checkList()) {
-        if (!STATE.menu) {
-            if (STATE.selection < getColumns()) {
-                toggleMenu();
-            } else {
-                highlight(DIRECTION.up);
-            }
-        }
-    } else if (checkShow()) {
-        if (STATE.season) {
-            highlight(DIRECTION.backwards);
-        } else if (!STATE.menu && STATE.selection === 0) {
-            toggleMenu();
-        } else if (!STATE.menu) {
-            highlight(DIRECTION.backwards);
-        }
-    } else if (checkSearch()) {
-        highlight(DIRECTION.up);
-    }
-}
-
-/**
- * 2 (down arrow) was pressed
- */
-function down() {
-    if (checkHome()) {
-        highlight(DIRECTION.remove);
-        swapSelection();
-        highlight(DIRECTION.forwards);
-        swapSelection();
-        STATE.selection = 0;
-    } else if (checkList()) {
-        if (STATE.menu) {
-            toggleMenu();
-        } else {
-            highlight(DIRECTION.down);
-        }
-    } else if (checkShow()) {
-        if (STATE.season) {
-            highlight(DIRECTION.forwards);
-        } else if (STATE.menu) {
-            if (document.getElementsByClassName(SHOW_VIDEO_CLASS).length !== 0) {
-                toggleMenu();
-            }
-        } else {
-            highlight(DIRECTION.forwards);
-        }
-    } else if (checkSearch()) {
-        highlight(DIRECTION.down);
-    }
-}
-
-function scrollVideos(d) {
-    let a = getElements()[0];
-    console.log(a);
-    let num = Math.floor(window.innerWidth / parseInt(window.getComputedStyle(a).getPropertyValue("width")));
-    console.log(num);
-    let e = a.parentElement.parentElement.getElementsByTagName("button");
-    console.log(e);
-    if (d === DIRECTION.forwards && STATE.selection % num === 0 && STATE.selection !== 0) {
-        if (e.length === 2) {
-            e[1].click();
-        } else if (e.length === 1 && e[0].getAttribute("aria-label") === "Right") {
-            e[0].click();
-        }
-    } else if (d === DIRECTION.backwards && STATE.selection % num === num - 1) {
-        if (e.length === 2) {
-            e[0].click();
-        } else if (e.length === 1 && e[0].getAttribute("aria-label") === "Left") {
-            e[0].click();
-        }
-    }
-}
-
-function swapSelection() {
-    let temp = STATE.videoSelection;
-    STATE.videoSelection = STATE.selection;
-    STATE.selection = temp;
-    STATE.videoSection = !STATE.videoSection;
-}
-
-/**
- * Scrolls the page so the selected element if visible
- */
-function scroll() {
-    if (STATE.menu || STATE.season) {
-        window.scrollTo(0, 0);
-        return;
-    } else if (!STATE.videoSection && checkHome()) {
-        return;
-    }
-
-    let columns = getColumns();
-    let defaultPosition;
-    let elements = getElements();
-
-    if (checkHome()) {
-
-    } else if (checkList()) {
-
-    } else if (checkShow()) {
-        defaultPosition = document.getElementsByClassName(SHOW_MENU_CLASS)[0];
-    }
-
-    if (STATE.selection < columns) {
+    highlightElement(elements) {
         try {
-            defaultPosition.scrollIntoView();
-        } catch (TypeError) {
-            window.scrollTo(0, 0);
-        }
-    } else {
-        elements[STATE.selection - columns].scrollIntoView();
-    }
-}
-
-/**
- * Starts the search
- */
-function search() {
-    STATE.search = true;
-    document.getElementById(SEARCH_ID).setAttribute("style", BACKGROUND_COLOUR);
-}
-
-function searchKey(key) {
-    if (key === "Enter") {
-        window.location = SEARCH_URL + STATE.searchQuery + STATE.changingChar;
-    } else if (key === '-') {
-        if (STATE.changingChar !== '') {
-            STATE.changingChar = '';
-            STATE.lastKeyPressed = '';
-            STATE.numSameKeyPresses = 0;
-        } else if (STATE.searchQuery.length !== 0) {
-            STATE.searchQuery = STATE.searchQuery.slice(0, length - 1);
-        }
-    } else if (key === '+') {
-        resetSearch();
-    } else if (key !== STATE.lastKeyPressed || key === '.') {
-        STATE.searchQuery += STATE.changingChar;
-        STATE.changingChar = '';
-        STATE.lastKeyPressed = key;
-        STATE.numSameKeyPresses = 0;
-    }
-
-    let num = parseInt(key);
-    if (!isNaN(num)) {
-        let len = searchLetters[num].length;
-        STATE.changingChar = searchLetters[num][STATE.numSameKeyPresses % len];
-        STATE.numSameKeyPresses++;
-    }
-
-    document.getElementById(SEARCH_ID).value = STATE.searchQuery + STATE.changingChar;
-}
-
-/**
- * Resets the search
- */
-function resetSearch() {
-    STATE.searchQuery = "";
-    STATE.changingChar = '';
-    STATE.lastKeyPressed = '';
-    STATE.numSameKeyPresses = 0;
-    STATE.search = false;
-    document.getElementById(SEARCH_ID).removeAttribute("style");
-}
-
-/**
- * Selects the season menu
- */
-function seasons() {
-    if (document.getElementById(SHOW_SEASON_ID)) {
-        highlight(DIRECTION.remove);
-        STATE.selection = 0;
-        STATE.season = !STATE.season;
-        window.scrollTo(0, 0);
-        document.getElementById(SHOW_SEASON_ID).click();
-        highlight(DIRECTION.none);
-    }
-}
-
-/**
- * Toggles the menu
- */
-function toggleMenu() {
-    highlight(DIRECTION.remove);
-    STATE.menu = !STATE.menu;
-    STATE.selection = 0;
-    highlight(DIRECTION.none);
-}
-
-function playpause() {
-    let video = document.getElementsByTagName("video");
-    for (let i = 0; i < video.length; i++) {
-        if (video[i].style.visibility === "visible") {
-            video = video[i];
+            Object.assign(elements[this.STATE.verticalSelection][this.STATE.horizontalSelection].style, this.elementNames.highlightColour);
+        } catch (err) {
+            Object.assign(elements[this.STATE.verticalSelection].style, this.elementNames.highlightColour);
         }
     }
-    if (document.getElementsByClassName(WATCH_PLAY_ICON_CLASS).length !== 0) {
-        video.play();
-    } else {
-        video.pause();
+
+    unHighlightElement(elements) {
+        //element.removeAttribute("style");
+    }
+
+    select() {
+        let elements = this.getElements();
+        if (elements[this.STATE.verticalSelection].length !== undefined) {
+            let link = elements[this.STATE.verticalSelection][this.STATE.horizontalSelection].getElementsByTagName("a");
+            if (link.length !== 0) {
+                link[0].click();
+            }
+        }
+    }
+
+    up() {
+        this.highlight(this.DIRECTION.up);
+    }
+
+    down() {
+        this.highlight(this.DIRECTION.down);
+    }
+
+    left() {
+        this.highlight(this.DIRECTION.left);
+        this.horizontalScroll(this.DIRECTION.left);
+    }
+
+    right() {
+        this.highlight(this.DIRECTION.right);
+        this.horizontalScroll(this.DIRECTION.right);
+    }
+
+    /**
+     * Scrolls the page so the highlighted element is in view
+     */
+    scroll() {}
+
+    horizontalScroll(d) {}
+
+    search() {}
+
+    back() {
+        if (this.isWatch()) {
+            document.getElementsByClassName(this.elementNames.watchClose)[0].click();
+        }
+    }
+
+    /**
+     * Selects the season menu
+     */
+    season() {}
+
+    /**
+     * Toggles the play state of the video
+     */
+    playpause() {
+        if (document.getElementsByClassName(this.elementNames.watchPlay).length !== 0) {
+            document.getElementsByClassName(this.elementNames.watchPlay)[0].click();
+        } else {
+            document.getElementsByClassName(this.elementNames.watchPause)[0].click();
+        }
+    }
+
+    /**
+     * Makes the video fullscreen
+     */
+    fullscreen() {
+        if (document.getElementsByClassName(this.elementNames.watchFullscreen).length !== 0) {
+            document.getElementsByClassName(this.elementNames.watchFullscreen)[0].click();
+        } else {
+            document.getElementsByClassName(this.elementNames.watchWindowed)[0].click();
+        }
+    }
+
+    /**
+     * Navigates to the list page
+     */
+    list() {
+        window.location = this.elementNames.listURL;
+    }
+
+    /**
+     * Goes back to the media home page
+     */
+    home() {
+        window.location = "https://tarinnik.github.io/media/";
+    }
+
+    /**
+     * Refreshes the page
+     */
+    refresh() {
+        window.location = window.location.href;
     }
 }
 
-function fullscreen() {
-    if (checkWatch()) {
-        document.getElementsByClassName(WATCH_FULLSCREEN_CLASS)[0].click();
+const names = {
+    highlightColour: {
+        background: "#1a7ee1",
+        padding: "7px",
+    },
+    navElement: "pv-navigation-bar",
+    watchElement: "dv-player-fullscreen",
+    watchFullscreenButton: "fullscreenButton",
+    watchPlay: "playIcon",
+    watchPause: "pausedIcon",
+    watchClose: "closeButtonWrapper",
+    homeURL: "https://www.primevideo.com/",
+    homeUrlContains: "home",
+    homeNavIndex: 0,
+    homeVerticalElements: "tst-collection",
+    homeHorizontalElements: "",
+    showUrlContains: "detail",
+    showTitleElements: "abwJ5F _16AW_S _2LF_6p _1ITy4O HaWow5",
+    showEpisodes: "XR0d6P",
+    showEpisodeElement: "_2nY3e-",
+    showSeasonDropdown: "av-droplist-av-atf-season-selector",
+    showSeasons: "_3R4jka",
+}
+
+class Prime extends Stream {
+    isHome() {
+        return window.location.href === this.elementNames.homeURL || window.location.href.includes(this.elementNames.homeUrlContains);
+    }
+
+    isWatch() {
+        return document.getElementsByClassName(this.elementNames.watchElement).length === 1;
+    }
+
+    isShow() {
+        return window.location.href.includes(this.elementNames.showUrlContains);
+    }
+
+    getHomeElements() {
+        let elements = [];
+        let rows = document.getElementsByClassName(this.elementNames.homeVerticalElements);
+        for (let i = 1; i < rows.length; i++) {
+            elements.push(rows[i].getElementsByTagName("li"));
+        }
+        return elements;
+    }
+
+    getShowElements() {
+        if (this.STATE.season) {
+            return document.getElementsByClassName(this.elementNames.showSeasons)[0].getElementsByTagName('li');
+        } else {
+            let elements = [];
+            let title = document.getElementsByClassName(this.elementNames.showTitleElements)[0].children;
+            elements.push([title[0], title[1].children[0], title[1].children[1]]);
+            let episodes = document.getElementsByClassName(this.elementNames.showEpisodes)[0].children;
+            for (let i = 0; i < episodes.length - 1; i++) {
+                elements.push(episodes[i].getElementsByClassName(this.elementNames.showEpisodeElement)[0]);
+            }
+            return elements;
+        }
+    }
+
+    scroll() {
+        let elements = this.getElements();
+        if (elements[this.STATE.verticalSelection].length !== undefined) {
+            if (this.STATE.verticalSelection === 0) {
+                window.scroll(0, 0);
+            } else {
+                elements[this.STATE.verticalSelection - 1][0].scrollIntoView();
+            }
+        } else {
+            if (this.STATE.verticalSelection === 0) {
+                window.scroll(0, 0);
+            } else {
+                try {
+                    elements[this.STATE.verticalSelection - this.getColumns()].scrollIntoView();
+                } catch (e) {
+                    elements[this.STATE.verticalSelection - 1][0].scrollIntoView();
+                }
+            }
+        }
+    }
+
+    select() {
+        super.select();
+        if (this.STATE.season) {
+            this.getElements()[this.STATE.seasonSelection].getElementsByTagName('a')[0].click();
+        }
+    }
+
+    unHighlightElement(elements) {
+        try {
+            elements[this.STATE.verticalSelection][this.STATE.horizontalSelection].style.removeProperty("background");
+            elements[this.STATE.verticalSelection][this.STATE.horizontalSelection].style.removeProperty("padding");
+        } catch (e) {
+            elements[this.STATE.verticalSelection].style.removeProperty("background");
+            elements[this.STATE.verticalSelection].style.removeProperty("padding");
+        }
+    }
+
+    fullscreen() {
+        if (this.isWatch()) {
+            document.getElementsByClassName(this.elementNames.watchFullscreenButton)[0].click();
+        }
+    }
+
+    back() {
+        if (this.isWatch()) {
+            document.getElementsByClassName(this.elementNames.watchClose)[0].children[0].click();
+        } else {
+            document.getElementsByClassName(this.elementNames.navElement)[0].getElementsByTagName('a')[this.elementNames.homeNavIndex].click();
+        }
+    }
+
+    playpause() {
+        if (document.getElementsByClassName(this.elementNames.watchPlay).length !== 0) {
+            document.getElementsByClassName(this.elementNames.watchElement)[0].getElementsByTagName("video")[1].play();
+        } else {
+            document.getElementsByClassName(this.elementNames.watchElement)[0].getElementsByTagName("video")[1].pause();
+        }
+    }
+
+    season() {
+        if (!this.STATE.season) {
+            window.scroll(0, 0);
+            document.getElementById(this.elementNames.showSeasonDropdown).click();
+            this.STATE.season = true;
+        } else {
+            document.getElementById(this.elementNames.showSeasonDropdown).click();
+            this.STATE.season = false;
+        }
     }
 }
 
-/**
- * Closes the video if one is open, otherwise goes to the home page
- */
-function back() {
-    if (checkWatch()) {
-        let e = document.getElementsByClassName(WATCH_CLOSE_CLASS);
-        e[e.length - 1].click();
-    } else {
-        window.location = HOME_URL;
-    }
-}
+const prime = new Prime(names);
 
-/**
- * Navigates to the list page
- */
-function list() {
-    window.location = LIST_URL;
-}
+window.addEventListener('load', function() {
+    this.highlight(this.DIRECTION.none);
+})
 
-/**
- * Goes back to the media home page
- */
-function home() {
-    window.location = "https://tarinnik.github.io/media/";
-}
-
-/**
- * Refreshes the page
- */
-function refresh() {
-    window.location = window.location.href;
-}
+document.addEventListener('keydown', function(event) {
+    prime.key(event);
+});
