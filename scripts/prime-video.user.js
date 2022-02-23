@@ -430,6 +430,7 @@ const names = {
     watchPause: "pausedIcon",
     watchClose: "closeButtonWrapper",
     watchAdSkip: "adSkipButton",
+    watchNextEpisode: "nextUpCard",
     homeURL: "https://www.primevideo.com/",
     homeUrlContains: "home",
     homeNavIndex: 0,
@@ -528,7 +529,11 @@ class Prime extends Stream {
         if (this.STATE.season) {
             this.getElements()[this.STATE.seasonSelection].getElementsByTagName('a')[0].click();
         } if (this.isWatch()) {
-            document.getElementsByClassName(this.elementNames.watchAdSkip)[0].click();
+            if (document.getElementsByClassName(this.elementNames.watchAdSkip).length !== 0) {
+                document.getElementsByClassName(this.elementNames.watchAdSkip)[0].click();
+            } else if (document.getElementsByClassName(this.elementNames.watchNextEpisode).length !== 0) {
+                document.getElementsByClassName(this.elementNames.watchNextEpisode)[0].click();
+            }
         } else {
             super.select();
         }
