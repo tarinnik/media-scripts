@@ -113,8 +113,9 @@ class Stream {
         title.id = "query";
         title.style.paddingLeft = "10px";
         title.style.paddingTop = "10px";
-        title.style.background = "white";
+        title.style.background = "black";
         title.style.height = "50px";
+        title.style.color = "white";
         s.appendChild(title);
         window.scrollTo(0, 0);
         this.STATE.search = true;
@@ -462,6 +463,11 @@ const names = {
     watchButtons: "ltr-1enhvti",
     watchFullscreenIndex: 9,
     watchPlayer: "watch-video--player-view",
+    searchURL: "https://www.netflix.com/search?q=",
+    searchPhrase: "Search: ",
+    searchRowElements: "rowContainer",
+    searchColumnElements: "slider-item",
+    searchBox: "searchInput",
 };
 
 class Netflix extends Stream {
@@ -475,6 +481,10 @@ class Netflix extends Stream {
 
     isShow() {
         return document.getElementsByClassName(this.elementNames.showVisibleElement).length !== 0;
+    }
+
+    isSearch() {
+        return window.location.href.includes(this.elementNames.searchURL) && !this.isShow();
     }
 
     isWatch() {
@@ -507,6 +517,15 @@ class Netflix extends Stream {
         return elements;
     }
 
+    getSearchElements() {
+        let elements = [];
+        let rows = document.getElementsByClassName(this.elementNames.searchRowElements);
+        for (let i = 0; i < rows.length; i++) {
+            elements.push(rows[i].getElementsByClassName(this.elementNames.searchColumnElements));
+        }
+        return elements;
+    }
+
     changeProfile() {
         window.location = this.elementNames.profileUrl;
     }
@@ -519,6 +538,7 @@ class Netflix extends Stream {
                 this.getElements()[this.STATE.verticalSelection].click();
             }
         } else {
+            this.unHighlightElement(this.getElements());
             super.select();
         }
     }
@@ -545,6 +565,9 @@ const netflix = new Netflix(names);
  * Triggered when the page loads
  */
 window.addEventListener('load', function() {
+    if (netflix.isSearch()) {
+        document.getElementById(netflix.elementNames.searchBox).blur();
+    }
     netflix.highlightElement(netflix.getElements());
 });
 
