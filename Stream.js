@@ -366,7 +366,16 @@ class Stream {
     /**
      * Scrolls the page so the highlighted element is in view
      */
-    scroll() {}
+    scroll() {
+        let elements = this.getElements();
+        if (this.STATE.verticalSelection === 0) {
+            window.scroll(0, 0);
+        } else if (elements[this.STATE.verticalSelection - 1].length !== undefined) { // 2D
+            elements[this.STATE.verticalSelection - 1][0].scrollIntoView();
+        } else { // 1D
+            elements[this.STATE.verticalSelection - 1].scrollIntoView();
+        }
+    }
 
     horizontalScroll(d) {}
 
