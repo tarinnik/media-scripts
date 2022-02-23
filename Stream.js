@@ -85,6 +85,7 @@ class Stream {
                 this.season();
                 break;
             case '-':
+                this.changeProfile();
                 break;
             case '*':
                 break;
@@ -312,7 +313,13 @@ class Stream {
     }
 
     unHighlightElement(elements) {
-        //element.removeAttribute("style");
+        try {
+            elements[this.STATE.verticalSelection][this.STATE.horizontalSelection].style.removeProperty("background");
+            elements[this.STATE.verticalSelection][this.STATE.horizontalSelection].style.removeProperty("padding");
+        } catch (e) {
+            elements[this.STATE.verticalSelection].style.removeProperty("background");
+            elements[this.STATE.verticalSelection].style.removeProperty("padding");
+        }
     }
 
     select() {
@@ -328,6 +335,14 @@ class Stream {
                 link[0].click();
             }
         }
+        this.reset();
+    }
+
+    reset() {
+        this.STATE.verticalSelection = 0;
+        this.STATE.horizontalSelection = 0;
+        this.STATE.seasonSelection = 0;
+        this.STATE.menuSelection = 0;
     }
 
     up() {
@@ -360,6 +375,8 @@ class Stream {
             document.getElementsByClassName(this.elementNames.watchClose)[0].click();
         }
     }
+
+    changeProfile() {}
 
     /**
      * Selects the season menu
