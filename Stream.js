@@ -178,6 +178,14 @@ class Stream {
     isShow() {}
 
     /**
+     * Checks if the current page is the season selection
+     * @returns {boolean} if the current page is the season selection
+     */
+    isSeason() {
+
+    }
+
+    /**
      * Checks if the current page is the video
      * @returns {boolean} if the current page is the video
      */
@@ -205,6 +213,8 @@ class Stream {
             return this.getWatchElements();
         } else if (this.isSearch()) {
             return this.getSearchElements();
+        } else if (this.isSeason()) {
+            return this.getSeasonElements();
         }
     }
 
@@ -227,6 +237,11 @@ class Stream {
      * Gets the elements from the show page
      */
     getShowElements() {}
+
+    /**
+     * Gets the elements from the season selection
+     */
+    getSeasonElements() {}
 
     /**
      * Gets the elements from the watch page
