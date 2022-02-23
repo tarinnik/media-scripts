@@ -450,6 +450,9 @@ const names = {
 		background: "#bf180f",
 		padding: "10px",
 	},
+    navigationBar: "navigation-tab",
+    navigationHomeIndex: 0,
+    navigationListIndex: 4,
     profileElements: "profile",
     profileUrl: "/ProfilesGate",
     homeUrlContains: "browse",
@@ -476,7 +479,7 @@ class Netflix extends Stream {
     }
 
     isHome() {
-        return window.location.href.includes(this.elementNames.homeUrlContains) && !this.isProfile() && !this.isShow();
+        return this.couldBeHome() && !this.isProfile() && !this.isShow();
     }
 
     isShow() {
@@ -484,12 +487,27 @@ class Netflix extends Stream {
     }
 
     isSearch() {
-        return window.location.href.includes(this.elementNames.searchURL) && !this.isShow();
+        return this.couldBeSearch() && !this.isShow();
     }
 
     isWatch() {
 		return window.location.href.includes(this.elementNames.watchUrlContains);
 	}
+
+    /**
+     * On the home page, but could be focused on something else
+     */
+    couldBeHome() {
+        return window.location.href.includes(this.elementNames.homeUrlContains);
+    }
+
+    /**
+     * On the search page, but could be focused on something else
+     * @returns {boolean}
+     */
+    couldBeSearch() {
+        return window.location.href.includes(this.elementNames.searchURL);
+    }
 
     getProfileElements() {
         return document.getElementsByClassName(this.elementNames.profileElements);
@@ -535,7 +553,19 @@ class Netflix extends Stream {
             if (this.STATE.verticalSelection === 0) {
                 this.getElements()[0][this.STATE.horizontalSelection].getElementsByTagName("button")[0].click();
             } else {
-                this.getElements()[this.STATE.verticalSelection].click();
+                let e = this.getElements();
+                if (e[this.STATE.verticalSelection].getElementsByTagName("button").length === 0) {
+                    e[this.STATE.verticalSelection].click();
+                } else { // there are more episodes, show more episodes
+                    this.unHighlightElement(e);
+                    e[this.STATE.verticalSelection].getElementsByTagName("button")[0].click();
+                    let newE = this.getElements();
+                    if (newE.length <= this.STATE.verticalSelection) {
+                        this.STATE.verticalSelection = newE.length - 1;
+                    }
+                    this.highlightElement(newE);
+                    this.scroll();
+                }
             }
         } else {
             this.unHighlightElement(this.getElements());
@@ -555,6 +585,14 @@ class Netflix extends Stream {
             let button = document.getElementsByClassName(this.elementNames.showCloseButton)[0].children[0];
             let event = new MouseEvent('click', {bubbles: true, cancelable: true, view: window});
             button.dispatchEvent(event);
+            this.reset();
+            if (this.couldBeHome()) {
+                this.highlightElement(this.getHomeElements());
+            } else if (this.couldBeSearch()) {
+                this.highlightElement(this.getSearchElements());
+            }
+        } else if (this.isSearch()) {
+            document.getElementsByClassName(this.elementNames.navigationBar)[this.elementNames.navigationHomeIndex].getElementsByTagName('a')[0].click();
         }
     }
 }
