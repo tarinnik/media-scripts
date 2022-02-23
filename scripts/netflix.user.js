@@ -186,6 +186,14 @@ class Stream {
     isShow() {}
 
     /**
+     * Checks if the current page is the season selection
+     * @returns {boolean} if the current page is the season selection
+     */
+    isSeason() {
+
+    }
+
+    /**
      * Checks if the current page is the video
      * @returns {boolean} if the current page is the video
      */
@@ -213,6 +221,8 @@ class Stream {
             return this.getWatchElements();
         } else if (this.isSearch()) {
             return this.getSearchElements();
+        } else if (this.isSeason()) {
+            return this.getSeasonElements();
         }
     }
 
@@ -235,6 +245,11 @@ class Stream {
      * Gets the elements from the show page
      */
     getShowElements() {}
+
+    /**
+     * Gets the elements from the season selection
+     */
+    getSeasonElements() {}
 
     /**
      * Gets the elements from the watch page
@@ -462,6 +477,8 @@ const names = {
     showButtonElements: "buttonControls--container",
     showEpisodeElements: "episodeSelector-container",
     showCloseButton: "previewModal-close",
+    seasonButton: "dropdown-toggle",
+    seasonElements: "ltr-bbkt7g",
 	watchUrlContains: "watch",
     watchButtons: "ltr-1enhvti",
     watchFullscreenIndex: 9,
@@ -479,11 +496,15 @@ class Netflix extends Stream {
     }
 
     isHome() {
-        return this.couldBeHome() && !this.isProfile() && !this.isShow();
+        return this.couldBeHome() && !this.isProfile() && !this.isShow() && !this.isSeason();
     }
 
     isShow() {
-        return document.getElementsByClassName(this.elementNames.showVisibleElement).length !== 0;
+        return document.getElementsByClassName(this.elementNames.showVisibleElement).length !== 0 && !this.isSeason();
+    }
+
+    isSeason() {
+        return document.getElementsByClassName(this.elementNames.seasonElements).length !== 0;
     }
 
     isSearch() {
@@ -535,6 +556,10 @@ class Netflix extends Stream {
         return elements;
     }
 
+    getSeasonElements() {
+        return document.getElementsByClassName(this.elementNames.seasonElements);
+    }
+
     getSearchElements() {
         let elements = [];
         let rows = document.getElementsByClassName(this.elementNames.searchRowElements);
@@ -567,6 +592,9 @@ class Netflix extends Stream {
                     this.scroll();
                 }
             }
+        } else if (this.isSeason()) {
+            this.getElements()[this.STATE.verticalSelection].click();
+            this.STATE.verticalSelection = 1;
         } else {
             this.unHighlightElement(this.getElements());
             super.select();
@@ -593,6 +621,21 @@ class Netflix extends Stream {
             }
         } else if (this.isSearch()) {
             document.getElementsByClassName(this.elementNames.navigationBar)[this.elementNames.navigationHomeIndex].getElementsByTagName('a')[0].click();
+        }
+    }
+
+    season() {
+        let dropdown = document.getElementsByClassName(this.elementNames.seasonButton)[0];
+        if (!this.isSeason()) {
+            dropdown.scrollIntoView();
+            this.unHighlightElement(this.getElements());
+            dropdown.click();
+            this.STATE.verticalSelection = 0;
+            this.highlightElement(this.getElements());
+        } else {
+            dropdown.click();
+            this.STATE.verticalSelection = 1;
+            this.highlightElement(this.getElements());
         }
     }
 }
