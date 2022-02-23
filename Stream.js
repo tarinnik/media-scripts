@@ -105,8 +105,9 @@ class Stream {
         title.id = "query";
         title.style.paddingLeft = "10px";
         title.style.paddingTop = "10px";
-        title.style.background = "white";
+        title.style.background = "black";
         title.style.height = "50px";
+        title.style.color = "white";
         s.appendChild(title);
         window.scrollTo(0, 0);
         this.STATE.search = true;
