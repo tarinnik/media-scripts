@@ -48,6 +48,11 @@ class Stream {
     }
 
     key(event) {
+        if (this.STATE.search) {
+            this.searchKey(event.key);
+            return;
+        }
+
         switch (event.key) {
             case '1':
                 this.list();
@@ -97,6 +102,64 @@ class Stream {
         }
     }
 
+    search() {
+        let s = document.createElement("div");
+        s.id = "new_search";
+        let body = document.getElementsByTagName("body")[0];
+        body.insertBefore(s, body.children[0]);
+        let title = document.createElement("h1");
+        title.innerHTML = this.elementNames.searchPhrase;
+        title.id = "query";
+        title.style.paddingLeft = "10px";
+        title.style.paddingTop = "10px";
+        title.style.background = "white";
+        title.style.height = "50px";
+        s.appendChild(title);
+        window.scrollTo(0, 0);
+        this.STATE.search = true;
+    }
+
+    searchKey(key) {
+        if (key === "Enter") {
+            let q = this.STATE.searchQuery + this.STATE.changingChar;
+            this.resetSearch();
+            window.location = this.elementNames.searchURL + q;
+        } else if (key === '-') {
+            if (this.STATE.changingChar !== '') {
+                this.STATE.changingChar = '';
+                this.STATE.lastKeyPressed = '';
+                this.STATE.numSameKeyPresses = 0;
+            } else if (this.STATE.searchQuery.length !== 0) {
+                this.STATE.searchQuery = this.STATE.searchQuery.slice(0, length - 1);
+            }
+        } else if (key === '+') {
+            this.resetSearch();
+            document.getElementById("new_search").remove();
+        } else if (key !== this.STATE.lastKeyPressed || key === '.') {
+            this.STATE.searchQuery += this.STATE.changingChar;
+            this.STATE.changingChar = '';
+            this.STATE.lastKeyPressed = key;
+            this.STATE.numSameKeyPresses = 0;
+        }
+
+        let num = parseInt(key);
+        if (!isNaN(num)) {
+            let len = this.searchLetters[num].length;
+            this.STATE.changingChar = this.searchLetters[num][this.STATE.numSameKeyPresses % len];
+            this.STATE.numSameKeyPresses++;
+        }
+
+        document.getElementById("query").innerHTML = this.elementNames.searchPhrase + this.STATE.searchQuery + this.STATE.changingChar;
+    }
+
+    resetSearch() {
+        this.STATE.searchQuery = "";
+        this.STATE.changingChar = '';
+        this.STATE.lastKeyPressed = '';
+        this.STATE.numSameKeyPresses = 0;
+        this.STATE.search = false;
+    }
+
     /**
      * Checks if the current page is the profile selection page
      */
@@ -127,6 +190,12 @@ class Stream {
     isWatch() {}
 
     /**
+     * Checks if the current page is the search page
+     * @returns {boolean} if the current page is the search page
+     */
+    isSearch() {}
+
+    /**
      * Gets the elements that are to be selected
      */
     getElements() {
@@ -140,6 +209,8 @@ class Stream {
             return this.getShowElements();
         } else if (this.isWatch()) {
             return this.getWatchElements();
+        } else if (this.isSearch()) {
+            return this.getSearchElements();
         }
     }
 
@@ -169,6 +240,11 @@ class Stream {
     getWatchElements() {}
 
     /**
+     * Gets the elements from the search page
+     */
+    getSearchElements() {}
+
+    /**
      * Gets the number of columns
      */
     getColumns() {
@@ -192,6 +268,11 @@ class Stream {
             if ((d === this.DIRECTION.up && this.STATE.verticalSelection === 0) ||
                         (d === this.DIRECTION.down && this.STATE.verticalSelection === elements.length - 1)) {
                     return;
+            }
+            if (this.STATE.season) {
+                this.unHighlightElement(elements);
+                this.STATE.seasonSelection += d/2;
+                this.highlightElement(elements);
             }
             if (rowLength !== undefined) { // 2D
                 this.unHighlightElement(elements)
@@ -249,6 +330,11 @@ class Stream {
             if (link.length !== 0) {
                 link[0].click();
             }
+        } else {
+            let link = elements[this.STATE.verticalSelection].getElementsByTagName("a");
+            if (link.length !== 0) {
+                link[0].click();
+            }
         }
     }
 
@@ -276,8 +362,6 @@ class Stream {
     scroll() {}
 
     horizontalScroll(d) {}
-
-    search() {}
 
     back() {
         if (this.isWatch()) {
@@ -369,6 +453,13 @@ const names = {
 }
 
 class Disney extends Stream {
+    search() {
+        let searchInput = document.getElementById("search-input");
+        searchInput.focus();
+        let event = new KeyboardEvent('onKeyUp', {key: 'g'});
+        searchInput.dispatchEvent(event);
+    }
+
     isHome() {
         return window.location.href.includes(this.elementNames.homeUrlContains);
     }
